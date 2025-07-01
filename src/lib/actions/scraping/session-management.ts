@@ -1,10 +1,12 @@
 "use server";
 
 import { chromium } from "playwright";
+
 import { createClient } from "@lib/supabase/server";
-import type { BrowserSession } from "./types";
+
 import { getScrapeConfiguration } from "./crud";
 import { executeStep } from "./step-execution";
+import type { BrowserSession } from "./types";
 
 // In-memory store for browser sessions (in production, use Redis or similar)
 const browserSessions = new Map<string, BrowserSession>();
@@ -20,7 +22,7 @@ export async function startStepExecutionAction(configurationId: string): Promise
   try {
     // Get the configuration
     const configuration = await getScrapeConfiguration(configurationId);
-    if (!configuration) {
+    if (configuration == null) {
       throw new Error(`Configuration not found: ${configurationId}`);
     }
 
@@ -52,7 +54,7 @@ export async function startStepExecutionAction(configurationId: string): Promise
 
     return {
       success: false,
-      error: error.message || "An unexpected error occurred while starting execution",
+      error: error.message ?? "An unexpected error occurred while starting execution",
       sessionId: "",
       totalSteps: 0,
     };
@@ -76,7 +78,7 @@ export async function executeNextStepAction(
   try {
     // Get the session
     const session = browserSessions.get(sessionId);
-    if (!session) {
+    if (session == null) {
       throw new Error(`Session not found: ${sessionId}`);
     }
 
@@ -97,7 +99,7 @@ export async function executeNextStepAction(
 
     // Get the configuration
     const configuration = await getScrapeConfiguration(configurationId);
-    if (!configuration) {
+    if (configuration == null) {
       throw new Error(`Configuration not found: ${configurationId}`);
     }
 
@@ -120,7 +122,11 @@ export async function executeNextStepAction(
     console.log(`[STEP EXECUTION] Executing step ${stepIndex + 1}/${steps.length}: ${step.name}`);
 
     // Execute the step
-    const stepResult = await executeStep(step, configuration, browser, page, supabase);
+    const stepResult = await executeStep(step, configuration, browser, page, supabase, session.previousStepResults);
+
+    // Store the step result for the next step
+    session.previousStepResults ??= [];
+    session.previousStepResults.push(stepResult);
 
     if (!stepResult.success) {
       // Clean up session on error
@@ -154,7 +160,7 @@ export async function executeNextStepAction(
 
     // Clean up session on error
     const session = browserSessions.get(sessionId);
-    if (session) {
+    if (session != null) {
       try {
         await session.browser.close();
       } catch (closeError) {
@@ -165,7 +171,7 @@ export async function executeNextStepAction(
 
     return {
       success: false,
-      error: error.message || "An unexpected error occurred during step execution",
+      error: error.message ?? "An unexpected error occurred during step execution",
       isComplete: false,
       currentStep: stepIndex,
       totalSteps: 0,
@@ -179,7 +185,7 @@ export async function cleanupSessionAction(sessionId: string): Promise<{
 }> {
   try {
     const session = browserSessions.get(sessionId);
-    if (session) {
+    if (session != null) {
       await session.browser.close();
       browserSessions.delete(sessionId);
       console.log(`[STEP EXECUTION] Session ${sessionId} cleaned up`);
@@ -190,7 +196,7 @@ export async function cleanupSessionAction(sessionId: string): Promise<{
     console.error(`[STEP EXECUTION] Error cleaning up session:`, error);
     return {
       success: false,
-      error: error.message || "An unexpected error occurred while cleaning up session",
+      error: error.message ?? "An unexpected error occurred while cleaning up session",
     };
   }
 }

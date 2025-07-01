@@ -314,8 +314,8 @@ BEGIN
                         )
                         ELSE NULL
                     END,
-                    'prompt_data', CASE 
-                        WHEN sds.step_type = 'prompt_steps' THEN (
+                    'ai_prompt_data', CASE 
+                        WHEN sds.step_type = 'ai_prompt' THEN (
                             SELECT json_agg(
                                 json_build_object(
                                     'id', prs.id,

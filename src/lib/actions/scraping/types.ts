@@ -39,6 +39,7 @@ export type StepExecutionResult = {
   error?: string;
   storageObjectId?: string;
   downloadUrl?: string;
+  downloadPath?: string;
   aiResponse?: string;
 };
 
@@ -47,4 +48,5 @@ export type BrowserSession = {
   page: any;
   supabase: any;
   startTime: number;
+  previousStepResults?: StepExecutionResult[];
 };

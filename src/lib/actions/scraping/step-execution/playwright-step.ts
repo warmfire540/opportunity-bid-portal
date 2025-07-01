@@ -61,7 +61,7 @@ export async function executePlaywrightStep(
 
             // Generate filename with timestamp to avoid conflicts
             const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-            const originalFilename = download.suggestedFilename() ?? "downloaded-file.xlsx";
+            const originalFilename = download.suggestedFilename() || "downloaded-file.xlsx";
             const filename = `${timestamp}-${originalFilename}`;
             const storagePath = `${configuration.id}/${step.id}/${filename}`;
 
@@ -76,7 +76,7 @@ export async function executePlaywrightStep(
             }
 
             const buffer = Buffer.concat(chunks);
-            const { data, error } = await supabase.storage
+            const { error } = await supabase.storage
               .from("scrape-downloads")
               .upload(storagePath, buffer, {
                 contentType: getContentType(filename),
@@ -87,7 +87,7 @@ export async function executePlaywrightStep(
               throw error;
             }
 
-            storageObjectId = data?.id;
+            storageObjectId = storagePath;
             console.log(`[STEP EXECUTION] Download uploaded successfully to ${storagePath}`);
           } else {
             console.warn(`[STEP EXECUTION] No download promise available for saveDownload action`);
@@ -124,20 +124,11 @@ export async function executePlaywrightStep(
       console.log(`[STEP EXECUTION] Sub-step ${subStepNumber} completed successfully`);
     }
 
-    // Get download URL if file was uploaded
-    let downloadUrl = null;
-    if (storageObjectId != null) {
-      const { data: urlData } = await supabase.storage
-        .from("scrape-downloads")
-        .createSignedUrl(`${configuration.id}/${step.id}/${storageObjectId}`, 3600); // 1 hour expiry
-      downloadUrl = urlData?.signedUrl ?? null;
-    }
-
     console.log(`[STEP EXECUTION] Playwright step completed successfully`);
     return {
       success: true,
       storageObjectId: storageObjectId,
-      downloadUrl: downloadUrl ?? undefined,
+      downloadPath: storageObjectId,
     };
   } catch (error: any) {
     console.error(`[STEP EXECUTION] Playwright step failed:`, error);
