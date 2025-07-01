@@ -25,14 +25,14 @@ INSERT INTO scrape_download_steps (
     '00000000-0000-0000-0000-000000000000'
 );
 
--- Insert scrape download step (prompt_steps type) - Step 2
+-- Insert scrape download step (ai_prompt type) - Step 2
 INSERT INTO scrape_download_steps (
     id, configuration_id, step_order, step_type, name, description, created_by
 ) VALUES (
     '9f3d6b09-1ef2-45ee-832d-519ff33f4d5f',
     '7d1bee87-9cef-43cc-810b-297ee11f2b3e',
     2,
-    'prompt_steps',
+    'ai_prompt',
     'Analyze RFP Data',
     'Use AI to analyze the downloaded RFP data and identify relevant opportunities',
     '00000000-0000-0000-0000-000000000000'
@@ -142,14 +142,14 @@ INSERT INTO scrape_download_steps (
     '00000000-0000-0000-0000-000000000000'
 );
 
--- Insert third scrape download step (prompt_steps type) - Step 3
+-- Insert third scrape download step (ai_prompt type) - Step 3
 INSERT INTO scrape_download_steps (
     id, configuration_id, step_order, step_type, name, description, created_by
 ) VALUES (
     'dc5c7983-da35-4699-bc36-238695f13263',
     'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     3,
-    'prompt_steps',
+    'ai_prompt',
     'Analyze Page Content',
     'Use AI to analyze the collected page content and extract insights',
     '00000000-0000-0000-0000-000000000000'

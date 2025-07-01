@@ -18,10 +18,10 @@ interface StepCardProps {
   children: React.ReactNode;
   isRunning?: boolean;
   showConnector?: boolean;
-  stepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+  stepType?: "playwright" | "ai_prompt" | "links_analysis";
   isLast?: boolean;
   hasNextStep?: boolean;
-  nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+  nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
 }
 
 export default function StepCard({

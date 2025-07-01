@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import type { Download } from "playwright";
+import { chromium } from "playwright";
+
 import { getScrapeConfiguration } from "@/src/lib/actions/scraping";
-import { chromium, Download } from "playwright";
 import { createClient } from "@/src/lib/supabase/server";
 
 // Helper function to determine content type from filename
@@ -251,11 +254,6 @@ export async function POST(req: NextRequest) {
         case "ai_prompt":
           console.log(`[SCRAPE API] Step ${stepNumber}: AI Prompt step - not implemented yet`);
           // TODO: Implement AI prompt functionality
-          break;
-
-        case "prompt_steps":
-          console.log(`[SCRAPE API] Step ${stepNumber}: Prompt Steps - not implemented yet`);
-          // TODO: Implement prompt steps functionality
           break;
 
         case "links_analysis":

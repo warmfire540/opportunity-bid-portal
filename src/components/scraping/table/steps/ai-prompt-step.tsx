@@ -24,11 +24,10 @@ export default function AiPromptStep({
   Props & {
     isLast?: boolean;
     hasNextStep?: boolean;
-    nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+    nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "ai_prompt";
   }
 >) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const promptData = step.prompt_data ?? [];
 
   return (
     <StepCard
@@ -41,13 +40,13 @@ export default function AiPromptStep({
       onToggle={() => setIsExpanded((v) => !v)}
       isRunning={isRunning}
       showConnector={true}
-      stepType="prompt_steps"
+      stepType="ai_prompt"
       isLast={isLast}
       hasNextStep={hasNextStep}
       nextStepType={nextStepType}
     >
       <div className="space-y-4">
-        {promptData.map((prompt, index) => (
+        {step.ai_prompt_data?.map((prompt, index) => (
           <div key={index} className="space-y-3">
             <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
               <div>

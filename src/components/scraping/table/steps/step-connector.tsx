@@ -5,11 +5,11 @@ import { ArrowDown, Download, FileText, MessageSquare } from "lucide-react";
 import { cn } from "@lib/utils";
 
 interface StepConnectorProps {
-  stepType: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+  stepType: "playwright" | "ai_prompt" | "links_analysis";
   stepOrder: number;
   isLast?: boolean;
   hasNextStep?: boolean;
-  nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+  nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
 }
 
 export default function StepConnector({
@@ -29,15 +29,6 @@ export default function StepConnector({
           color: "text-blue-600",
           bgColor: "bg-blue-50",
           borderColor: "border-blue-200",
-        };
-      case "prompt_steps":
-        return {
-          icon: <MessageSquare className="h-4 w-4 text-green-600" />,
-          label: "Analysis Results",
-          description: "AI-generated insights",
-          color: "text-green-600",
-          bgColor: "bg-green-50",
-          borderColor: "border-green-200",
         };
       case "ai_prompt":
         return {
@@ -66,7 +57,7 @@ export default function StepConnector({
     if (nextStepType == null) return null;
 
     switch (nextStepType) {
-      case "prompt_steps":
+      case "playwright":
         return {
           icon: <Download className="h-4 w-4 text-blue-600" />,
           label: "Downloaded File",

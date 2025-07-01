@@ -36,7 +36,6 @@ const STEP_TYPES = [
   { value: "playwright", label: "Playwright File Download" },
   { value: "ai_prompt", label: "AI Prompt" },
   { value: "links_analysis", label: "Links Analysis" },
-  { value: "prompt_steps", label: "Prompt Steps" },
 ];
 
 export default function EditScrapeConfigurationDrawer({
@@ -288,21 +287,6 @@ export default function EditScrapeConfigurationDrawer({
                         }}
                         expanded={expandedPlaywrightSections.has(stepIndex)}
                         onToggleExpanded={() => togglePlaywrightSection(stepIndex)}
-                      />
-                    )}
-
-                    {/* Prompt Steps */}
-                    {step.step_type === "prompt_steps" && (
-                      <AiPromptStep
-                        promptData={step.prompt_data ?? []}
-                        onUpdate={(promptData) => {
-                          setFormData((prev) => ({
-                            ...prev,
-                            steps: prev.steps.map((s, i) =>
-                              i === stepIndex ? { ...s, prompt_data: promptData } : s
-                            ),
-                          }));
-                        }}
                       />
                     )}
                   </div>

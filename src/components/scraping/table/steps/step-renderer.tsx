@@ -10,7 +10,7 @@ type Props = {
   isRunning?: boolean;
   isLast?: boolean;
   hasNextStep?: boolean;
-  nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+  nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
 };
 
 export default function StepRenderer({
@@ -27,16 +27,6 @@ export default function StepRenderer({
         <PlaywrightStep
           step={step}
           configuration={configuration}
-          isRunning={isRunning}
-          isLast={isLast}
-          hasNextStep={hasNextStep}
-          nextStepType={nextStepType}
-        />
-      );
-    case "prompt_steps":
-      return (
-        <AiPromptStep
-          step={step}
           isRunning={isRunning}
           isLast={isLast}
           hasNextStep={hasNextStep}

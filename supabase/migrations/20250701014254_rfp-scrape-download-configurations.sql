@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS scrape_download_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     configuration_id UUID REFERENCES scrape_download_configurations(id) ON DELETE CASCADE,
     step_order INTEGER NOT NULL,
-    step_type TEXT NOT NULL CHECK (step_type IN ('playwright', 'ai_prompt', 'links_analysis', 'prompt_steps')),
+    step_type TEXT NOT NULL CHECK (step_type IN ('playwright', 'ai_prompt', 'links_analysis')),
     name TEXT NOT NULL,
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),

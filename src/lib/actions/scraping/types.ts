@@ -9,7 +9,7 @@ export type PlaywrightStep = {
   description?: string;
 };
 
-export type PromptStep = {
+export type AiPromptStep = {
   id?: string;
   prompt: string;
 };
@@ -17,11 +17,12 @@ export type PromptStep = {
 export type ScrapeDownloadStep = {
   id?: string;
   step_order: number;
-  step_type: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+  step_type: "playwright" | "ai_prompt" | "links_analysis";
   name: string;
   description?: string;
   sub_steps?: PlaywrightStep[]; // Only for playwright type
-  prompt_data?: PromptStep[]; // Only for prompt_steps type
+
+  ai_prompt_data?: AiPromptStep[]; // Only for ai_prompt type
 };
 
 export type ScrapeConfiguration = {
@@ -38,6 +39,7 @@ export type StepExecutionResult = {
   error?: string;
   storageObjectId?: string;
   downloadUrl?: string;
+  aiResponse?: string;
 };
 
 export type BrowserSession = {

@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
 import { createClient } from "@lib/supabase/server";
+
 import type { ScrapeConfiguration } from "./types";
 
 export async function getScrapeConfigurations() {
@@ -73,22 +75,6 @@ export async function createScrapeConfiguration(configuration: ScrapeConfigurati
 
         if (playwrightStepsError) {
           throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
-        }
-      }
-
-      // Insert prompt steps if this is a prompt_steps step
-      if (step.step_type === "prompt_steps" && step.prompt_data && step.prompt_data.length > 0) {
-        const promptStepsToInsert = step.prompt_data.map((promptStep) => ({
-          scrape_download_step_id: stepData.id,
-          prompt: promptStep.prompt,
-        }));
-
-        const { error: promptStepsError } = await supabase
-          .from("prompt_steps")
-          .insert(promptStepsToInsert);
-
-        if (promptStepsError) {
-          throw new Error(`Failed to create prompt steps: ${promptStepsError.message}`);
         }
       }
     }
@@ -164,22 +150,6 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
 
         if (playwrightStepsError) {
           throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
-        }
-      }
-
-      // Insert prompt steps if this is a prompt_steps step
-      if (step.step_type === "prompt_steps" && step.prompt_data && step.prompt_data.length > 0) {
-        const promptStepsToInsert = step.prompt_data.map((promptStep) => ({
-          scrape_download_step_id: stepData.id,
-          prompt: promptStep.prompt,
-        }));
-
-        const { error: promptStepsError } = await supabase
-          .from("prompt_steps")
-          .insert(promptStepsToInsert);
-
-        if (promptStepsError) {
-          throw new Error(`Failed to create prompt steps: ${promptStepsError.message}`);
         }
       }
     }

@@ -31,6 +31,7 @@
     "lucide-react": "^0.368.0",
     "next": "latest",
     "next-themes": "^0.3.0",
+    "openai": "^5.8.2",
     "playwright": "^1.53.2",
     "postcss": "8.4.33",
     "react": "18.2.0",

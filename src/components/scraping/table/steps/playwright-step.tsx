@@ -25,7 +25,7 @@ export default function PlaywrightStep({
   Props & {
     isLast?: boolean;
     hasNextStep?: boolean;
-    nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+    nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
   }
 >) {
   const [isExpanded, setIsExpanded] = useState(false);
