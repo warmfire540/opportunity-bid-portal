@@ -7,9 +7,9 @@ export async function handleSelectAction(subStep: PlaywrightStep, page: Page): P
     console.warn(`[STEP EXECUTION] No selector provided for select action`);
     return;
   }
-  
+
   console.log(
     `[STEP EXECUTION] Selecting option "${subStep.value}" from selector "${subStep.selector}"`
   );
   await page.selectOption(subStep.selector, subStep.value ?? "");
-} 
+}

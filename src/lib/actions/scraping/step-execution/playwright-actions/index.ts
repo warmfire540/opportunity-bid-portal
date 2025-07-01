@@ -4,4 +4,4 @@ export { handleSaveDownloadAction, type PlaywrightContext } from "./save-downloa
 export { handleWaitAction } from "./wait";
 export { handleTypeAction } from "./type";
 export { handleSelectAction } from "./select";
-export { handleGetInnerTextAction } from "./get-inner-text"; 
+export { handleGetInnerTextAction } from "./get-inner-text";

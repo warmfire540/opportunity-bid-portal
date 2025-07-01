@@ -18,4 +18,4 @@ export async function handleGotoAction(
   console.log(`[STEP EXECUTION] Navigating to ${urlToNavigate}`);
   await page.goto(urlToNavigate);
   await page.waitForLoadState("networkidle");
-} 
+}

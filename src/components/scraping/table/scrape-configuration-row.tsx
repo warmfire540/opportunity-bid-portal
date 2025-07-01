@@ -80,25 +80,22 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
 
         // Execute the step using the server action
         const stepResult = await executeNextStepAction(startResult.sessionId, i);
-        stepResults.push(stepResult.result);
+        stepResults.push(stepResult.result ?? { success: false });
 
         if (!stepResult.success) {
           throw new Error(`Step ${i + 1} failed: ${stepResult.error}`);
         }
 
-        // If this was the last step, we're done
-        if (stepResult.isComplete) {
-          const executionTimeMs = Date.now() - startTime;
-          setResult({
-            success: true,
-            downloadPath: `/downloads/${configuration.id}-${Date.now()}.xlsx`,
-            downloadUrl: stepResult.downloadUrl,
-            executionTimeMs,
-            stepsExecuted: stepResult.currentStep,
-            stepResults,
-          });
-          break;
-        }
+        // constatly update the result
+        const executionTimeMs = Date.now() - startTime;
+        setResult({
+          success: true,
+          downloadPath: `/downloads/${configuration.id}-${Date.now()}.xlsx`,
+          downloadUrl: stepResult.downloadUrl,
+          executionTimeMs,
+          stepsExecuted: stepResult.currentStep,
+          stepResults,
+        });
       }
     } catch (error) {
       const executionTimeMs = Date.now() - startTime;

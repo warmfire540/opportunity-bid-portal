@@ -10,7 +10,6 @@ import { getScrapeConfiguration } from "./crud";
 import { executeStep } from "./step-execution";
 import type { StepExecutionResult } from "./types";
 
-
 export async function executeConfigurationAction(configurationId: string): Promise<{
   success: boolean;
   error?: string;
@@ -53,7 +52,7 @@ export async function executeConfigurationAction(configurationId: string): Promi
       );
 
       // Execute the step using the action
-      const stepResult = await executeStep(step, configuration, page, supabase);
+      const stepResult = await executeStep(step, configuration, page, supabase, stepResults);
       stepResults.push(stepResult);
 
       if (!stepResult.success) {

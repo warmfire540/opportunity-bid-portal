@@ -126,7 +126,6 @@ export async function executeNextStepAction(
     const stepResult = await executeStep(
       step,
       configuration,
-      browser,
       page,
       supabase,
       session.previousStepResults

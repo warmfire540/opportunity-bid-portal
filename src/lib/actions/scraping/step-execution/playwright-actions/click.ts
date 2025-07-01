@@ -6,7 +6,11 @@ export async function handleClickAction(subStep: PlaywrightStep, page: Page): Pr
   if (subStep.selector_type === "role" && subStep.selector != null && subStep.selector.length > 0) {
     console.log(`[STEP EXECUTION] Clicking role button "${subStep.selector}"`);
     await page.getByRole("button", { name: subStep.selector }).click();
-  } else if (subStep.selector_type === "option" && subStep.selector != null && subStep.selector.length > 0) {
+  } else if (
+    subStep.selector_type === "option" &&
+    subStep.selector != null &&
+    subStep.selector.length > 0
+  ) {
     console.log(`[STEP EXECUTION] Clicking option "${subStep.selector}"`);
     await page
       .getByRole("option", { name: subStep.selector })
@@ -16,4 +20,4 @@ export async function handleClickAction(subStep: PlaywrightStep, page: Page): Pr
     console.log(`[STEP EXECUTION] Clicking selector "${subStep.selector}"`);
     await page.click(subStep.selector);
   }
-} 
+}

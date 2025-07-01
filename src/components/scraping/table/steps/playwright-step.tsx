@@ -45,21 +45,26 @@ export default function PlaywrightStep({
   const hasFile = fileName != null && fileName !== "";
   const hasTextResults = stepResult?.textResults != null && stepResult.textResults.length > 0;
 
-  const stepOutputPreview = hasFile ? (
-    <div>
-      <div className="font-medium">{fileName}</div>
-      <div className="text-xs text-muted-foreground" />
-    </div>
-  ) : hasTextResults ? (
-    <div>
-      <div className="font-medium">{stepResult.textResults!.length} text(s) extracted</div>
-      <div className="text-xs text-muted-foreground">
-        {stepResult.textResults![0]?.substring(0, 5000)}...
+  let stepOutputPreview;
+  if (hasFile) {
+    stepOutputPreview = (
+      <div>
+        <div className="font-medium">{fileName}</div>
+        <div className="text-xs text-muted-foreground" />
       </div>
-    </div>
-  ) : (
-    <div className="text-xs text-muted-foreground">No results yet.</div>
-  );
+    );
+  } else if (hasTextResults) {
+    stepOutputPreview = (
+      <div>
+        <div className="font-medium">{stepResult.textResults!.length} text(s) extracted</div>
+        <div className="text-xs text-muted-foreground">
+          {stepResult.textResults![0]?.substring(0, 1000)}...
+        </div>
+      </div>
+    );
+  } else {
+    stepOutputPreview = <div className="text-xs text-muted-foreground">No results yet.</div>;
+  }
   const stepOutputGlow = hasFile || hasTextResults;
   let playwrightOutputType: "file" | "text" | undefined;
   if (hasTextResults) {

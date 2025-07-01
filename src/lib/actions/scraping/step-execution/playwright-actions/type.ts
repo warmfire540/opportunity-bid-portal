@@ -7,9 +7,7 @@ export async function handleTypeAction(subStep: PlaywrightStep, page: Page): Pro
     console.warn(`[STEP EXECUTION] No selector provided for type action`);
     return;
   }
-  
-  console.log(
-    `[STEP EXECUTION] Typing "${subStep.value}" into selector "${subStep.selector}"`
-  );
+
+  console.log(`[STEP EXECUTION] Typing "${subStep.value}" into selector "${subStep.selector}"`);
   await page.fill(subStep.selector, subStep.value ?? "");
-} 
+}

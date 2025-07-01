@@ -1,6 +1,6 @@
 "use server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Browser, Page } from "playwright";
+import type { Page } from "playwright";
 
 import { executeAiPromptStep } from "./step-execution/ai-prompt-step";
 import { executeLinksAnalysisStep } from "./step-execution/links-analysis-step";
@@ -18,13 +18,7 @@ export async function executeStep(
 
   switch (step.step_type) {
     case "playwright": {
-      return await executePlaywrightStep(
-        step,
-        configuration,
-        page,
-        supabase,
-        previousStepResults
-      );
+      return await executePlaywrightStep(step, configuration, page, supabase, previousStepResults);
     }
     case "ai_prompt":
       return await executeAiPromptStep(step, configuration, supabase, previousStepResults);

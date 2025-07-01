@@ -1,7 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Browser, Page } from "playwright";
+import type { Page } from "playwright";
 
-import type { ScrapeConfiguration, ScrapeDownloadStep, StepExecutionResult, PlaywrightStep } from "../types";
+import type {
+  ScrapeConfiguration,
+  ScrapeDownloadStep,
+  StepExecutionResult,
+  PlaywrightStep,
+} from "../types";
 
 import {
   handleGotoAction,
@@ -116,7 +121,10 @@ export async function executeSinglePlaywrightStep(
     console.error(`[STEP EXECUTION] Playwright step failed:`, error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred during playwright step execution",
+      error:
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred during playwright step execution",
     };
   }
 }
@@ -131,10 +139,28 @@ export async function executePlaywrightStep(
   console.log(`[STEP EXECUTION] Starting execution of playwright step: ${step.name}`);
 
   // Check if previous step has URL data for dynamic execution
-  const urlsFromPreviousStep =
-    (previousStepResults ?? [])
-      .flatMap((result) => result.urlArray ?? [])
-      .filter((url) => url.length > 0);
+  const urlsFromPreviousStep = (() => {
+    if (previousStepResults == null || previousStepResults.length === 0) {
+      return [];
+    }
+
+    // Get the latest result (last step)
+    const latestResult = previousStepResults[previousStepResults.length - 1];
+
+    // Check if it has an aiResponse field
+    if (latestResult.aiResponse != null && latestResult.aiResponse.length > 0) {
+      try {
+        const parsedResponse = JSON.parse(latestResult.aiResponse);
+        if (Array.isArray(parsedResponse)) {
+          return parsedResponse.filter((url) => typeof url === "string" && url.length > 0);
+        }
+      } catch (error) {
+        console.warn(`[STEP EXECUTION] Failed to parse aiResponse as JSON:`, error);
+      }
+    }
+
+    return [];
+  })();
 
   if (urlsFromPreviousStep.length > 0) {
     console.log(
@@ -144,13 +170,7 @@ export async function executePlaywrightStep(
     const results: StepExecutionResult[] = [];
     for (const url of urlsFromPreviousStep) {
       console.log(`[STEP EXECUTION] Executing playwright step for URL: ${url}`);
-      const result = await executeSinglePlaywrightStep(
-        step,
-        configuration,
-        page,
-        supabase,
-        url
-      );
+      const result = await executeSinglePlaywrightStep(step, configuration, page, supabase, url);
       results.push(result);
     }
 

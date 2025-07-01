@@ -29,7 +29,8 @@ export async function handleSaveDownloadAction(
   // Generate filename with timestamp to avoid conflicts
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const suggestedFilename = download.suggestedFilename();
-  const originalFilename = suggestedFilename.length > 0 ? suggestedFilename : "downloaded-file.xlsx";
+  const originalFilename =
+    suggestedFilename.length > 0 ? suggestedFilename : "downloaded-file.xlsx";
   const filename = `${timestamp}-${originalFilename}`;
   const storagePath = `${configuration.id}/${step.id}/${filename}`;
 
@@ -44,11 +45,9 @@ export async function handleSaveDownloadAction(
   }
 
   const buffer = Buffer.concat(chunks);
-  const { error } = await supabase.storage
-    .from("scrape-downloads")
-    .upload(storagePath, buffer, {
-      contentType: getContentType(filename),
-    });
+  const { error } = await supabase.storage.from("scrape-downloads").upload(storagePath, buffer, {
+    contentType: getContentType(filename),
+  });
 
   if (error != null) {
     console.error(`[STEP EXECUTION] Storage upload failed:`, error);
@@ -57,4 +56,4 @@ export async function handleSaveDownloadAction(
 
   context.storageObjectId = storagePath;
   console.log(`[STEP EXECUTION] Download uploaded successfully to ${storagePath}`);
-} 
+}

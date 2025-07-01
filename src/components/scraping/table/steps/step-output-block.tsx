@@ -50,7 +50,7 @@ export function StepOutputBlock({
           </div>
         </Card>
       </HoverCardTrigger>
-      <HoverCardContent className="max-w-lg overflow-auto break-words text-base">
+      <HoverCardContent className="w-[600px] max-w-lg overflow-auto whitespace-pre-line break-words text-base">
         {tooltipContent}
       </HoverCardContent>
     </HoverCard>
