@@ -1,5 +1,7 @@
 "use server";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Browser, Page } from "playwright";
 import { chromium } from "playwright";
 
 import { createClient } from "@lib/supabase/server";
@@ -7,6 +9,7 @@ import { createClient } from "@lib/supabase/server";
 import { getScrapeConfiguration } from "./crud";
 import { executeStep } from "./step-execution";
 import type { StepExecutionResult } from "./types";
+
 
 export async function executeConfigurationAction(configurationId: string): Promise<{
   success: boolean;
@@ -18,14 +21,14 @@ export async function executeConfigurationAction(configurationId: string): Promi
   const startTime = Date.now();
   console.log(`[CONFIGURATION EXECUTION] Starting execution for configuration: ${configurationId}`);
 
-  let browser: any = null;
-  let page: any = null;
-  let supabase: any = null;
+  let browser: Browser | null = null;
+  let page: Page | null = null;
+  let supabase: SupabaseClient | null = null;
 
   try {
     // Get the configuration
     const configuration = await getScrapeConfiguration(configurationId);
-    if (!configuration) {
+    if (configuration == null) {
       throw new Error(`Configuration not found: ${configurationId}`);
     }
 
@@ -50,7 +53,7 @@ export async function executeConfigurationAction(configurationId: string): Promi
       );
 
       // Execute the step using the action
-      const stepResult = await executeStep(step, configuration, browser, page, supabase);
+      const stepResult = await executeStep(step, configuration, page, supabase);
       stepResults.push(stepResult);
 
       if (!stepResult.success) {
@@ -79,13 +82,13 @@ export async function executeConfigurationAction(configurationId: string): Promi
 
     return {
       success: false,
-      error: error.message || "An unexpected error occurred during configuration execution",
+      error: error.message ?? "An unexpected error occurred during configuration execution",
       executionTimeMs,
       stepsExecuted: 0,
     };
   } finally {
     // Clean up browser
-    if (browser) {
+    if (browser != null) {
       try {
         await browser.close();
         console.log("[CONFIGURATION EXECUTION] Browser closed successfully");

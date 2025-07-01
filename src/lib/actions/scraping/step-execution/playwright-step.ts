@@ -1,14 +1,78 @@
-import type { Download } from "playwright";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Browser, Page } from "playwright";
 
-import { getContentType } from "../file-utils";
-import type { ScrapeConfiguration, ScrapeDownloadStep, StepExecutionResult } from "../types";
+import type { ScrapeConfiguration, ScrapeDownloadStep, StepExecutionResult, PlaywrightStep } from "../types";
 
-export async function executePlaywrightStep(
+import {
+  handleGotoAction,
+  handleClickAction,
+  handleSaveDownloadAction,
+  handleWaitAction,
+  handleTypeAction,
+  handleSelectAction,
+  handleGetInnerTextAction,
+  type PlaywrightContext,
+} from "./playwright-actions";
+
+async function executeSubStep(
+  subStep: PlaywrightStep,
+  subStepNumber: number,
+  page: Page,
+  supabase: SupabaseClient,
+  configuration: ScrapeConfiguration,
+  step: ScrapeDownloadStep,
+  context: PlaywrightContext,
+  dynamicUrl?: string
+): Promise<void> {
+  console.log(`[STEP EXECUTION] Executing sub-step ${subStepNumber}: ${subStep.action_type}`);
+
+  switch (subStep.action_type) {
+    case "goto":
+      await handleGotoAction(subStep, page, configuration, dynamicUrl);
+      break;
+
+    case "click":
+      await handleClickAction(subStep, page);
+      break;
+
+    case "waitForDownload":
+      console.log(`[STEP EXECUTION] Waiting for download event...`);
+      context.downloadPromise = page.waitForEvent("download");
+      break;
+
+    case "saveDownload":
+      await handleSaveDownloadAction(context, subStep, page, supabase, configuration, step);
+      break;
+
+    case "wait":
+      await handleWaitAction(subStep, page);
+      break;
+
+    case "type":
+      await handleTypeAction(subStep, page);
+      break;
+
+    case "select":
+      await handleSelectAction(subStep, page);
+      break;
+
+    case "getInnerText":
+      await handleGetInnerTextAction(subStep, page, context);
+      break;
+
+    default:
+      console.warn(`[STEP EXECUTION] Unknown action type "${subStep.action_type}" - skipping`);
+      break;
+  }
+
+  console.log(`[STEP EXECUTION] Sub-step ${subStepNumber} completed successfully`);
+}
+
+export async function executeSinglePlaywrightStep(
   step: ScrapeDownloadStep,
   configuration: ScrapeConfiguration,
-  browser: any,
-  page: any,
-  supabase: any,
+  page: Page,
+  supabase: SupabaseClient,
   dynamicUrl?: string
 ): Promise<StepExecutionResult> {
   try {
@@ -19,147 +83,86 @@ export async function executePlaywrightStep(
       return { success: true };
     }
 
-    let downloadPromise: Promise<any> | null = null;
-    let storageObjectId: string | undefined = undefined;
-    let textResults: string[] = [];
+    const context: PlaywrightContext = {
+      downloadPromise: null,
+      storageObjectId: undefined,
+      textResults: [],
+    };
 
     for (let j = 0; j < step.sub_steps.length; j++) {
       const subStep = step.sub_steps[j];
       const subStepNumber = j + 1;
 
-      console.log(`[STEP EXECUTION] Executing sub-step ${subStepNumber}: ${subStep.action_type}`);
-
-      switch (subStep.action_type) {
-        case "goto": {
-          let urlToNavigate = dynamicUrl ?? configuration.target_url;
-
-          // Handle template variables like {url}
-          if ((subStep.value != null) && subStep.value.includes("{url}") && (dynamicUrl != null)) {
-            urlToNavigate = subStep.value.replace("{url}", dynamicUrl);
-          }
-
-          console.log(`[STEP EXECUTION] Navigating to ${urlToNavigate}`);
-          await page.goto(urlToNavigate);
-
-          // Wait for the page to load and stabilize
-          await page.waitForLoadState("networkidle");
-          break;
-        }
-
-        case "click":
-          if (subStep.selector_type === "role" && subStep.selector && subStep.selector.length > 0) {
-            console.log(`[STEP EXECUTION] Clicking role button "${subStep.selector}"`);
-            await page.getByRole("button", { name: subStep.selector }).click();
-          } else if (
-            subStep.selector_type === "option" &&
-            subStep.selector &&
-            subStep.selector.length > 0
-          ) {
-            console.log(`[STEP EXECUTION] Clicking option "${subStep.selector}"`);
-            await page
-              .getByRole("option", { name: subStep.selector })
-              .locator("mat-pseudo-checkbox")
-              .click();
-          } else {
-            console.log(`[STEP EXECUTION] Clicking selector "${subStep.selector}"`);
-            await page.click(subStep.selector);
-          }
-          break;
-
-        case "waitForDownload":
-          console.log(`[STEP EXECUTION] Waiting for download event...`);
-          downloadPromise = page.waitForEvent("download");
-          break;
-
-        case "saveDownload": {
-          if (downloadPromise != null) {
-            console.log(`[STEP EXECUTION] Saving download to Supabase Storage...`);
-            const download: Download = await downloadPromise;
-
-            // Generate filename with timestamp to avoid conflicts
-            const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-            const originalFilename = download.suggestedFilename() || "downloaded-file.xlsx";
-            const filename = `${timestamp}-${originalFilename}`;
-            const storagePath = `${configuration.id}/${step.id}/${filename}`;
-
-            console.log(`[STEP EXECUTION] Uploading to storage path: ${storagePath}`);
-
-            // Get the download as ArrayBuffer and upload to Supabase Storage
-            const stream = await download.createReadStream();
-            const chunks: Uint8Array[] = [];
-
-            for await (const chunk of stream) {
-              chunks.push(chunk);
-            }
-
-            const buffer = Buffer.concat(chunks);
-            const { error } = await supabase.storage
-              .from("scrape-downloads")
-              .upload(storagePath, buffer, {
-                contentType: getContentType(filename),
-              });
-
-            if (error != null) {
-              console.error(`[STEP EXECUTION] Storage upload failed:`, error);
-              throw error;
-            }
-
-            storageObjectId = storagePath;
-            console.log(`[STEP EXECUTION] Download uploaded successfully to ${storagePath}`);
-          } else {
-            console.warn(`[STEP EXECUTION] No download promise available for saveDownload action`);
-          }
-          break;
-        }
-
-        case "wait": {
-          const waitTime = subStep.wait_time ?? 1000;
-          console.log(`[STEP EXECUTION] Waiting for ${waitTime}ms`);
-          await page.waitForTimeout(waitTime);
-          break;
-        }
-
-        case "type":
-          console.log(
-            `[STEP EXECUTION] Typing "${subStep.value}" into selector "${subStep.selector}"`
-          );
-          await page.fill(subStep.selector, subStep.value ?? "");
-          break;
-
-        case "select":
-          console.log(
-            `[STEP EXECUTION] Selecting option "${subStep.value}" from selector "${subStep.selector}"`
-          );
-          await page.selectOption(subStep.selector, subStep.value ?? "");
-          break;
-
-        case "getInnerText":
-          console.log(`[STEP EXECUTION] Getting inner text from selector "${subStep.selector}"`);
-          const innerText = await page.innerText(subStep.selector ?? "body");
-          textResults.push(innerText);
-          console.log(`[STEP EXECUTION] Extracted text: ${innerText.substring(0, 100)}...`);
-          break;
-
-        default:
-          console.warn(`[STEP EXECUTION] Unknown action type "${subStep.action_type}" - skipping`);
-          break;
-      }
-
-      console.log(`[STEP EXECUTION] Sub-step ${subStepNumber} completed successfully`);
+      await executeSubStep(
+        subStep,
+        subStepNumber,
+        page,
+        supabase,
+        configuration,
+        step,
+        context,
+        dynamicUrl
+      );
     }
 
     console.log(`[STEP EXECUTION] Playwright step completed successfully`);
     return {
       success: true,
-      storageObjectId: storageObjectId,
-      downloadPath: storageObjectId,
-      textResults: textResults.length > 0 ? textResults : undefined,
+      storageObjectId: context.storageObjectId,
+      downloadPath: context.storageObjectId,
+      textResults: context.textResults.length > 0 ? context.textResults : undefined,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[STEP EXECUTION] Playwright step failed:`, error);
     return {
       success: false,
-      error: error.message ?? "An unexpected error occurred during playwright step execution",
+      error: error instanceof Error ? error.message : "An unexpected error occurred during playwright step execution",
     };
+  }
+}
+
+export async function executePlaywrightStep(
+  step: ScrapeDownloadStep,
+  configuration: ScrapeConfiguration,
+  page: Page,
+  supabase: SupabaseClient,
+  previousStepResults?: StepExecutionResult[]
+): Promise<StepExecutionResult> {
+  console.log(`[STEP EXECUTION] Starting execution of playwright step: ${step.name}`);
+
+  // Check if previous step has URL data for dynamic execution
+  const urlsFromPreviousStep =
+    (previousStepResults ?? [])
+      .flatMap((result) => result.urlArray ?? [])
+      .filter((url) => url.length > 0);
+
+  if (urlsFromPreviousStep.length > 0) {
+    console.log(
+      `[STEP EXECUTION] Found ${urlsFromPreviousStep.length} URLs from previous step, executing playwright step for each URL`
+    );
+
+    const results: StepExecutionResult[] = [];
+    for (const url of urlsFromPreviousStep) {
+      console.log(`[STEP EXECUTION] Executing playwright step for URL: ${url}`);
+      const result = await executeSinglePlaywrightStep(
+        step,
+        configuration,
+        page,
+        supabase,
+        url
+      );
+      results.push(result);
+    }
+
+    // Combine results
+    return {
+      success: results.every((r) => r.success),
+      error: results.find((r) => !r.success)?.error,
+      storageObjectId: results.find((r) => r.storageObjectId != null)?.storageObjectId,
+      downloadPath: results.find((r) => r.downloadPath != null)?.downloadPath,
+      textResults: results.flatMap((r) => r.textResults ?? []),
+    };
+  } else {
+    return await executeSinglePlaywrightStep(step, configuration, page, supabase);
   }
 }
