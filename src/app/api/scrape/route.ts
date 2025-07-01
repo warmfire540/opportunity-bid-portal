@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
                   break;
 
                 case "saveDownload": {
-                  if (downloadPromise) {
+                  if (downloadPromise != null) {
                     console.log(
                       `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Saving download to Supabase Storage...`
                     );
@@ -185,7 +185,7 @@ export async function POST(req: NextRequest) {
                         contentType: getContentType(filename),
                       });
 
-                    if (error) {
+                    if (error != null) {
                       console.error(
                         `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Storage upload failed:`,
                         error
@@ -276,22 +276,12 @@ export async function POST(req: NextRequest) {
     const executionTime = Date.now() - startTime;
     console.log(`[SCRAPE API] All steps completed successfully in ${executionTime}ms`);
 
-    // Get download URL if file was uploaded
-    let downloadUrl = null;
-    if (storageObjectId != null && lastStepId != null) {
-      const { data: urlData } = await supabase.storage
-        .from("scrape-downloads")
-        .createSignedUrl(`${id}/${lastStepId}/${storageObjectId}`, 3600); // 1 hour expiry
-      downloadUrl = urlData?.signedUrl ?? null;
-    }
-
     await browser.close();
     console.log(`[SCRAPE API] Browser closed successfully`);
 
     return NextResponse.json({
       success: true,
       downloadPath: storageObjectId,
-      downloadUrl,
       executionTimeMs: executionTime,
       stepsExecuted: steps.length,
     });
@@ -304,7 +294,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "An unexpected error occurred during scraping",
+        error: error.message ?? "An unexpected error occurred during scraping",
         executionTimeMs: executionTime,
         stepsExecuted: 0,
       },

@@ -1,17 +1,19 @@
 "use server";
 
 import { chromium } from "playwright";
+
 import { createClient } from "@lib/supabase/server";
-import type { ScrapeConfiguration } from "./types";
+
 import { getScrapeConfiguration } from "./crud";
 import { executeStep } from "./step-execution";
+import type { StepExecutionResult } from "./types";
 
 export async function executeConfigurationAction(configurationId: string): Promise<{
   success: boolean;
   error?: string;
   executionTimeMs?: number;
   stepsExecuted?: number;
-  downloadUrl?: string;
+  stepResults?: StepExecutionResult[];
 }> {
   const startTime = Date.now();
   console.log(`[CONFIGURATION EXECUTION] Starting execution for configuration: ${configurationId}`);
@@ -38,7 +40,7 @@ export async function executeConfigurationAction(configurationId: string): Promi
     supabase = createClient();
 
     let stepsExecuted = 0;
-    let finalDownloadUrl: string | undefined;
+    let stepResults: StepExecutionResult[] = [];
 
     // Execute each step one by one
     for (let i = 0; i < steps.length; i++) {
@@ -49,17 +51,13 @@ export async function executeConfigurationAction(configurationId: string): Promi
 
       // Execute the step using the action
       const stepResult = await executeStep(step, configuration, browser, page, supabase);
+      stepResults.push(stepResult);
 
       if (!stepResult.success) {
         throw new Error(`Step ${i + 1} failed: ${stepResult.error}`);
       }
 
       stepsExecuted++;
-
-      // Keep track of the last download URL
-      if (stepResult.downloadUrl) {
-        finalDownloadUrl = stepResult.downloadUrl;
-      }
 
       console.log(`[CONFIGURATION EXECUTION] Step ${i + 1} completed successfully`);
     }
@@ -73,7 +71,7 @@ export async function executeConfigurationAction(configurationId: string): Promi
       success: true,
       executionTimeMs,
       stepsExecuted,
-      downloadUrl: finalDownloadUrl,
+      stepResults,
     };
   } catch (error: any) {
     const executionTimeMs = Date.now() - startTime;

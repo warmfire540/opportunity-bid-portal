@@ -1,8 +1,9 @@
 "use client";
 
+import { ChevronDown, ChevronRight, ExternalLink, Pause, Play, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import type { ScrapeConfiguration } from "@lib/actions/scraping";
+import type { ScrapeConfiguration, StepExecutionResult } from "@lib/actions/scraping";
 import {
   toggleScrapeConfigurationAction,
   deleteScrapeConfigurationAction,
@@ -10,13 +11,14 @@ import {
   executeNextStepAction,
   cleanupSessionAction,
 } from "@lib/actions/scraping";
-import ScrapeConfigurationExpandedContent from "./scrape-configuration-expanded-content";
+
+import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { SubmitButton } from "../../ui/submit-button";
 import { TableRow, TableCell } from "../../ui/table";
 import EditScrapeConfigurationDrawer from "../edit-scrape-configuration-drawer";
-import { Badge } from "../../ui/badge";
-import { ChevronDown, ChevronRight, ExternalLink, Pause, Play, Trash2 } from "lucide-react";
+
+import ScrapeConfigurationExpandedContent from "./scrape-configuration-expanded-content";
 
 type ScrapeResult = {
   success: boolean;
@@ -25,6 +27,7 @@ type ScrapeResult = {
   executionTimeMs?: number;
   stepsExecuted?: number;
   error?: string;
+  stepResults?: StepExecutionResult[];
 };
 
 type Props = {
@@ -58,11 +61,11 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
     setSessionId(null);
 
     const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
+    const stepResults: StepExecutionResult[] = [];
     const startTime = Date.now();
 
     try {
       // Start the execution session
-      console.log(`[SCRAPE ROW] Starting execution for configuration: ${configuration.id}`);
       const startResult = await startStepExecutionAction(configuration.id!);
 
       if (!startResult.success) {
@@ -70,22 +73,18 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
       }
 
       setSessionId(startResult.sessionId);
-      console.log(`[SCRAPE ROW] Session started: ${startResult.sessionId}`);
 
       // Execute each step one by one
       for (let i = 0; i < steps.length; i++) {
         setCurrentStepIndex(i);
 
-        console.log(`[SCRAPE ROW] Executing step ${i + 1}/${steps.length}: ${steps[i].name}`);
-
         // Execute the step using the server action
         const stepResult = await executeNextStepAction(startResult.sessionId, i);
+        stepResults.push(stepResult.result);
 
         if (!stepResult.success) {
           throw new Error(`Step ${i + 1} failed: ${stepResult.error}`);
         }
-
-        console.log(`[SCRAPE ROW] Step ${i + 1} completed successfully: ${stepResult.stepName}`);
 
         // If this was the last step, we're done
         if (stepResult.isComplete) {
@@ -96,8 +95,8 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
             downloadUrl: stepResult.downloadUrl,
             executionTimeMs,
             stepsExecuted: stepResult.currentStep,
+            stepResults,
           });
-          console.log(`[SCRAPE ROW] All steps completed successfully`);
           break;
         }
       }
@@ -112,10 +111,9 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
       });
     } finally {
       // Clean up session if it exists
-      if (sessionId) {
+      if (sessionId != null) {
         try {
           await cleanupSessionAction(sessionId);
-          console.log(`[SCRAPE ROW] Session ${sessionId} cleaned up`);
         } catch (cleanupError) {
           console.error(`[SCRAPE ROW] Error cleaning up session:`, cleanupError);
         }
@@ -142,7 +140,7 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
             )}
             <div className="flex flex-col">
               <span className="font-medium">{configuration.name}</span>
-              {configuration.description && (
+              {configuration.description != null && (
                 <span className="text-sm text-muted-foreground">{configuration.description}</span>
               )}
             </div>
@@ -168,17 +166,25 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
           </div>
         </TableCell>
         <TableCell>
-          <Badge variant={configuration.is_active ? "default" : "secondary"}>
-            {configuration.is_active ? "Active" : "Inactive"}
+          <Badge
+            variant={
+              configuration.is_active != null && configuration.is_active ? "default" : "secondary"
+            }
+          >
+            {(configuration.is_active ?? false) ? "Active" : "Inactive"}
           </Badge>
         </TableCell>
         <TableCell>
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <form className="inline">
               <input type="hidden" name="id" value={configuration.id} />
-              <input type="hidden" name="isActive" value={(!configuration.is_active).toString()} />
+              <input
+                type="hidden"
+                name="isActive"
+                value={(!(configuration.is_active ?? false)).toString()}
+              />
               <SubmitButton variant="ghost" size="sm" formAction={handleToggle}>
-                {configuration.is_active ? (
+                {(configuration.is_active ?? false) ? (
                   <Pause className="h-3 w-3" />
                 ) : (
                   <Play className="h-3 w-3" />

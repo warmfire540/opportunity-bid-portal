@@ -1,6 +1,10 @@
 "use client";
 
-import type { ScrapeDownloadStep, ScrapeConfiguration } from "@lib/actions/scraping";
+import type {
+  ScrapeDownloadStep,
+  ScrapeConfiguration,
+  StepExecutionResult,
+} from "@lib/actions/scraping";
 
 import { PlaywrightStep, AiPromptStep } from "./index";
 
@@ -11,6 +15,7 @@ type Props = {
   isLast?: boolean;
   hasNextStep?: boolean;
   nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
+  stepResult?: StepExecutionResult;
 };
 
 export default function StepRenderer({
@@ -20,6 +25,7 @@ export default function StepRenderer({
   isLast = false,
   hasNextStep = false,
   nextStepType,
+  stepResult,
 }: Readonly<Props>) {
   switch (step.step_type) {
     case "playwright":
@@ -31,6 +37,7 @@ export default function StepRenderer({
           isLast={isLast}
           hasNextStep={hasNextStep}
           nextStepType={nextStepType}
+          stepResult={stepResult}
         />
       );
     case "ai_prompt":
@@ -41,6 +48,7 @@ export default function StepRenderer({
           isLast={isLast}
           hasNextStep={hasNextStep}
           nextStepType={nextStepType}
+          stepResult={stepResult}
         />
       );
     case "links_analysis":

@@ -1,16 +1,11 @@
 "use client";
 
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
 import { ChevronDown, ChevronRight, Download, FileText, Calendar } from "lucide-react";
 import { useState } from "react";
 
 import type { ScrapeConfiguration, ScrapeDownloadStep } from "@lib/actions/scraping";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "../../../../../components/ui/tooltip";
 import { Button } from "../../../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../ui/card";
 

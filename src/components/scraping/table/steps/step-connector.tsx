@@ -4,12 +4,16 @@ import { ArrowDown, Download, FileText, MessageSquare } from "lucide-react";
 
 import { cn } from "@lib/utils";
 
+import { StepOutputBlock } from "./step-output-block";
+
 interface StepConnectorProps {
   stepType: "playwright" | "ai_prompt" | "links_analysis";
   stepOrder: number;
   isLast?: boolean;
   hasNextStep?: boolean;
   nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
+  stepOutputPreview?: React.ReactNode;
+  stepOutputGlow?: boolean;
 }
 
 export default function StepConnector({
@@ -18,6 +22,8 @@ export default function StepConnector({
   isLast = false,
   hasNextStep = false,
   nextStepType,
+  stepOutputPreview,
+  stepOutputGlow,
 }: Readonly<StepConnectorProps>) {
   const getStepOutput = () => {
     switch (stepType) {
@@ -87,19 +93,16 @@ export default function StepConnector({
     return (
       <div className="flex flex-col items-center">
         {output != null && (
-          <div
-            className={cn(
-              "flex items-center gap-2 rounded-lg border p-2",
-              output.bgColor,
-              output.borderColor
-            )}
-          >
-            {output.icon}
-            <div className="text-xs">
-              <div className={cn("font-medium", output.color)}>{output.label}</div>
-              <div className="text-muted-foreground">{output.description}</div>
-            </div>
-          </div>
+          <StepOutputBlock
+            icon={output.icon}
+            label={output.label}
+            description={output.description}
+            color={output.color}
+            bgColor={output.bgColor}
+            borderColor={output.borderColor}
+            glow={stepOutputGlow}
+            tooltipContent={stepOutputPreview}
+          />
         )}
       </div>
     );
@@ -109,18 +112,17 @@ export default function StepConnector({
     <div className="flex flex-col items-center">
       {/* Step Output */}
       {output != null && (
-        <div
-          className={cn(
-            "mb-2 flex items-center gap-2 rounded-lg border p-2",
-            output.bgColor,
-            output.borderColor
-          )}
-        >
-          {output.icon}
-          <div className="text-xs">
-            <div className={cn("font-medium", output.color)}>{output.label}</div>
-            <div className="text-muted-foreground">{output.description}</div>
-          </div>
+        <div className="mb-2">
+          <StepOutputBlock
+            icon={output.icon}
+            label={output.label}
+            description={output.description}
+            color={output.color}
+            bgColor={output.bgColor}
+            borderColor={output.borderColor}
+            glow={stepOutputGlow}
+            tooltipContent={stepOutputPreview}
+          />
         </div>
       )}
 

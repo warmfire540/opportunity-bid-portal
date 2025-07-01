@@ -22,6 +22,8 @@ interface StepCardProps {
   isLast?: boolean;
   hasNextStep?: boolean;
   nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
+  stepOutputPreview?: React.ReactNode;
+  stepOutputGlow?: boolean;
 }
 
 export default function StepCard({
@@ -39,13 +41,16 @@ export default function StepCard({
   isLast = false,
   hasNextStep = false,
   nextStepType,
+  stepOutputPreview,
+  stepOutputGlow,
 }: StepCardProps) {
   return (
     <div className="space-y-4">
       <Card
         className={cn(
           "transition-all duration-300",
-          isRunning && "bg-blue-50/50 shadow-lg shadow-blue-500/25 ring-2 ring-blue-500 ring-offset-2"
+          isRunning &&
+            "bg-blue-50/50 shadow-lg shadow-blue-500/25 ring-2 ring-blue-500 ring-offset-2"
         )}
       >
         <CardHeader
@@ -58,13 +63,13 @@ export default function StepCard({
           <span className="flex items-center gap-2">
             <Badge
               variant={isRunning ? "default" : "secondary"}
-              className={cn(
-                "mr-2 min-w-8 justify-center relative",
-                isRunning && "bg-blue-600"
-              )}
+              className={cn("relative mr-2 min-w-8 justify-center", isRunning && "bg-blue-600")}
             >
               {isRunning && (
-                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75" style={{ animationDuration: '2s' }} />
+                <div
+                  className="absolute inset-0 animate-ping rounded-full bg-blue-400 opacity-75"
+                  style={{ animationDuration: "2s" }}
+                />
               )}
               <span className="relative z-10">{stepOrder}</span>
             </Badge>
@@ -97,6 +102,8 @@ export default function StepCard({
           isLast={isLast}
           hasNextStep={hasNextStep}
           nextStepType={nextStepType}
+          stepOutputPreview={stepOutputPreview}
+          stepOutputGlow={stepOutputGlow}
         />
       )}
     </div>

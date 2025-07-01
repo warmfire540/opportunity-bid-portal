@@ -11,17 +11,17 @@ const openai = new OpenAI({
 async function convertExcelToCsv(buffer: ArrayBuffer): Promise<string> {
   try {
     console.log(`[STEP EXECUTION] Converting Excel file to CSV...`);
-    
+
     // Read the Excel file using the xlsx library
-    const workbook = XLSX.read(buffer, { type: 'array' });
-    
+    const workbook = XLSX.read(buffer, { type: "array" });
+
     // Get the first sheet
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    
+
     // Convert to CSV
     const csv = XLSX.utils.sheet_to_csv(worksheet);
-    
+
     console.log(`[STEP EXECUTION] Successfully converted Excel to CSV (${csv.length} characters)`);
     return csv;
   } catch (error) {
@@ -57,16 +57,15 @@ export async function executeAiPromptStep(
     if (previousStepResults != null && previousStepResults.length > 0) {
       console.log(`[STEP EXECUTION] Found ${previousStepResults.length} previous step results`);
       for (const result of previousStepResults) {
-        console.log(`[STEP EXECUTION] Result:`, result);
         if (result.downloadPath != null && result.downloadPath !== "") {
           try {
             console.log(`[STEP EXECUTION] Reading file from storage path: ${result.downloadPath}`);
-            
+
             // Download the file directly from Supabase Storage
             const { data: fileData, error: downloadError } = await supabase.storage
               .from("scrape-downloads")
               .download(result.downloadPath);
-            
+
             if (downloadError != null) {
               console.warn(
                 `[STEP EXECUTION] Failed to download file from ${result.downloadPath}:`,
@@ -74,12 +73,15 @@ export async function executeAiPromptStep(
               );
               continue;
             }
-            
-            const fileName = result.downloadPath.split('/').pop() ?? 'unknown-file';
+
+            const fileName = result.downloadPath.split("/").pop() ?? "unknown-file";
             let fileText: string;
-            
+
             // Check if it's an Excel file and convert to CSV if needed
-            if (fileName.toLowerCase().endsWith('.xlsx') || fileName.toLowerCase().endsWith('.xls')) {
+            if (
+              fileName.toLowerCase().endsWith(".xlsx") ||
+              fileName.toLowerCase().endsWith(".xls")
+            ) {
               console.log(`[STEP EXECUTION] Detected Excel file: ${fileName}`);
               const arrayBuffer = await fileData.arrayBuffer();
               fileText = await convertExcelToCsv(arrayBuffer);
@@ -87,7 +89,7 @@ export async function executeAiPromptStep(
               // For non-Excel files, read as text
               fileText = await fileData.text();
             }
-            
+
             downloadedFilesContent += `\n\n--- File: ${fileName} ---\n${fileText}`;
             console.log(
               `[STEP EXECUTION] Successfully read file ${fileName} (${fileText.length} characters)`
@@ -107,7 +109,7 @@ export async function executeAiPromptStep(
       fullPrompt = `${systemInstructions}\n\n${aiPrompt.prompt}\n\n--- Downloaded Files Content ---${downloadedFilesContent}`;
     }
 
-    console.log(`[STEP EXECUTION] Sending request to OpenAI...`, fullPrompt);
+    console.log(`[STEP EXECUTION] Sending request to OpenAI...`);
     console.log(`[STEP EXECUTION] Full prompt length: ${fullPrompt.length} characters`);
 
     const completion = await openai.chat.completions.create({

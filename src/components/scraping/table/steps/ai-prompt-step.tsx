@@ -12,6 +12,7 @@ import StepCard from "./step-card";
 interface Props {
   step: ScrapeDownloadStep;
   isRunning?: boolean;
+  stepResult?: any;
 }
 
 export default function AiPromptStep({
@@ -20,6 +21,7 @@ export default function AiPromptStep({
   isLast = false,
   hasNextStep = false,
   nextStepType,
+  stepResult,
 }: Readonly<
   Props & {
     isLast?: boolean;
@@ -28,6 +30,21 @@ export default function AiPromptStep({
   }
 >) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Use the AI response from the result
+  const aiResponse = stepResult?.aiResponse ?? "";
+  const stepOutputPreview = aiResponse ? (
+    <div>
+      <div className="font-medium">
+        {aiResponse.slice(0, 100)}
+        {aiResponse.length > 100 ? "…" : ""}
+      </div>
+      <div className="text-xs text-muted-foreground">AI generated content</div>
+    </div>
+  ) : (
+    <div className="text-xs text-muted-foreground">No AI response yet.</div>
+  );
+  const stepOutputGlow = !!aiResponse;
 
   return (
     <StepCard
@@ -44,6 +61,8 @@ export default function AiPromptStep({
       isLast={isLast}
       hasNextStep={hasNextStep}
       nextStepType={nextStepType}
+      stepOutputPreview={stepOutputPreview}
+      stepOutputGlow={stepOutputGlow}
     >
       <div className="space-y-4">
         {step.ai_prompt_data?.map((prompt, index) => (

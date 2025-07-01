@@ -14,6 +14,7 @@ interface Props {
   step: ScrapeDownloadStep;
   configuration: ScrapeConfiguration;
   isRunning?: boolean;
+  stepResult?: any;
 }
 
 export default function PlaywrightStep({
@@ -23,6 +24,7 @@ export default function PlaywrightStep({
   isLast = false,
   hasNextStep = false,
   nextStepType,
+  stepResult,
 }: Readonly<
   Props & {
     isLast?: boolean;
@@ -32,6 +34,20 @@ export default function PlaywrightStep({
 >) {
   const [isExpanded, setIsExpanded] = useState(false);
   const subSteps = step.sub_steps ?? [];
+
+  // Compute preview and glow for Downloaded File
+  const fileName = stepResult?.downloadPath?.split("/").pop();
+  const hasFile = !!fileName;
+
+  const stepOutputPreview = hasFile ? (
+    <div>
+      <div className="font-medium">{fileName}</div>
+      <div className="text-xs text-muted-foreground" />
+    </div>
+  ) : (
+    <div className="text-xs text-muted-foreground">No file downloaded yet.</div>
+  );
+  const stepOutputGlow = hasFile;
 
   return (
     <StepCard
@@ -48,6 +64,8 @@ export default function PlaywrightStep({
       isLast={isLast}
       hasNextStep={hasNextStep}
       nextStepType={nextStepType}
+      stepOutputPreview={stepOutputPreview}
+      stepOutputGlow={stepOutputGlow}
     >
       <div className="space-y-4">
         <ScrapeConfigurationSteps subSteps={subSteps} />

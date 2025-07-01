@@ -6,7 +6,7 @@ import { createClient } from "@lib/supabase/server";
 
 import { getScrapeConfiguration } from "./crud";
 import { executeStep } from "./step-execution";
-import type { BrowserSession } from "./types";
+import type { BrowserSession, StepExecutionResult } from "./types";
 
 // In-memory store for browser sessions (in production, use Redis or similar)
 const browserSessions = new Map<string, BrowserSession>();
@@ -72,6 +72,7 @@ export async function executeNextStepAction(
   totalSteps: number;
   downloadUrl?: string;
   stepName?: string;
+  result?: StepExecutionResult;
 }> {
   console.log(`[STEP EXECUTION] Executing step ${stepIndex} for session: ${sessionId}`);
 
@@ -122,7 +123,14 @@ export async function executeNextStepAction(
     console.log(`[STEP EXECUTION] Executing step ${stepIndex + 1}/${steps.length}: ${step.name}`);
 
     // Execute the step
-    const stepResult = await executeStep(step, configuration, browser, page, supabase, session.previousStepResults);
+    const stepResult = await executeStep(
+      step,
+      configuration,
+      browser,
+      page,
+      supabase,
+      session.previousStepResults
+    );
 
     // Store the step result for the next step
     session.previousStepResults ??= [];
@@ -154,6 +162,7 @@ export async function executeNextStepAction(
       totalSteps: steps.length,
       downloadUrl: stepResult.downloadUrl,
       stepName: step.name,
+      result: stepResult,
     };
   } catch (error: any) {
     console.error(`[STEP EXECUTION] Error during step execution:`, error);
