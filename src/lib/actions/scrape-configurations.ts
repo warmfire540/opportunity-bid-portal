@@ -15,13 +15,20 @@ export type PlaywrightStep = {
   description?: string;
 };
 
+export type PromptStep = {
+  id?: string;
+  prompt: string;
+  storage_ids?: string[];
+};
+
 export type ScrapeDownloadStep = {
   id?: string;
   step_order: number;
-  step_type: "playwright" | "ai_prompt" | "links_analysis";
+  step_type: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
   name: string;
   description?: string;
   sub_steps?: PlaywrightStep[]; // Only for playwright type
+  prompt_data?: PromptStep[]; // Only for prompt_steps type
 };
 
 export type ScrapeConfiguration = {
@@ -104,6 +111,23 @@ export async function createScrapeConfiguration(configuration: ScrapeConfigurati
           throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
         }
       }
+
+      // Insert prompt steps if this is a prompt_steps step
+      if (step.step_type === "prompt_steps" && step.prompt_data && step.prompt_data.length > 0) {
+        const promptStepsToInsert = step.prompt_data.map((promptStep) => ({
+          scrape_download_step_id: stepData.id,
+          prompt: promptStep.prompt,
+          storage_ids: promptStep.storage_ids ?? [],
+        }));
+
+        const { error: promptStepsError } = await supabase
+          .from("prompt_steps")
+          .insert(promptStepsToInsert);
+
+        if (promptStepsError) {
+          throw new Error(`Failed to create prompt steps: ${promptStepsError.message}`);
+        }
+      }
     }
   }
 
@@ -177,6 +201,23 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
 
         if (playwrightStepsError) {
           throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
+        }
+      }
+
+      // Insert prompt steps if this is a prompt_steps step
+      if (step.step_type === "prompt_steps" && step.prompt_data && step.prompt_data.length > 0) {
+        const promptStepsToInsert = step.prompt_data.map((promptStep) => ({
+          scrape_download_step_id: stepData.id,
+          prompt: promptStep.prompt,
+          storage_ids: promptStep.storage_ids ?? [],
+        }));
+
+        const { error: promptStepsError } = await supabase
+          .from("prompt_steps")
+          .insert(promptStepsToInsert);
+
+        if (promptStepsError) {
+          throw new Error(`Failed to create prompt steps: ${promptStepsError.message}`);
         }
       }
     }

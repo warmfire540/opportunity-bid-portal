@@ -253,6 +253,11 @@ export async function POST(req: NextRequest) {
           // TODO: Implement AI prompt functionality
           break;
 
+        case "prompt_steps":
+          console.log(`[SCRAPE API] Step ${stepNumber}: Prompt Steps - not implemented yet`);
+          // TODO: Implement prompt steps functionality
+          break;
+
         case "links_analysis":
           console.log(`[SCRAPE API] Step ${stepNumber}: Links Analysis step - not implemented yet`);
           // TODO: Implement links analysis functionality

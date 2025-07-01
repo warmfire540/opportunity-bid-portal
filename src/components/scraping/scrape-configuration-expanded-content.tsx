@@ -10,6 +10,7 @@ import {
   Code,
   ChevronDown,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -19,6 +20,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Alert, AlertDescription } from "../ui/alert";
+import { Label } from "../ui/label";
 import { ScrapeConfigurationSteps } from "./index";
 import DownloadedFiles from "./downloaded-files";
 
@@ -47,7 +49,10 @@ export default function ScrapeConfigurationExpandedContent({
   const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
   const playwrightSteps = steps.filter((step) => step.step_type === "playwright");
   const playwrightStep = steps.find((step) => step.step_type === "playwright");
+  const promptSteps = steps.filter((step) => step.step_type === "prompt_steps");
+  const promptStep = steps.find((step) => step.step_type === "prompt_steps");
   const [showPlaywright, setShowPlaywright] = useState(false);
+  const [showPromptSteps, setShowPromptSteps] = useState(false);
 
   return (
     <div className="border-t bg-muted/30 p-6">
@@ -204,6 +209,77 @@ export default function ScrapeConfigurationExpandedContent({
             </CardContent>
           )}
         </Card>
+
+        {/* Prompt Steps Section */}
+        {promptSteps.length > 0 && (
+          <Card>
+            <CardHeader
+              className="flex cursor-pointer select-none flex-row items-center justify-between"
+              onClick={() => setShowPromptSteps((v) => !v)}
+            >
+              <span className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-green-600" />
+                <span>AI Prompt Analysis</span>
+              </span>
+              <span className="flex items-center gap-2">
+                <CardDescription>
+                  AI prompts for analyzing downloaded data
+                </CardDescription>
+                {showPromptSteps ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </span>
+            </CardHeader>
+            {showPromptSteps && (
+              <CardContent>
+                <div className="space-y-4">
+                  {promptSteps.map((step, index) => (
+                    <div key={index} className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium">{step.name}</h4>
+                          {step.description && (
+                            <p className="text-sm text-muted-foreground">{step.description}</p>
+                          )}
+                        </div>
+                        <Badge variant="secondary">Step {step.step_order}</Badge>
+                      </div>
+                      
+                      {step.prompt_data?.[0] && (
+                        <div className="space-y-3 rounded-lg border p-4 bg-muted/30">
+                          <div>
+                            <Label className="text-sm font-medium">Prompt</Label>
+                            <div className="mt-2 rounded border bg-background p-3 text-sm">
+                              <pre className="whitespace-pre-wrap">{step.prompt_data[0].prompt}</pre>
+                            </div>
+                          </div>
+                          
+                          {step.prompt_data[0].storage_ids && step.prompt_data[0].storage_ids.length > 0 && (
+                            <div>
+                              <Label className="text-sm font-medium">Selected Files</Label>
+                              <div className="mt-2 space-y-1">
+                                {step.prompt_data[0].storage_ids.map((fileId) => (
+                                  <div key={fileId} className="text-sm text-muted-foreground">
+                                    • {fileId.includes('florida-rfp-data-2024-01') ? 'florida-rfp-data-2024-01.xlsx' :
+                                       fileId.includes('florida-rfp-data-2024-02') ? 'florida-rfp-data-2024-02.xlsx' :
+                                       fileId.includes('florida-rfp-data-2024-03') ? 'florida-rfp-data-2024-03.xlsx' :
+                                       fileId}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        )}
       </div>
     </div>
   );

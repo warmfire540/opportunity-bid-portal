@@ -7,6 +7,7 @@ import type {
   ScrapeConfiguration,
   ScrapeDownloadStep,
   PlaywrightStep,
+  PromptStep,
 } from "@lib/actions/scrape-configurations";
 import { updateScrapeConfiguration } from "@lib/actions/scrape-configurations";
 
@@ -35,6 +36,7 @@ const STEP_TYPES = [
   { value: "playwright", label: "Playwright File Download" },
   { value: "ai_prompt", label: "AI Prompt" },
   { value: "links_analysis", label: "Links Analysis" },
+  { value: "prompt_steps", label: "Prompt Steps" },
 ];
 
 const ACTION_TYPES = [
@@ -169,6 +171,46 @@ export default function EditScrapeConfigurationDrawer({
                 step.sub_steps
                   ?.filter((_, j) => j !== subStepIndex)
                   .map((subStep, j) => ({ ...subStep, step_order: j + 1 })) ?? [],
+            }
+          : step
+      ),
+    }));
+  };
+
+  const updatePromptStep = (stepIndex: number, field: keyof PromptStep, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      steps: prev.steps.map((step, i) =>
+        i === stepIndex
+          ? {
+              ...step,
+              prompt_data: [
+                {
+                  ...(step.prompt_data?.[0] ?? { prompt: "", storage_ids: [] }),
+                  [field]: value,
+                },
+              ],
+            }
+          : step
+      ),
+    }));
+  };
+
+  const updatePromptStepStorageIds = (stepIndex: number, fileId: string, checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      steps: prev.steps.map((step, i) =>
+        i === stepIndex
+          ? {
+              ...step,
+              prompt_data: [
+                {
+                  ...(step.prompt_data?.[0] ?? { prompt: "", storage_ids: [] }),
+                  storage_ids: checked
+                    ? [...(step.prompt_data?.[0]?.storage_ids ?? []), fileId]
+                    : (step.prompt_data?.[0]?.storage_ids ?? []).filter((id) => id !== fileId),
+                },
+              ],
             }
           : step
       ),
@@ -463,6 +505,50 @@ export default function EditScrapeConfigurationDrawer({
                           ))}
                         </>
                       )}
+                    </div>
+                  )}
+
+                  {/* Prompt Steps */}
+                  {step.step_type === "prompt_steps" && (
+                    <div className="space-y-4 border-t pt-4">
+                      <div className="space-y-4">
+                        <Label className="text-sm font-medium">AI Prompt Configuration</Label>
+                        
+                        <div>
+                          <Label className="text-sm">Prompt</Label>
+                          <Textarea
+                            value={step.prompt_data?.[0]?.prompt ?? ""}
+                            onChange={(e) => updatePromptStep(stepIndex, "prompt", e.target.value)}
+                            placeholder="Enter your AI prompt here..."
+                            rows={8}
+                          />
+                        </div>
+
+                        <div>
+                          <Label className="text-sm">Storage Files (Multi-select)</Label>
+                          <div className="rounded-md border p-3">
+                            <div className="space-y-2">
+                              {['fake-storage-id-1', 'fake-storage-id-2', 'fake-storage-id-3'].map((fileId) => (
+                                <div key={fileId} className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    id={fileId}
+                                    checked={step.prompt_data?.[0]?.storage_ids?.includes(fileId) ?? false}
+                                    onChange={(e) => updatePromptStepStorageIds(stepIndex, fileId, e.target.checked)}
+                                    className="h-4 w-4"
+                                  />
+                                  <label htmlFor={fileId} className="text-sm">
+                                    {fileId.includes('florida-rfp-data-2024-01') ? 'florida-rfp-data-2024-01.xlsx' :
+                                     fileId.includes('florida-rfp-data-2024-02') ? 'florida-rfp-data-2024-02.xlsx' :
+                                     fileId.includes('florida-rfp-data-2024-03') ? 'florida-rfp-data-2024-03.xlsx' :
+                                     fileId}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
