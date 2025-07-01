@@ -2,7 +2,6 @@
 export { default as EditScrapeConfigurationDrawer } from "./edit-scrape-configuration-drawer";
 export { default as ManageScrapeConfigurations } from "./manage-scrape-configurations";
 export { default as ScrapeConfigurationSteps } from "./scrape-configuration-steps";
-export { default as DownloadedFiles } from "./downloaded-files";
 
 // Scrape Configuration Table Components
 export { default as ScrapeConfigurationsEmpty } from "./scrape-configurations-empty";

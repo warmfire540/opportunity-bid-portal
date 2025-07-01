@@ -65,8 +65,9 @@ export async function POST(req: NextRequest) {
   const browser = await chromium.launch();
   const page = await browser.newPage();
   const steps = config.steps ?? [];
-  let storageObjectId = null;
+  let storageObjectId: string | null = null;
   let downloadPromise: Promise<any> | null = null;
+  let lastStepId: string | null = null;
 
   // Initialize Supabase client
   const supabase = createClient();
@@ -163,7 +164,7 @@ export async function POST(req: NextRequest) {
                     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
                     const originalFilename = download.suggestedFilename() ?? "downloaded-file.xlsx";
                     const filename = `${timestamp}-${originalFilename}`;
-                    const storagePath = `${id}/${filename}`;
+                    const storagePath = `${id}/${step.id}/${filename}`;
 
                     console.log(
                       `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Uploading to storage path: ${storagePath}`
@@ -193,6 +194,7 @@ export async function POST(req: NextRequest) {
                     }
 
                     storageObjectId = data?.id;
+                    lastStepId = step.id;
                     console.log(
                       `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Download uploaded successfully to ${storagePath}`,
                       { storageObjectId, data }
@@ -276,11 +278,11 @@ export async function POST(req: NextRequest) {
 
     // Get download URL if file was uploaded
     let downloadUrl = null;
-    if (storageObjectId) {
+    if (storageObjectId != null && lastStepId != null) {
       const { data: urlData } = await supabase.storage
         .from("scrape-downloads")
-        .createSignedUrl(`${id}/${storageObjectId}`, 3600); // 1 hour expiry
-      downloadUrl = urlData?.signedUrl;
+        .createSignedUrl(`${id}/${lastStepId}/${storageObjectId}`, 3600); // 1 hour expiry
+      downloadUrl = urlData?.signedUrl ?? null;
     }
 
     await browser.close();

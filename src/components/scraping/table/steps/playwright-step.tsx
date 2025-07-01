@@ -8,6 +8,8 @@ import type { ScrapeDownloadStep, ScrapeConfiguration } from "@lib/actions/scrap
 import ScrapeConfigurationSteps from "../../scrape-configuration-steps";
 
 import StepCard from "./step-card";
+import StepDownloadedFiles from "./step-downloaded-files";
+
 
 interface Props {
   step: ScrapeDownloadStep;
@@ -17,6 +19,7 @@ interface Props {
 
 export default function PlaywrightStep({
   step,
+  configuration,
   isRunning = false,
   isLast = false,
   hasNextStep = false,
@@ -47,7 +50,10 @@ export default function PlaywrightStep({
       hasNextStep={hasNextStep}
       nextStepType={nextStepType}
     >
-      <ScrapeConfigurationSteps subSteps={subSteps} />
+      <div className="space-y-4">
+        <ScrapeConfigurationSteps subSteps={subSteps} />
+        <StepDownloadedFiles configuration={configuration} step={step} />
+      </div>
     </StepCard>
   );
 }

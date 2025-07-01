@@ -8,7 +8,6 @@ import { Alert, AlertDescription } from "../../ui/alert";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../ui/card";
-import DownloadedFiles from "../downloaded-files";
 
 import { StepRenderer } from "./steps";
 
@@ -148,7 +147,6 @@ export default function ScrapeConfigurationExpandedContent({
           </Card>
 
           {/* Downloaded Files Section */}
-          <DownloadedFiles configuration={configuration} />
         </div>
 
         {/* Steps Section */}

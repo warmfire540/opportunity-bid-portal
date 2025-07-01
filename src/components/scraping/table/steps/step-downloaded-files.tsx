@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import { ChevronDown, ChevronRight, Download, FileText, Calendar } from "lucide-react";
+import { useState } from "react";
 
-import type { ScrapeConfiguration } from "@lib/actions/scraping";
+import type { ScrapeConfiguration, ScrapeDownloadStep } from "@lib/actions/scraping";
 
-import { Button } from "../ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from "../../../components/ui/tooltip";
+} from "../../../../../components/ui/tooltip";
+import { Button } from "../../../ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../ui/card";
 
 type DownloadedFile = {
   id: string;
@@ -27,9 +27,10 @@ type DownloadedFile = {
 
 type Props = {
   configuration: ScrapeConfiguration;
+  step: ScrapeDownloadStep;
 };
 
-export default function DownloadedFiles({ configuration }: Readonly<Props>) {
+export default function StepDownloadedFiles({ configuration, step }: Readonly<Props>) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [files, setFiles] = useState<DownloadedFile[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
@@ -37,7 +38,7 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
   const loadFiles = async () => {
     setIsLoadingFiles(true);
     try {
-      const response = await fetch(`/api/scrape/files?configurationId=${configuration.id}`);
+      const response = await fetch(`/api/scrape/files?configurationId=${configuration.id}&stepId=${step.id}`);
       if (response.ok) {
         const data = await response.json();
         setFiles(data.files ?? []);
@@ -70,7 +71,7 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
   };
 
   return (
-    <Card>
+    <Card className="mt-4">
       <CardHeader>
         <CardTitle
           className="flex cursor-pointer items-center justify-between"
@@ -91,7 +92,7 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
         </CardTitle>
-        <CardDescription>Files downloaded by this configuration</CardDescription>
+        <CardDescription>Files downloaded by this step</CardDescription>
       </CardHeader>
       {isExpanded && (
         <CardContent>
@@ -147,4 +148,4 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
       )}
     </Card>
   );
-}
+} 

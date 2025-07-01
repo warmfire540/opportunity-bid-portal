@@ -19,7 +19,7 @@ export async function executePlaywrightStep(
     }
 
     let downloadPromise: Promise<any> | null = null;
-    let storageObjectId: string | null = null;
+    let storageObjectId: string | undefined = undefined;
 
     for (let j = 0; j < step.sub_steps.length; j++) {
       const subStep = step.sub_steps[j];
@@ -55,7 +55,7 @@ export async function executePlaywrightStep(
           break;
 
         case "saveDownload": {
-          if (downloadPromise) {
+          if (downloadPromise != null) {
             console.log(`[STEP EXECUTION] Saving download to Supabase Storage...`);
             const download: Download = await downloadPromise;
 
@@ -63,7 +63,7 @@ export async function executePlaywrightStep(
             const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
             const originalFilename = download.suggestedFilename() ?? "downloaded-file.xlsx";
             const filename = `${timestamp}-${originalFilename}`;
-            const storagePath = `${configuration.id}/${filename}`;
+            const storagePath = `${configuration.id}/${step.id}/${filename}`;
 
             console.log(`[STEP EXECUTION] Uploading to storage path: ${storagePath}`);
 
@@ -82,7 +82,7 @@ export async function executePlaywrightStep(
                 contentType: getContentType(filename),
               });
 
-            if (error) {
+            if (error != null) {
               console.error(`[STEP EXECUTION] Storage upload failed:`, error);
               throw error;
             }
@@ -126,17 +126,17 @@ export async function executePlaywrightStep(
 
     // Get download URL if file was uploaded
     let downloadUrl = null;
-    if (storageObjectId) {
+    if (storageObjectId != null) {
       const { data: urlData } = await supabase.storage
         .from("scrape-downloads")
-        .createSignedUrl(`${configuration.id}/${storageObjectId}`, 3600); // 1 hour expiry
-      downloadUrl = urlData?.signedUrl;
+        .createSignedUrl(`${configuration.id}/${step.id}/${storageObjectId}`, 3600); // 1 hour expiry
+      downloadUrl = urlData?.signedUrl ?? null;
     }
 
     console.log(`[STEP EXECUTION] Playwright step completed successfully`);
     return {
       success: true,
-      storageObjectId: storageObjectId ?? undefined,
+      storageObjectId: storageObjectId,
       downloadUrl: downloadUrl ?? undefined,
     };
   } catch (error: any) {

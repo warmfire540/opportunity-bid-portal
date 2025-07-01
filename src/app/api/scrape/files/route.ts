@@ -1,28 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
+
 import { createClient } from "@/src/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const configurationId = searchParams.get("configurationId");
+  const stepId = searchParams.get("stepId");
 
-  if (!configurationId) {
+  if (configurationId == null) {
     return NextResponse.json({ error: "Missing configuration ID parameter" }, { status: 400 });
   }
 
-  console.log(`[FILES API] Listing files for configuration: ${configurationId}`);
+  console.log(`[FILES API] Listing files for configuration: ${configurationId}${stepId != null && stepId !== "" ? `, step: ${stepId}` : ""}`);
 
   try {
     const supabase = createClient();
 
-    // List all objects in the configuration's folder
+    // Determine the path to list files from
+    const listPath = stepId != null ? `${configurationId}/${stepId}` : configurationId;
+
+    // List all objects in the configuration's folder (or step-specific folder)
     const { data: objects, error } = await supabase.storage
       .from("scrape-downloads")
-      .list(configurationId, {
+      .list(listPath, {
         limit: 1000,
         offset: 0,
       });
 
-    if (error) {
+    if (error != null) {
       console.error("[FILES API] Error listing files:", error);
       return NextResponse.json({ error: "Failed to list files" }, { status: 500 });
     }
@@ -36,10 +42,10 @@ export async function GET(req: NextRequest) {
       mimeType: obj.metadata?.mimetype ?? "application/octet-stream",
       createdAt: obj.created_at,
       updatedAt: obj.updated_at,
-      downloadUrl: `/api/scrape/download?filepath=${configurationId}/${obj.name}`,
+      downloadUrl: `/api/scrape/download?filepath=${listPath}/${obj.name}`,
     }));
 
-    console.log(`[FILES API] Found ${files.length} files for configuration ${configurationId}`);
+    console.log(`[FILES API] Found ${files.length} files for ${stepId != null ? `step ${stepId}` : `configuration ${configurationId}`}`);
 
     return NextResponse.json({ files });
   } catch (error: any) {
