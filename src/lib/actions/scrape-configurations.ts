@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@lib/supabase/server";
 
-export type ScrapeStep = {
+export type PlaywrightStep = {
   id?: string;
   step_order: number;
   action_type: string;
@@ -15,13 +15,22 @@ export type ScrapeStep = {
   description?: string;
 };
 
+export type ScrapeDownloadStep = {
+  id?: string;
+  step_order: number;
+  step_type: "playwright" | "ai_prompt" | "links_analysis";
+  name: string;
+  description?: string;
+  sub_steps?: PlaywrightStep[]; // Only for playwright type
+};
+
 export type ScrapeConfiguration = {
   id?: string;
   name: string;
   description?: string;
   target_url: string;
   is_active?: boolean;
-  steps: ScrapeStep[];
+  steps: ScrapeDownloadStep[];
 };
 
 export async function getScrapeConfigurations() {
@@ -55,23 +64,46 @@ export async function createScrapeConfiguration(configuration: ScrapeConfigurati
     throw new Error(`Failed to create configuration: ${configError.message}`);
   }
 
-  // Insert the steps if any
+  // Insert the scrape download steps if any
   if (configuration.steps.length > 0) {
-    const stepsToInsert = configuration.steps.map((step) => ({
-      configuration_id: configData.id,
-      step_order: step.step_order,
-      action_type: step.action_type,
-      selector: step.selector,
-      selector_type: step.selector_type,
-      value: step.value,
-      wait_time: step.wait_time,
-      description: step.description,
-    }));
+    for (const step of configuration.steps) {
+      const { data: stepData, error: stepError } = await supabase
+        .from("scrape_download_steps")
+        .insert({
+          configuration_id: configData.id,
+          step_order: step.step_order,
+          step_type: step.step_type,
+          name: step.name,
+          description: step.description,
+        })
+        .select()
+        .single();
 
-    const { error: stepsError } = await supabase.from("scrape_steps").insert(stepsToInsert);
+      if (stepError) {
+        throw new Error(`Failed to create scrape download step: ${stepError.message}`);
+      }
 
-    if (stepsError) {
-      throw new Error(`Failed to create steps: ${stepsError.message}`);
+      // Insert playwright sub-steps if this is a playwright step
+      if (step.step_type === "playwright" && step.sub_steps && step.sub_steps.length > 0) {
+        const playwrightStepsToInsert = step.sub_steps.map((subStep) => ({
+          scrape_download_step_id: stepData.id,
+          step_order: subStep.step_order,
+          action_type: subStep.action_type,
+          selector: subStep.selector,
+          selector_type: subStep.selector_type,
+          value: subStep.value,
+          wait_time: subStep.wait_time,
+          description: subStep.description,
+        }));
+
+        const { error: playwrightStepsError } = await supabase
+          .from("playwright_steps")
+          .insert(playwrightStepsToInsert);
+
+        if (playwrightStepsError) {
+          throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
+        }
+      }
     }
   }
 
@@ -97,9 +129,9 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
     throw new Error(`Failed to update configuration: ${configError.message}`);
   }
 
-  // Delete existing steps
+  // Delete existing scrape download steps (this will cascade delete playwright steps)
   const { error: deleteError } = await supabase
-    .from("scrape_steps")
+    .from("scrape_download_steps")
     .delete()
     .eq("configuration_id", id);
 
@@ -107,23 +139,46 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
     throw new Error(`Failed to delete existing steps: ${deleteError.message}`);
   }
 
-  // Insert new steps
+  // Insert new scrape download steps
   if (configuration.steps.length > 0) {
-    const stepsToInsert = configuration.steps.map((step) => ({
-      configuration_id: id,
-      step_order: step.step_order,
-      action_type: step.action_type,
-      selector: step.selector,
-      selector_type: step.selector_type,
-      value: step.value,
-      wait_time: step.wait_time,
-      description: step.description,
-    }));
+    for (const step of configuration.steps) {
+      const { data: stepData, error: stepError } = await supabase
+        .from("scrape_download_steps")
+        .insert({
+          configuration_id: id,
+          step_order: step.step_order,
+          step_type: step.step_type,
+          name: step.name,
+          description: step.description,
+        })
+        .select()
+        .single();
 
-    const { error: stepsError } = await supabase.from("scrape_steps").insert(stepsToInsert);
+      if (stepError) {
+        throw new Error(`Failed to create scrape download step: ${stepError.message}`);
+      }
 
-    if (stepsError) {
-      throw new Error(`Failed to update steps: ${stepsError.message}`);
+      // Insert playwright sub-steps if this is a playwright step
+      if (step.step_type === "playwright" && step.sub_steps && step.sub_steps.length > 0) {
+        const playwrightStepsToInsert = step.sub_steps.map((subStep) => ({
+          scrape_download_step_id: stepData.id,
+          step_order: subStep.step_order,
+          action_type: subStep.action_type,
+          selector: subStep.selector,
+          selector_type: subStep.selector_type,
+          value: subStep.value,
+          wait_time: subStep.wait_time,
+          description: subStep.description,
+        }));
+
+        const { error: playwrightStepsError } = await supabase
+          .from("playwright_steps")
+          .insert(playwrightStepsToInsert);
+
+        if (playwrightStepsError) {
+          throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
+        }
+      }
     }
   }
 

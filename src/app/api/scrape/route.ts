@@ -76,119 +76,191 @@ export async function POST(req: NextRequest) {
       const stepNumber = i + 1;
 
       console.log(`[SCRAPE API] Executing step ${stepNumber}/${steps.length}:`, {
-        action_type: step.action_type,
-        selector: step.selector,
-        selector_type: step.selector_type,
-        value: step.value,
-        wait_time: step.wait_time,
+        step_type: step.step_type,
+        name: step.name,
         description: step.description,
       });
 
-      switch (step.action_type) {
-        case "goto":
-          console.log(`[SCRAPE API] Step ${stepNumber}: Navigating to ${config.target_url}`);
-          await page.goto(config.target_url);
-          console.log(`[SCRAPE API] Step ${stepNumber}: Navigation completed`);
-          break;
+      // Handle different step types
+      switch (step.step_type) {
+        case "playwright":
+          console.log(`[SCRAPE API] Step ${stepNumber}: Executing playwright actions...`);
 
-        case "click":
-          if (step.selector_type === "role") {
-            console.log(`[SCRAPE API] Step ${stepNumber}: Clicking role button "${step.selector}"`);
-            await page.getByRole("button", { name: step.selector }).click();
-          } else if (step.selector_type === "option") {
-            console.log(`[SCRAPE API] Step ${stepNumber}: Clicking option "${step.selector}"`);
-            await page
-              .getByRole("option", { name: step.selector })
-              .locator("mat-pseudo-checkbox")
-              .click();
-          } else {
-            console.log(`[SCRAPE API] Step ${stepNumber}: Clicking selector "${step.selector}"`);
-            await page.click(step.selector);
-          }
-          console.log(`[SCRAPE API] Step ${stepNumber}: Click action completed`);
-          break;
+          if (step.sub_steps && step.sub_steps.length > 0) {
+            for (let j = 0; j < step.sub_steps.length; j++) {
+              const subStep = step.sub_steps[j];
+              const subStepNumber = j + 1;
 
-        case "waitForDownload":
-          console.log(`[SCRAPE API] Step ${stepNumber}: Waiting for download event...`);
-          downloadPromise = page.waitForEvent("download");
-          console.log(`[SCRAPE API] Step ${stepNumber}: Download promise created`);
-          break;
+              console.log(
+                `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Executing playwright action:`,
+                {
+                  action_type: subStep.action_type,
+                  selector: subStep.selector,
+                  selector_type: subStep.selector_type,
+                  value: subStep.value,
+                  wait_time: subStep.wait_time,
+                  description: subStep.description,
+                }
+              );
 
-        case "saveDownload": {
-          if (downloadPromise) {
-            console.log(`[SCRAPE API] Step ${stepNumber}: Saving download to Supabase Storage...`);
-            const download: Download = await downloadPromise;
+              switch (subStep.action_type) {
+                case "goto":
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Navigating to ${config.target_url}`
+                  );
+                  await page.goto(config.target_url);
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Navigation completed`
+                  );
+                  break;
 
-            // Generate filename with timestamp to avoid conflicts
-            const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-            const originalFilename = download.suggestedFilename() ?? "downloaded-file.xlsx";
-            const filename = `${timestamp}-${originalFilename}`;
-            const storagePath = `${id}/${filename}`;
+                case "click":
+                  if (subStep.selector_type === "role") {
+                    console.log(
+                      `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Clicking role button "${subStep.selector}"`
+                    );
+                    await page.getByRole("button", { name: subStep.selector }).click();
+                  } else if (subStep.selector_type === "option") {
+                    console.log(
+                      `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Clicking option "${subStep.selector}"`
+                    );
+                    await page
+                      .getByRole("option", { name: subStep.selector })
+                      .locator("mat-pseudo-checkbox")
+                      .click();
+                  } else {
+                    console.log(
+                      `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Clicking selector "${subStep.selector}"`
+                    );
+                    await page.click(subStep.selector);
+                  }
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Click action completed`
+                  );
+                  break;
 
-            console.log(
-              `[SCRAPE API] Step ${stepNumber}: Uploading to storage path: ${storagePath}`
-            );
+                case "waitForDownload":
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Waiting for download event...`
+                  );
+                  downloadPromise = page.waitForEvent("download");
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Download promise created`
+                  );
+                  break;
 
-            // Get the download as ArrayBuffer and upload to Supabase Storage
-            const stream = await download.createReadStream();
-            const chunks: Uint8Array[] = [];
+                case "saveDownload": {
+                  if (downloadPromise) {
+                    console.log(
+                      `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Saving download to Supabase Storage...`
+                    );
+                    const download: Download = await downloadPromise;
 
-            for await (const chunk of stream) {
-              chunks.push(chunk);
+                    // Generate filename with timestamp to avoid conflicts
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+                    const originalFilename = download.suggestedFilename() ?? "downloaded-file.xlsx";
+                    const filename = `${timestamp}-${originalFilename}`;
+                    const storagePath = `${id}/${filename}`;
+
+                    console.log(
+                      `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Uploading to storage path: ${storagePath}`
+                    );
+
+                    // Get the download as ArrayBuffer and upload to Supabase Storage
+                    const stream = await download.createReadStream();
+                    const chunks: Uint8Array[] = [];
+
+                    for await (const chunk of stream) {
+                      chunks.push(chunk);
+                    }
+
+                    const buffer = Buffer.concat(chunks);
+                    const { data, error } = await supabase.storage
+                      .from("scrape-downloads")
+                      .upload(storagePath, buffer, {
+                        contentType: getContentType(filename),
+                      });
+
+                    if (error) {
+                      console.error(
+                        `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Storage upload failed:`,
+                        error
+                      );
+                      throw error;
+                    }
+
+                    storageObjectId = data?.id;
+                    console.log(
+                      `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Download uploaded successfully to ${storagePath}`,
+                      { storageObjectId, data }
+                    );
+                  } else {
+                    console.warn(
+                      `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: No download promise available for saveDownload action`
+                    );
+                  }
+                  break;
+                }
+
+                case "wait": {
+                  const waitTime = subStep.wait_time ?? 1000;
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Waiting for ${waitTime}ms`
+                  );
+                  await page.waitForTimeout(waitTime);
+                  console.log(`[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Wait completed`);
+                  break;
+                }
+
+                case "type":
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Typing "${subStep.value}" into selector "${subStep.selector}"`
+                  );
+                  await page.fill(subStep.selector, subStep.value ?? "");
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Type action completed`
+                  );
+                  break;
+
+                case "select":
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Selecting option "${subStep.value}" from selector "${subStep.selector}"`
+                  );
+                  await page.selectOption(subStep.selector, subStep.value ?? "");
+                  console.log(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Select action completed`
+                  );
+                  break;
+
+                default:
+                  console.warn(
+                    `[SCRAPE API] Step ${stepNumber}.${subStepNumber}: Unknown action type "${subStep.action_type}" - skipping`
+                  );
+                  break;
+              }
+
+              console.log(
+                `[SCRAPE API] Step ${stepNumber}.${subStepNumber} completed successfully`
+              );
             }
-
-            const buffer = Buffer.concat(chunks);
-            const { data, error } = await supabase.storage
-              .from("scrape-downloads")
-              .upload(storagePath, buffer, {
-                contentType: getContentType(filename),
-              });
-
-            if (error) {
-              console.error(`[SCRAPE API] Step ${stepNumber}: Storage upload failed:`, error);
-              throw error;
-            }
-
-            storageObjectId = data?.id;
-            console.log(
-              `[SCRAPE API] Step ${stepNumber}: Download uploaded successfully to ${storagePath}`,
-              { storageObjectId, data }
-            );
           } else {
-            console.warn(
-              `[SCRAPE API] Step ${stepNumber}: No download promise available for saveDownload action`
-            );
+            console.warn(`[SCRAPE API] Step ${stepNumber}: No playwright sub-steps found`);
           }
           break;
-        }
 
-        case "wait": {
-          const waitTime = step.wait_time ?? 1000;
-          console.log(`[SCRAPE API] Step ${stepNumber}: Waiting for ${waitTime}ms`);
-          await page.waitForTimeout(waitTime);
-          console.log(`[SCRAPE API] Step ${stepNumber}: Wait completed`);
-          break;
-        }
-
-        case "type":
-          console.log(
-            `[SCRAPE API] Step ${stepNumber}: Typing "${step.value}" into selector "${step.selector}"`
-          );
-          await page.fill(step.selector, step.value ?? "");
-          console.log(`[SCRAPE API] Step ${stepNumber}: Type action completed`);
+        case "ai_prompt":
+          console.log(`[SCRAPE API] Step ${stepNumber}: AI Prompt step - not implemented yet`);
+          // TODO: Implement AI prompt functionality
           break;
 
-        case "select":
-          console.log(
-            `[SCRAPE API] Step ${stepNumber}: Selecting option "${step.value}" from selector "${step.selector}"`
-          );
-          await page.selectOption(step.selector, step.value ?? "");
-          console.log(`[SCRAPE API] Step ${stepNumber}: Select action completed`);
+        case "links_analysis":
+          console.log(`[SCRAPE API] Step ${stepNumber}: Links Analysis step - not implemented yet`);
+          // TODO: Implement links analysis functionality
           break;
 
         default:
           console.warn(
-            `[SCRAPE API] Step ${stepNumber}: Unknown action type "${step.action_type}" - skipping`
+            `[SCRAPE API] Step ${stepNumber}: Unknown step type "${step.step_type}" - skipping`
           );
           break;
       }
@@ -198,40 +270,38 @@ export async function POST(req: NextRequest) {
 
     const executionTime = Date.now() - startTime;
     console.log(`[SCRAPE API] All steps completed successfully in ${executionTime}ms`);
-    console.log(`[SCRAPE API] Final result:`, {
-      success: true,
-      steps_executed: steps.length,
-      execution_time_ms: executionTime,
-    });
+
+    // Get download URL if file was uploaded
+    let downloadUrl = null;
+    if (storageObjectId) {
+      const { data: urlData } = await supabase.storage
+        .from("scrape-downloads")
+        .createSignedUrl(`${id}/${storageObjectId}`, 3600); // 1 hour expiry
+      downloadUrl = urlData?.signedUrl;
+    }
 
     await browser.close();
     console.log(`[SCRAPE API] Browser closed successfully`);
 
     return NextResponse.json({
       success: true,
-      steps: steps.map((s: any) => s.action_type),
-      storageObjectId: storageObjectId ?? null,
+      downloadPath: storageObjectId,
+      downloadUrl,
       executionTimeMs: executionTime,
       stepsExecuted: steps.length,
     });
-  } catch (err: any) {
-    const executionTime = Date.now() - startTime;
-    console.error(`[SCRAPE API] Error during execution after ${executionTime}ms:`, {
-      error: err.message,
-      stack: err.stack,
-      steps_executed: steps.length,
-      execution_time_ms: executionTime,
-    });
-
+  } catch (error: any) {
+    console.error(`[SCRAPE API] Error during scrape execution:`, error);
     await browser.close();
-    console.log(`[SCRAPE API] Browser closed after error`);
+    console.log(`[SCRAPE API] Browser closed due to error`);
 
+    const executionTime = Date.now() - startTime;
     return NextResponse.json(
       {
-        error: err.message,
+        success: false,
+        error: error.message || "An unexpected error occurred during scraping",
         executionTimeMs: executionTime,
-        stepsExecuted: steps.length,
-        storageObjectId: storageObjectId ?? null,
+        stepsExecuted: 0,
       },
       { status: 500 }
     );

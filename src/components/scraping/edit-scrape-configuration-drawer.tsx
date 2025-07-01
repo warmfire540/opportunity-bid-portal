@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, GripVertical, Edit } from "lucide-react";
+import { Plus, Trash2, GripVertical, Edit, ChevronDown, ChevronRight } from "lucide-react";
 
-import type { ScrapeConfiguration, ScrapeStep } from "@lib/actions/scrape-configurations";
+import type {
+  ScrapeConfiguration,
+  ScrapeDownloadStep,
+  PlaywrightStep,
+} from "@lib/actions/scrape-configurations";
 import { updateScrapeConfiguration } from "@lib/actions/scrape-configurations";
 
 import { Badge } from "../ui/badge";
@@ -26,6 +30,12 @@ type Props = {
   configuration: ScrapeConfiguration;
   onUpdate?: () => void;
 };
+
+const STEP_TYPES = [
+  { value: "playwright", label: "Playwright File Download" },
+  { value: "ai_prompt", label: "AI Prompt" },
+  { value: "links_analysis", label: "Links Analysis" },
+];
 
 const ACTION_TYPES = [
   { value: "goto", label: "Navigate to URL" },
@@ -58,15 +68,29 @@ export default function EditScrapeConfigurationDrawer({
     is_active: configuration.is_active ?? true,
     steps: configuration.steps ?? [],
   });
+  const [expandedPlaywrightSections, setExpandedPlaywrightSections] = useState<Set<number>>(
+    new Set()
+  );
+
+  const togglePlaywrightSection = (stepIndex: number) => {
+    setExpandedPlaywrightSections((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(stepIndex)) {
+        newSet.delete(stepIndex);
+      } else {
+        newSet.add(stepIndex);
+      }
+      return newSet;
+    });
+  };
 
   const addStep = () => {
-    const newStep: ScrapeStep = {
+    const newStep: ScrapeDownloadStep = {
       step_order: formData.steps.length + 1,
-      action_type: "click",
-      selector: "",
-      selector_type: "role",
-      value: "",
+      step_type: "playwright",
+      name: "New Step",
       description: "",
+      sub_steps: [],
     };
     setFormData((prev) => ({
       ...prev,
@@ -74,7 +98,7 @@ export default function EditScrapeConfigurationDrawer({
     }));
   };
 
-  const updateStep = (index: number, field: keyof ScrapeStep, value: any) => {
+  const updateStep = (index: number, field: keyof ScrapeDownloadStep, value: any) => {
     setFormData((prev) => ({
       ...prev,
       steps: prev.steps.map((step, i) => (i === index ? { ...step, [field]: value } : step)),
@@ -90,19 +114,65 @@ export default function EditScrapeConfigurationDrawer({
     }));
   };
 
-  const moveStep = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= formData.steps.length) return;
+  const addPlaywrightStep = (stepIndex: number) => {
+    const newPlaywrightStep: PlaywrightStep = {
+      step_order: (formData.steps[stepIndex].sub_steps?.length ?? 0) + 1,
+      action_type: "click",
+      selector: "",
+      selector_type: "role",
+      value: "",
+      description: "",
+    };
+    setFormData((prev) => ({
+      ...prev,
+      steps: prev.steps.map((step, i) =>
+        i === stepIndex
+          ? {
+              ...step,
+              sub_steps: [...(step.sub_steps ?? []), newPlaywrightStep],
+            }
+          : step
+      ),
+    }));
+  };
 
-    setFormData((prev) => {
-      const newSteps = [...prev.steps];
-      const [movedStep] = newSteps.splice(fromIndex, 1);
-      newSteps.splice(toIndex, 0, movedStep);
+  const updatePlaywrightStep = (
+    stepIndex: number,
+    subStepIndex: number,
+    field: keyof PlaywrightStep,
+    value: any
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      steps: prev.steps.map((step, i) =>
+        i === stepIndex
+          ? {
+              ...step,
+              sub_steps:
+                step.sub_steps?.map((subStep, j) =>
+                  j === subStepIndex ? { ...subStep, [field]: value } : subStep
+                ) ?? [],
+            }
+          : step
+      ),
+    }));
+  };
 
-      return {
-        ...prev,
-        steps: newSteps.map((step, i) => ({ ...step, step_order: i + 1 })),
-      };
-    });
+  const removePlaywrightStep = (stepIndex: number, subStepIndex: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      steps: prev.steps.map((step, i) =>
+        i === stepIndex
+          ? {
+              ...step,
+              sub_steps:
+                step.sub_steps
+                  ?.filter((_, j) => j !== subStepIndex)
+                  .map((subStep, j) => ({ ...subStep, step_order: j + 1 })) ?? [],
+            }
+          : step
+      ),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,231 +198,284 @@ export default function EditScrapeConfigurationDrawer({
           <Edit className="h-3 w-3" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[800px] overflow-y-auto sm:max-w-[800px]">
+      <SheetContent className="!w-[80%] !max-w-none overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Edit Configuration</SheetTitle>
-          <SheetDescription>Update your scraping configuration and steps</SheetDescription>
+          <SheetDescription>Update your scraping configuration and its steps.</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configuration Details</CardTitle>
-              <CardDescription>Basic information about your scraping configuration</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name ?? ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., Florida RFP Scraper"
-                  required
-                />
-              </div>
+          {/* Configuration Details */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                required
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                  placeholder="Describe what this configuration does..."
-                  rows={3}
-                />
-              </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="target_url">Target URL *</Label>
-                <Input
-                  id="target_url"
-                  type="url"
-                  value={formData.target_url ?? ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, target_url: e.target.value }))}
-                  placeholder="https://vendor.myfloridamarketplace.com/search/bids"
-                  required
-                />
-              </div>
+            <div>
+              <Label htmlFor="target_url">Target URL</Label>
+              <Input
+                id="target_url"
+                value={formData.target_url}
+                onChange={(e) => setFormData((prev) => ({ ...prev, target_url: e.target.value }))}
+                required
+              />
+            </div>
+          </div>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="is_active"
-                  checked={formData.is_active}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, is_active: e.target.checked }))
-                  }
-                  className="rounded"
-                />
-                <Label htmlFor="is_active">Active</Label>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Steps */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Steps</Label>
+              <Button type="button" onClick={addStep} size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Step
+              </Button>
+            </div>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Scraping Steps</CardTitle>
-                  <CardDescription>Define the sequence of actions to perform</CardDescription>
-                </div>
-                <Button type="button" onClick={addStep} variant="outline" size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Step
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {formData.steps.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground">
-                  <p>No steps defined. Add your first step to get started.</p>
-                </div>
-              ) : (
+            {formData.steps.map((step, stepIndex) => (
+              <Card key={stepIndex} className="p-4">
                 <div className="space-y-4">
-                  {formData.steps.map((step, index) => (
-                    <div key={step.id} className="space-y-4 rounded-lg border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-muted-foreground" />
-                          <Badge variant="outline">Step {step.step_order}</Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {index > 0 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => moveStep(index, index - 1)}
-                            >
-                              ↑
-                            </Button>
-                          )}
-                          {index < formData.steps.length - 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => moveStep(index, index + 1)}
-                            >
-                              ↓
-                            </Button>
-                          )}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeStep(index)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label>Action Type *</Label>
-                          <Select
-                            value={step.action_type}
-                            onValueChange={(value) => updateStep(index, "action_type", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {ACTION_TYPES.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  {type.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {step.action_type !== "goto" && step.action_type !== "wait" && (
-                          <div className="space-y-2">
-                            <Label>Selector Type</Label>
-                            <Select
-                              value={step.selector_type}
-                              onValueChange={(value) => updateStep(index, "selector_type", value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {SELECTOR_TYPES.map((type) => (
-                                  <SelectItem key={type.value} value={type.value}>
-                                    {type.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-
-                      {step.action_type !== "goto" && step.action_type !== "wait" && (
-                        <div className="space-y-2">
-                          <Label>Selector</Label>
-                          <Input
-                            value={step.selector ?? ""}
-                            onChange={(e) => updateStep(index, "selector", e.target.value)}
-                            placeholder={
-                              step.selector_type === "role" ? "button" : "CSS selector, text, etc."
-                            }
-                          />
-                        </div>
-                      )}
-
-                      {(step.action_type === "type" || step.action_type === "select") && (
-                        <div className="space-y-2">
-                          <Label>Value</Label>
-                          <Input
-                            value={step.value ?? ""}
-                            onChange={(e) => updateStep(index, "value", e.target.value)}
-                            placeholder="Text to type or option to select"
-                          />
-                        </div>
-                      )}
-
-                      {step.action_type === "wait" && (
-                        <div className="space-y-2">
-                          <Label>Wait Time (ms)</Label>
-                          <Input
-                            type="number"
-                            value={step.wait_time ?? ""}
-                            onChange={(e) =>
-                              updateStep(index, "wait_time", parseInt(e.target.value) || 0)
-                            }
-                            placeholder="1000"
-                          />
-                        </div>
-                      )}
-
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Input
-                          value={step.description ?? ""}
-                          onChange={(e) => updateStep(index, "description", e.target.value)}
-                          placeholder="Optional description of this step"
-                        />
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <GripVertical className="h-4 w-4 text-muted-foreground" />
+                      <Badge variant="outline">Step {step.step_order}</Badge>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeStep(stepIndex)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
 
-          <div className="flex justify-end gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Step Type</Label>
+                      <Select
+                        value={step.step_type}
+                        onValueChange={(value) => updateStep(stepIndex, "step_type", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {STEP_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label>Name</Label>
+                      <Input
+                        value={step.name}
+                        onChange={(e) => updateStep(stepIndex, "name", e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea
+                      value={step.description ?? ""}
+                      onChange={(e) => updateStep(stepIndex, "description", e.target.value)}
+                    />
+                  </div>
+
+                  {/* Playwright Sub-steps */}
+                  {step.step_type === "playwright" && (
+                    <div className="space-y-4 border-t pt-4">
+                      <div
+                        className="flex cursor-pointer items-center justify-between"
+                        onClick={() => togglePlaywrightSection(stepIndex)}
+                      >
+                        <div className="flex items-center gap-2">
+                          {expandedPlaywrightSections.has(stepIndex) ? (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          )}
+                          <Label className="text-sm font-medium">Playwright Actions</Label>
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addPlaywrightStep(stepIndex);
+                          }}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="mr-1 h-3 w-3" />
+                          Add Action
+                        </Button>
+                      </div>
+
+                      {expandedPlaywrightSections.has(stepIndex) && (
+                        <>
+                          {step.sub_steps?.map((subStep, subStepIndex) => (
+                            <Card key={subStepIndex} className="bg-muted/50 p-3">
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="secondary" className="text-xs">
+                                      Action {subStep.step_order}
+                                    </Badge>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removePlaywrightStep(stepIndex, subStepIndex)}
+                                    className="h-6 w-6 p-0 text-destructive"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-xs">Action Type</Label>
+                                    <Select
+                                      value={subStep.action_type}
+                                      onValueChange={(value) =>
+                                        updatePlaywrightStep(
+                                          stepIndex,
+                                          subStepIndex,
+                                          "action_type",
+                                          value
+                                        )
+                                      }
+                                    >
+                                      <SelectTrigger className="h-8">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {ACTION_TYPES.map((type) => (
+                                          <SelectItem key={type.value} value={type.value}>
+                                            {type.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-xs">Selector Type</Label>
+                                    <Select
+                                      value={subStep.selector_type ?? "role"}
+                                      onValueChange={(value) =>
+                                        updatePlaywrightStep(
+                                          stepIndex,
+                                          subStepIndex,
+                                          "selector_type",
+                                          value
+                                        )
+                                      }
+                                    >
+                                      <SelectTrigger className="h-8">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {SELECTOR_TYPES.map((type) => (
+                                          <SelectItem key={type.value} value={type.value}>
+                                            {type.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-xs">Selector</Label>
+                                    <Input
+                                      value={subStep.selector ?? ""}
+                                      onChange={(e) =>
+                                        updatePlaywrightStep(
+                                          stepIndex,
+                                          subStepIndex,
+                                          "selector",
+                                          e.target.value
+                                        )
+                                      }
+                                      className="h-8"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-xs">Value</Label>
+                                    <Input
+                                      value={subStep.value ?? ""}
+                                      onChange={(e) =>
+                                        updatePlaywrightStep(
+                                          stepIndex,
+                                          subStepIndex,
+                                          "value",
+                                          e.target.value
+                                        )
+                                      }
+                                      className="h-8"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <Label className="text-xs">Description</Label>
+                                  <Input
+                                    value={subStep.description ?? ""}
+                                    onChange={(e) =>
+                                      updatePlaywrightStep(
+                                        stepIndex,
+                                        subStepIndex,
+                                        "description",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="h-8"
+                                  />
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Update Configuration"}
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>

@@ -7,6 +7,12 @@ import type { ScrapeConfiguration } from "@lib/actions/scrape-configurations";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "../../../components/ui/tooltip";
 
 type DownloadedFile = {
   id: string;
@@ -75,7 +81,10 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
             }
           }}
         >
-          <span>Downloaded Files</span>
+          <div className="flex items-center gap-2">
+            <Download className="h-5 w-5" />
+            <span>Downloaded Files</span>
+          </div>
           {isExpanded ? (
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           ) : (
@@ -116,12 +125,20 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" asChild className="flex-shrink-0">
-                    <a href={file.downloadUrl} download={file.filename}>
-                      <Download className="mr-1 h-3 w-3" />
-                      Download
-                    </a>
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" asChild className="flex-shrink-0">
+                          <a href={file.downloadUrl} download={file.filename}>
+                            <Download className="h-3 w-3" />
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Download</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               ))}
             </div>
