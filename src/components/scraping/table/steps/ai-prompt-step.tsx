@@ -1,19 +1,32 @@
 "use client";
 
-import { useState } from "react";
 import { MessageSquare } from "lucide-react";
+import { useState } from "react";
 
 import type { ScrapeDownloadStep } from "@lib/actions/scraping";
 
-import StepCard from "./step-card";
 import { Label } from "../../../ui/label";
+
+import StepCard from "./step-card";
 
 interface Props {
   step: ScrapeDownloadStep;
   isRunning?: boolean;
 }
 
-export default function AiPromptStep({ step, isRunning = false }: Readonly<Props>) {
+export default function AiPromptStep({
+  step,
+  isRunning = false,
+  isLast = false,
+  hasNextStep = false,
+  nextStepType,
+}: Readonly<
+  Props & {
+    isLast?: boolean;
+    hasNextStep?: boolean;
+    nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
+  }
+>) {
   const [isExpanded, setIsExpanded] = useState(false);
   const promptData = step.prompt_data ?? [];
 
@@ -27,6 +40,11 @@ export default function AiPromptStep({ step, isRunning = false }: Readonly<Props
       expanded={isExpanded}
       onToggle={() => setIsExpanded((v) => !v)}
       isRunning={isRunning}
+      showConnector={true}
+      stepType="prompt_steps"
+      isLast={isLast}
+      hasNextStep={hasNextStep}
+      nextStepType={nextStepType}
     >
       <div className="space-y-4">
         {promptData.map((prompt, index) => (

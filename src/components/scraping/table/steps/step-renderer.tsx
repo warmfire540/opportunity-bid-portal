@@ -8,16 +8,51 @@ type Props = {
   step: ScrapeDownloadStep;
   configuration: ScrapeConfiguration;
   isRunning?: boolean;
+  isLast?: boolean;
+  hasNextStep?: boolean;
+  nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
 };
 
-export default function StepRenderer({ step, configuration, isRunning = false }: Readonly<Props>) {
+export default function StepRenderer({
+  step,
+  configuration,
+  isRunning = false,
+  isLast = false,
+  hasNextStep = false,
+  nextStepType,
+}: Readonly<Props>) {
   switch (step.step_type) {
     case "playwright":
-      return <PlaywrightStep step={step} configuration={configuration} isRunning={isRunning} />;
+      return (
+        <PlaywrightStep
+          step={step}
+          configuration={configuration}
+          isRunning={isRunning}
+          isLast={isLast}
+          hasNextStep={hasNextStep}
+          nextStepType={nextStepType}
+        />
+      );
     case "prompt_steps":
-      return <AiPromptStep step={step} isRunning={isRunning} />;
+      return (
+        <AiPromptStep
+          step={step}
+          isRunning={isRunning}
+          isLast={isLast}
+          hasNextStep={hasNextStep}
+          nextStepType={nextStepType}
+        />
+      );
     case "ai_prompt":
-      return <AiPromptStep step={step} isRunning={isRunning} />;
+      return (
+        <AiPromptStep
+          step={step}
+          isRunning={isRunning}
+          isLast={isLast}
+          hasNextStep={hasNextStep}
+          nextStepType={nextStepType}
+        />
+      );
     case "links_analysis":
       // TODO: Implement links analysis step component
       return (

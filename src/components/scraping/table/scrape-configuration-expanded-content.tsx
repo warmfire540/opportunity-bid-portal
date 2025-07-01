@@ -3,12 +3,14 @@
 import { Download, Clock, Play, CheckCircle, XCircle, ExternalLink, Code } from "lucide-react";
 
 import type { ScrapeConfiguration } from "@lib/actions/scraping";
+
 import { Alert, AlertDescription } from "../../ui/alert";
+import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../ui/card";
 import DownloadedFiles from "../downloaded-files";
+
 import { StepRenderer } from "./steps";
-import { Badge } from "../../ui/badge";
 
 type ScrapeResult = {
   success: boolean;
@@ -35,8 +37,6 @@ export default function ScrapeConfigurationExpandedContent({
   currentStepIndex,
 }: Readonly<Props>) {
   const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
-  const playwrightSteps = steps.filter((step) => step.step_type === "playwright");
-  const playwrightStep = steps.find((step) => step.step_type === "playwright");
 
   return (
     <div className="border-t bg-muted/30 p-6">
@@ -69,7 +69,7 @@ export default function ScrapeConfigurationExpandedContent({
               <div className="space-y-4">
                 <Button
                   onClick={onRunScrape}
-                  disabled={isRunning || !configuration.is_active}
+                  disabled={isRunning || configuration.is_active === false}
                   className="w-full"
                 >
                   {isRunning ? (
@@ -85,14 +85,14 @@ export default function ScrapeConfigurationExpandedContent({
                   )}
                 </Button>
 
-                {!configuration.is_active && (
+                {configuration.is_active === false && (
                   <p className="text-center text-sm text-muted-foreground">
                     Configuration is inactive. Enable it to run scrapes.
                   </p>
                 )}
 
                 {/* Result Display */}
-                {result && (
+                {result != null && (
                   <div className="space-y-3">
                     {result.success ? (
                       <Alert className="border-green-200 bg-green-50">
@@ -103,7 +103,7 @@ export default function ScrapeConfigurationExpandedContent({
                             <div className="space-y-1 text-sm">
                               <p>Steps executed: {result.stepsExecuted}</p>
                               <p>Execution time: {result.executionTimeMs}ms</p>
-                              {result.downloadUrl && (
+                              {result.downloadUrl != null && result.downloadUrl !== "" && (
                                 <div className="flex items-center gap-2">
                                   <span>Download:</span>
                                   <Button
@@ -134,7 +134,7 @@ export default function ScrapeConfigurationExpandedContent({
                           <div className="space-y-2">
                             <p className="font-medium">Configuration execution failed</p>
                             <p className="text-sm">{result.error}</p>
-                            {result.executionTimeMs && (
+                            {result.executionTimeMs != null && result.executionTimeMs > 0 && (
                               <p className="text-sm">Execution time: {result.executionTimeMs}ms</p>
                             )}
                           </div>
@@ -159,6 +159,9 @@ export default function ScrapeConfigurationExpandedContent({
               step={step}
               configuration={configuration}
               isRunning={currentStepIndex === index}
+              isLast={index === steps.length - 1}
+              hasNextStep={index < steps.length - 1}
+              nextStepType={index < steps.length - 1 ? steps[index + 1]?.step_type : undefined}
             />
           ))}
         </div>
