@@ -3,7 +3,12 @@
 import { Code } from "lucide-react";
 import { useState } from "react";
 
-import type { ScrapeDownloadStep, ScrapeConfiguration, StepType } from "@lib/actions/scraping";
+import type {
+  ScrapeDownloadStep,
+  ScrapeConfiguration,
+  StepType,
+  StepExecutionResult,
+} from "@lib/actions/scraping";
 
 import ScrapeConfigurationSteps from "../../scrape-configuration-steps";
 
@@ -14,7 +19,7 @@ interface Props {
   step: ScrapeDownloadStep;
   configuration: ScrapeConfiguration;
   isRunning?: boolean;
-  stepResult?: any;
+  stepResult?: StepExecutionResult;
 }
 
 export default function PlaywrightStep({
@@ -35,24 +40,38 @@ export default function PlaywrightStep({
   const [isExpanded, setIsExpanded] = useState(false);
   const subSteps = step.sub_steps ?? [];
 
-  // Compute preview and glow for Downloaded File
+  // Compute preview and glow for Downloaded File or Text Results
   const fileName = stepResult?.downloadPath?.split("/").pop();
-  const hasFile = !!fileName;
+  const hasFile = fileName != null && fileName !== "";
+  const hasTextResults = stepResult?.textResults != null && stepResult.textResults.length > 0;
 
   const stepOutputPreview = hasFile ? (
     <div>
       <div className="font-medium">{fileName}</div>
       <div className="text-xs text-muted-foreground" />
     </div>
+  ) : hasTextResults ? (
+    <div>
+      <div className="font-medium">{stepResult.textResults!.length} text(s) extracted</div>
+      <div className="text-xs text-muted-foreground">
+        {stepResult.textResults![0]?.substring(0, 5000)}...
+      </div>
+    </div>
   ) : (
-    <div className="text-xs text-muted-foreground">No file downloaded yet.</div>
+    <div className="text-xs text-muted-foreground">No results yet.</div>
   );
-  const stepOutputGlow = hasFile;
+  const stepOutputGlow = hasFile || hasTextResults;
+  let playwrightOutputType: "file" | "text" | undefined;
+  if (hasTextResults) {
+    playwrightOutputType = "text";
+  } else if (hasFile) {
+    playwrightOutputType = "file";
+  }
 
   return (
     <StepCard
       stepTypeIcon={<Code className="h-5 w-5" />}
-      stepTypeLabel="Playwright File Download"
+      stepTypeLabel="Playwright Web Scrape"
       stepOrder={step.step_order}
       title={step.name}
       description={step.description}
@@ -66,6 +85,7 @@ export default function PlaywrightStep({
       nextStepType={nextStepType}
       stepOutputPreview={stepOutputPreview}
       stepOutputGlow={stepOutputGlow}
+      playwrightOutputType={playwrightOutputType}
     >
       <div className="space-y-4">
         <ScrapeConfigurationSteps subSteps={subSteps} />

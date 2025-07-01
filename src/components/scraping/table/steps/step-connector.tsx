@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, Download, FileText, MessageSquare } from "lucide-react";
+import { ArrowDown, Download, FileText, MessageSquare, ExternalLink } from "lucide-react";
 
 import type { StepType } from "@lib/actions/scraping";
 import { cn } from "@lib/utils";
@@ -15,6 +15,7 @@ interface StepConnectorProps {
   nextStepType?: StepType;
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
+  playwrightOutputType?: "file" | "text";
 }
 
 export default function StepConnector({
@@ -25,18 +26,30 @@ export default function StepConnector({
   nextStepType,
   stepOutputPreview,
   stepOutputGlow,
+  playwrightOutputType,
 }: Readonly<StepConnectorProps>) {
   const getStepOutput = () => {
     switch (stepType) {
       case "playwright":
-        return {
-          icon: <Download className="h-4 w-4 text-blue-600" />,
-          label: "Downloaded File",
-          description: "File saved to storage",
-          color: "text-blue-600",
-          bgColor: "bg-blue-50",
-          borderColor: "border-blue-200",
-        };
+        if (playwrightOutputType === "text") {
+          return {
+            icon: <FileText className="h-4 w-4 text-green-600" />,
+            label: "Extracted Text",
+            description: "Text content extracted",
+            color: "text-green-600",
+            bgColor: "bg-green-50",
+            borderColor: "border-green-200",
+          };
+        } else {
+          return {
+            icon: <Download className="h-4 w-4 text-blue-600" />,
+            label: "Downloaded File",
+            description: "File saved to storage",
+            color: "text-blue-600",
+            bgColor: "bg-blue-50",
+            borderColor: "border-blue-200",
+          };
+        }
       case "ai_prompt":
         return {
           icon: <MessageSquare className="h-4 w-4 text-purple-600" />,
@@ -66,9 +79,9 @@ export default function StepConnector({
     switch (nextStepType) {
       case "playwright":
         return {
-          icon: <Download className="h-4 w-4 text-blue-600" />,
-          label: "Downloaded File",
-          description: "Optional file input",
+          icon: <ExternalLink className="h-4 w-4 text-blue-600" />,
+          label: "URLs",
+          description: "Optional URL input",
           color: "text-blue-600",
           bgColor: "bg-blue-50",
           borderColor: "border-blue-200",

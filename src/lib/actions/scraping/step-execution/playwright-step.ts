@@ -8,7 +8,8 @@ export async function executePlaywrightStep(
   configuration: ScrapeConfiguration,
   browser: any,
   page: any,
-  supabase: any
+  supabase: any,
+  dynamicUrl?: string
 ): Promise<StepExecutionResult> {
   try {
     console.log(`[STEP EXECUTION] Executing playwright step: ${step.name}`);
@@ -20,6 +21,7 @@ export async function executePlaywrightStep(
 
     let downloadPromise: Promise<any> | null = null;
     let storageObjectId: string | undefined = undefined;
+    let textResults: string[] = [];
 
     for (let j = 0; j < step.sub_steps.length; j++) {
       const subStep = step.sub_steps[j];
@@ -28,16 +30,31 @@ export async function executePlaywrightStep(
       console.log(`[STEP EXECUTION] Executing sub-step ${subStepNumber}: ${subStep.action_type}`);
 
       switch (subStep.action_type) {
-        case "goto":
-          console.log(`[STEP EXECUTION] Navigating to ${configuration.target_url}`);
-          await page.goto(configuration.target_url);
+        case "goto": {
+          let urlToNavigate = dynamicUrl ?? configuration.target_url;
+
+          // Handle template variables like {url}
+          if ((subStep.value != null) && subStep.value.includes("{url}") && (dynamicUrl != null)) {
+            urlToNavigate = subStep.value.replace("{url}", dynamicUrl);
+          }
+
+          console.log(`[STEP EXECUTION] Navigating to ${urlToNavigate}`);
+          await page.goto(urlToNavigate);
+
+          // Wait for the page to load and stabilize
+          await page.waitForLoadState("networkidle");
           break;
+        }
 
         case "click":
-          if (subStep.selector_type === "role") {
+          if (subStep.selector_type === "role" && subStep.selector && subStep.selector.length > 0) {
             console.log(`[STEP EXECUTION] Clicking role button "${subStep.selector}"`);
             await page.getByRole("button", { name: subStep.selector }).click();
-          } else if (subStep.selector_type === "option") {
+          } else if (
+            subStep.selector_type === "option" &&
+            subStep.selector &&
+            subStep.selector.length > 0
+          ) {
             console.log(`[STEP EXECUTION] Clicking option "${subStep.selector}"`);
             await page
               .getByRole("option", { name: subStep.selector })
@@ -116,6 +133,13 @@ export async function executePlaywrightStep(
           await page.selectOption(subStep.selector, subStep.value ?? "");
           break;
 
+        case "getInnerText":
+          console.log(`[STEP EXECUTION] Getting inner text from selector "${subStep.selector}"`);
+          const innerText = await page.innerText(subStep.selector ?? "body");
+          textResults.push(innerText);
+          console.log(`[STEP EXECUTION] Extracted text: ${innerText.substring(0, 100)}...`);
+          break;
+
         default:
           console.warn(`[STEP EXECUTION] Unknown action type "${subStep.action_type}" - skipping`);
           break;
@@ -129,6 +153,7 @@ export async function executePlaywrightStep(
       success: true,
       storageObjectId: storageObjectId,
       downloadPath: storageObjectId,
+      textResults: textResults.length > 0 ? textResults : undefined,
     };
   } catch (error: any) {
     console.error(`[STEP EXECUTION] Playwright step failed:`, error);

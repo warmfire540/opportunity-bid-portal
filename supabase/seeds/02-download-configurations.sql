@@ -116,11 +116,12 @@ INSERT INTO storage.objects (
 ('22222222-2222-2222-2222-222222222222', 'scrape-downloads', '7d1bee87-9cef-43cc-810b-297ee11f2b3e/florida-rfp-data-2024-02.xlsx', '00000000-0000-0000-0000-000000000000', now(), now(), now(), '{"size": 2048000, "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}'),
 ('33333333-3333-3333-3333-333333333333', 'scrape-downloads', '7d1bee87-9cef-43cc-810b-297ee11f2b3e/florida-rfp-data-2024-03.xlsx', '00000000-0000-0000-0000-000000000000', now(), now(), now(), '{"size": 1536000, "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}');
 
--- Insert playwright step for text extraction (extractText action)
+-- Insert playwright steps for text extraction (getInnerText action)
 INSERT INTO playwright_steps (
     scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
 ) VALUES
-('b7e2cfa9-0df1-54dd-921c-408ff22f3c4f', 1, 'extractText', NULL, NULL, NULL, NULL, 'Extracts text from bid detail page', '00000000-0000-0000-0000-000000000000');
+('b7e2cfa9-0df1-54dd-921c-408ff22f3c4f', 1, 'goto', NULL, NULL, '{url}', NULL, 'Navigate to bid detail page using dynamic URL', '00000000-0000-0000-0000-000000000000'),
+('b7e2cfa9-0df1-54dd-921c-408ff22f3c4f', 2, 'getInnerText', 'body', 'page', NULL, NULL, 'Extract all text from the bid detail page', '00000000-0000-0000-0000-000000000000');
 
 -- Second Configuration: Example.com Scraping
 -- Insert configuration
@@ -180,11 +181,13 @@ INSERT INTO playwright_steps (
 ) VALUES
 ('8d106cd6-84ee-4e03-80d1-b28b475d1bf5', 1, 'goto', NULL, NULL, 'https://example.com/', NULL, 'Navigate to example.com', '00000000-0000-0000-0000-000000000000');
 
--- Insert playwright steps for the second scrape download step (one random action)
+-- Insert playwright steps for the second scrape download step (text extraction)
 INSERT INTO playwright_steps (
     scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
 ) VALUES
-('68e39794-acc2-4ad4-bc3f-4b13832af482', 1, 'screenshot', NULL, NULL, 'example-page.png', NULL, 'Take a screenshot of the page', '00000000-0000-0000-0000-000000000000');
+('68e39794-acc2-4ad4-bc3f-4b13832af482', 1, 'goto', NULL, NULL, '{url}', NULL, 'Navigate to dynamic URL from previous step', '00000000-0000-0000-0000-000000000000'),
+('68e39794-acc2-4ad4-bc3f-4b13832af482', 2, 'getInnerText', 'body', 'page', NULL, NULL, 'Extract all text from the page body', '00000000-0000-0000-0000-000000000000'),
+('68e39794-acc2-4ad4-bc3f-4b13832af482', 3, 'getInnerText', 'h1', 'css', NULL, NULL, 'Extract the main heading', '00000000-0000-0000-0000-000000000000');
 
 -- Insert prompt step for the AI analysis
 INSERT INTO prompt_steps (

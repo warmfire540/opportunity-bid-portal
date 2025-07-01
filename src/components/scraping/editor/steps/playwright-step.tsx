@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 
 import type { PlaywrightStep } from "@lib/actions/scraping";
@@ -20,6 +19,7 @@ const ACTION_TYPES = [
   { value: "wait", label: "Wait" },
   { value: "waitForDownload", label: "Wait for Download" },
   { value: "saveDownload", label: "Save Download" },
+  { value: "getInnerText", label: "Get Inner Text" },
 ];
 
 const SELECTOR_TYPES = [
@@ -27,6 +27,7 @@ const SELECTOR_TYPES = [
   { value: "text", label: "Text" },
   { value: "css", label: "CSS Selector" },
   { value: "xpath", label: "XPath" },
+  { value: "page", label: "Page" },
 ];
 
 type Props = {
@@ -44,14 +45,14 @@ export default function PlaywrightStep({
 }: Readonly<Props>) {
   const addPlaywrightStep = () => {
     const newPlaywrightStep: PlaywrightStep = {
-      step_order: (subSteps?.length ?? 0) + 1,
+      step_order: subSteps.length + 1,
       action_type: "click",
       selector: "",
       selector_type: "role",
       value: "",
       description: "",
     };
-    onUpdate([...(subSteps ?? []), newPlaywrightStep]);
+    onUpdate([...subSteps, newPlaywrightStep]);
   };
 
   const updatePlaywrightStep = (subStepIndex: number, field: keyof PlaywrightStep, value: any) => {
@@ -95,7 +96,7 @@ export default function PlaywrightStep({
 
       {expanded && (
         <>
-          {subSteps?.map((subStep, subStepIndex) => (
+          {subSteps.map((subStep, subStepIndex) => (
             <Card key={subStepIndex} className="bg-muted/50 p-3">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">

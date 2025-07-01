@@ -25,6 +25,7 @@ interface StepCardProps {
   nextStepType?: StepType;
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
+  playwrightOutputType?: "file" | "text";
 }
 
 export default function StepCard({
@@ -44,7 +45,8 @@ export default function StepCard({
   nextStepType,
   stepOutputPreview,
   stepOutputGlow,
-}: StepCardProps) {
+  playwrightOutputType,
+}: Readonly<StepCardProps>) {
   return (
     <div className="space-y-4">
       <Card
@@ -84,11 +86,11 @@ export default function StepCard({
           </span>
           <span className="flex items-center gap-2">
             <CardDescription>
-              {isRunning
-                ? "Executing..."
-                : expanded
-                  ? description
-                  : `The sequence of actions for this step`}
+              {(() => {
+                if (isRunning) return "Executing...";
+                if (expanded) return description;
+                return "The sequence of actions for this step";
+              })()}
             </CardDescription>
           </span>
         </CardHeader>
@@ -105,6 +107,7 @@ export default function StepCard({
           nextStepType={nextStepType}
           stepOutputPreview={stepOutputPreview}
           stepOutputGlow={stepOutputGlow}
+          playwrightOutputType={playwrightOutputType}
         />
       )}
     </div>
