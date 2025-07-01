@@ -156,3 +156,34 @@ export async function toggleScrapeConfiguration(id: string, isActive: boolean) {
 
   revalidatePath("/dashboard");
 }
+
+export async function getScrapeConfiguration(id: string) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase.rpc("get_scrape_configurations_with_steps");
+
+  if (error) {
+    throw new Error(`Failed to fetch configurations: ${error.message}`);
+  }
+
+  const configuration = data?.find((config: any) => config.id === id);
+  
+  if (!configuration) {
+    throw new Error(`Configuration with id ${id} not found`);
+  }
+
+  return configuration;
+}
+
+export async function toggleScrapeConfigurationAction(formData: FormData) {
+  "use server";
+  const id = formData.get("id") as string;
+  const isActive = formData.get("isActive") === "true";
+  await toggleScrapeConfiguration(id, isActive);
+}
+
+export async function deleteScrapeConfigurationAction(formData: FormData) {
+  "use server";
+  const id = formData.get("id") as string;
+  await deleteScrapeConfiguration(id);
+}

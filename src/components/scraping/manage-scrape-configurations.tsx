@@ -1,22 +1,71 @@
+"use client";
+
 import { Plus, Play, Pause, Edit, Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import {
-  toggleScrapeConfiguration,
-  deleteScrapeConfiguration,
+  toggleScrapeConfigurationAction,
+  deleteScrapeConfigurationAction,
+  getScrapeConfigurations,
 } from "@lib/actions/scrape-configurations";
-import { createClient } from "@lib/supabase/server";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { SubmitButton } from "../ui/submit-button";
 import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "../ui/table";
+import EditScrapeConfigurationDrawer from "./edit-scrape-configuration-drawer";
 
-export default async function ManageScrapeConfigurations() {
-  const supabaseClient = createClient();
+export default function ManageScrapeConfigurations() {
+  const [configurations, setConfigurations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: configurations } = await supabaseClient.rpc("get_scrape_configurations_with_steps");
+  const loadConfigurations = async () => {
+    try {
+      const data = await getScrapeConfigurations();
+      setConfigurations(data || []);
+    } catch (error) {
+      console.error("Failed to load configurations:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadConfigurations();
+  }, []);
+
+  const handleUpdate = () => {
+    loadConfigurations();
+  };
+
+  // Refresh configurations after server actions
+  const handleToggle = async (prevState: any, formData: FormData) => {
+    const result = await toggleScrapeConfigurationAction(formData);
+    // Refresh data after a short delay to allow server action to complete
+    setTimeout(() => loadConfigurations(), 100);
+    return result;
+  };
+
+  const handleDelete = async (prevState: any, formData: FormData) => {
+    const result = await deleteScrapeConfigurationAction(formData);
+    // Refresh data after a short delay to allow server action to complete
+    setTimeout(() => loadConfigurations(), 100);
+    return result;
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <div className="text-center text-muted-foreground">
+            <p>Loading configurations...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -97,12 +146,7 @@ export default async function ManageScrapeConfigurations() {
                         <SubmitButton
                           variant="ghost"
                           size="sm"
-                          formAction={async (prevState, formData) => {
-                            "use server";
-                            const id = formData.get("id") as string;
-                            const isActive = formData.get("isActive") === "true";
-                            await toggleScrapeConfiguration(id, isActive);
-                          }}
+                          formAction={handleToggle}
                         >
                           {config.is_active ? (
                             <Pause className="h-3 w-3" />
@@ -112,22 +156,14 @@ export default async function ManageScrapeConfigurations() {
                         </SubmitButton>
                       </form>
 
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/dashboard/scrape-configurations/${config.id}/edit`}>
-                          <Edit className="h-3 w-3" />
-                        </Link>
-                      </Button>
+                      <EditScrapeConfigurationDrawer configuration={config} onUpdate={handleUpdate} />
 
                       <form className="inline">
                         <input type="hidden" name="id" value={config.id} />
                         <SubmitButton
                           variant="ghost"
                           size="sm"
-                          formAction={async (prevState, formData) => {
-                            "use server";
-                            const id = formData.get("id") as string;
-                            await deleteScrapeConfiguration(id);
-                          }}
+                          formAction={handleDelete}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-3 w-3" />
