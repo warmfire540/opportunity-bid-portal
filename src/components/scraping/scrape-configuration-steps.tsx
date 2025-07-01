@@ -1,23 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
-
-import type { ScrapeConfiguration } from "@lib/actions/scrape-configurations";
+import type { PlaywrightStep } from "@lib/actions/scrape-configurations";
 
 import { Badge } from "../ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
-type Props = {
-  configuration: ScrapeConfiguration;
-};
+// Accept subSteps directly
+interface Props {
+  subSteps: PlaywrightStep[];
+}
 
-export default function ScrapeConfigurationSteps({ configuration }: Readonly<Props>) {
-  const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
-  const playwrightStep = steps.find((step) => step.step_type === "playwright");
-  const playwrightActions = playwrightStep?.sub_steps ?? [];
-
-  if (playwrightActions.length === 0) {
+export default function ScrapeConfigurationSteps({ subSteps }: Readonly<Props>) {
+  if (!subSteps || subSteps.length === 0) {
     return (
       <div className="py-8 text-center text-muted-foreground">
         <p>No Playwright actions configured for this step.</p>
@@ -27,7 +20,7 @@ export default function ScrapeConfigurationSteps({ configuration }: Readonly<Pro
 
   return (
     <div className="space-y-4">
-      {playwrightActions.map((subStep, subIndex) => (
+      {subSteps.map((subStep, subIndex) => (
         <div key={subStep.id ?? subIndex} className="mb-2 rounded bg-muted/50 p-3">
           <div className="text-sm">
             {subStep.description && (
