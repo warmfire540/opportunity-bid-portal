@@ -46,4 +46,4 @@ export async function GET(req: NextRequest) {
     console.error("[FILES API] Unexpected error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-} 
+}

@@ -10,4 +10,4 @@ export { default as DownloadedFiles } from "./downloaded-files";
 export { default as ScrapeConfigurationsEmpty } from "./scrape-configurations-empty";
 export { default as ScrapeConfigurationsHeader } from "./scrape-configurations-header";
 export { default as ScrapeConfigurationsLoading } from "./scrape-configurations-loading";
-export { default as ScrapeConfigurationsTable } from "./scrape-configurations-table"; 
+export { default as ScrapeConfigurationsTable } from "./scrape-configurations-table";

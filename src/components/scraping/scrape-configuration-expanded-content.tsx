@@ -91,18 +91,13 @@ export default function ScrapeConfigurationExpandedContent({
                       <AlertDescription className="text-green-800">
                         <div className="space-y-2">
                           <p className="font-medium">Scrape completed successfully!</p>
-                          <div className="text-sm space-y-1">
+                          <div className="space-y-1 text-sm">
                             <p>Steps executed: {result.stepsExecuted}</p>
                             <p>Execution time: {result.executionTimeMs}ms</p>
                             {result.downloadUrl && (
                               <div className="flex items-center gap-2">
                                 <span>Download:</span>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  asChild
-                                  className="h-6 text-xs"
-                                >
+                                <Button variant="outline" size="sm" asChild className="h-6 text-xs">
                                   <a
                                     href={result.downloadUrl}
                                     target="_blank"

@@ -22,8 +22,8 @@ export default function ScrapeConfigurationSteps({ configuration }: Readonly<Pro
       {/* Configuration Steps Card */}
       <Card>
         <CardHeader>
-          <CardTitle 
-            className="flex items-center justify-between cursor-pointer"
+          <CardTitle
+            className="flex cursor-pointer items-center justify-between"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             <span>Configuration Steps</span>
@@ -33,9 +33,7 @@ export default function ScrapeConfigurationSteps({ configuration }: Readonly<Pro
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             )}
           </CardTitle>
-          <CardDescription>
-            The sequence of actions this configuration will perform
-          </CardDescription>
+          <CardDescription>The sequence of actions this configuration will perform</CardDescription>
         </CardHeader>
         {isExpanded && (
           <CardContent>
@@ -92,4 +90,4 @@ export default function ScrapeConfigurationSteps({ configuration }: Readonly<Pro
       <DownloadedFiles configuration={configuration} />
     </div>
   );
-} 
+}

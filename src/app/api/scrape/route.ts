@@ -132,11 +132,11 @@ export async function POST(req: NextRequest) {
             // Get the download as ArrayBuffer and upload to Supabase Storage
             const stream = await download.createReadStream();
             const chunks: Uint8Array[] = [];
-            
+
             for await (const chunk of stream) {
               chunks.push(chunk);
             }
-            
+
             const buffer = Buffer.concat(chunks);
             const { data, error } = await supabase.storage
               .from("scrape-downloads")

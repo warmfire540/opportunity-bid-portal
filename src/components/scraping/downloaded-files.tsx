@@ -66,8 +66,8 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle 
-          className="flex items-center justify-between cursor-pointer"
+        <CardTitle
+          className="flex cursor-pointer items-center justify-between"
           onClick={() => {
             setIsExpanded(!isExpanded);
             if (!isExpanded && files.length === 0) {
@@ -82,9 +82,7 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
         </CardTitle>
-        <CardDescription>
-          Files downloaded by this configuration
-        </CardDescription>
+        <CardDescription>Files downloaded by this configuration</CardDescription>
       </CardHeader>
       {isExpanded && (
         <CardContent>
@@ -94,7 +92,7 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
             </div>
           ) : files.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">
-              <FileText className="mx-auto h-8 w-8 mb-2 opacity-50" />
+              <FileText className="mx-auto mb-2 h-8 w-8 opacity-50" />
               <p>No files downloaded yet.</p>
               <p className="text-sm">Run the configuration to download files.</p>
             </div>
@@ -105,10 +103,10 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
                   key={file.id}
                   className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{file.filename}</p>
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <FileText className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{file.filename}</p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>{formatFileSize(file.size)}</span>
                         <div className="flex items-center gap-1">
@@ -118,14 +116,9 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="flex-shrink-0"
-                  >
+                  <Button variant="outline" size="sm" asChild className="flex-shrink-0">
                     <a href={file.downloadUrl} download={file.filename}>
-                      <Download className="h-3 w-3 mr-1" />
+                      <Download className="mr-1 h-3 w-3" />
                       Download
                     </a>
                   </Button>
@@ -137,4 +130,4 @@ export default function DownloadedFiles({ configuration }: Readonly<Props>) {
       )}
     </Card>
   );
-} 
+}

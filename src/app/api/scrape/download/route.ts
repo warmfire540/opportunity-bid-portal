@@ -26,13 +26,13 @@ export async function GET(req: NextRequest) {
 
     // Extract filename from the filepath
     const filename = filepath.split("/").pop() ?? "downloaded-file";
-    
+
     // Get file info to determine MIME type
     const { data: fileInfo } = await supabase.storage
       .from("scrape-downloads")
       .list(filepath.split("/").slice(0, -1).join("/"), {
         search: filename,
-        limit: 1
+        limit: 1,
       });
 
     if (!fileInfo || fileInfo.length === 0) {
@@ -53,4 +53,4 @@ export async function GET(req: NextRequest) {
     console.error("[DOWNLOAD API] Unexpected error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-} 
+}
