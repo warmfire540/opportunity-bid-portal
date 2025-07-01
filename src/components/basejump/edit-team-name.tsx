@@ -1,6 +1,6 @@
-import { Input } from "@/components/ui/input"
+import { Input } from "@components/ui/input"
 import { SubmitButton } from "../ui/submit-button"
-import { editTeamName } from "@/lib/actions/teams";
+import { editTeamName } from "@lib/actions/teams";
 import { Label } from "../ui/label";
 import { GetAccountResponse } from "@usebasejump/shared";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";

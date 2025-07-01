@@ -1,6 +1,6 @@
-import SettingsNavigation from "@/components/dashboard/settings-navigation";
-import DashboardTitle from "@/components/dashboard/dashboard-title";
-import {Separator} from "@/components/ui/separator";
+import SettingsNavigation from "@components/dashboard/settings-navigation";
+import DashboardTitle from "@components/dashboard/dashboard-title";
+import {Separator} from "@components/ui/separator";
 
 export default function TeamSettingsPage({children, params: {accountSlug}}: {children: React.ReactNode, params: {accountSlug: string}}) {
     const items = [

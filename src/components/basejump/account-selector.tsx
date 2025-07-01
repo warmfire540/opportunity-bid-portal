@@ -3,8 +3,8 @@
 import { ComponentPropsWithoutRef, useMemo, useState } from "react"
 import { Check, ChevronsUpDown, PlusCircle, } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@lib/utils"
+import { Button } from "@components/ui/button"
 import {
     Command,
     CommandEmpty,
@@ -13,7 +13,7 @@ import {
     CommandItem,
     CommandList,
     CommandSeparator,
-} from "@/components/ui/command"
+} from "@components/ui/command"
 import {
     Dialog,
     DialogContent,
@@ -21,10 +21,10 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
-import { Popover, PopoverContent, PopoverTrigger, } from "@/components/ui/popover"
-import NewTeamForm from "@/components/basejump/new-team-form";
-import { useAccounts } from "@/lib/hooks/use-accounts";
+} from "@components/ui/dialog"
+import { Popover, PopoverContent, PopoverTrigger, } from "@components/ui/popover"
+import NewTeamForm from "@components/basejump/new-team-form";
+import { useAccounts } from "@lib/hooks/use-accounts";
 
 type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 

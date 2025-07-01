@@ -1,15 +1,18 @@
-import Link from "next/link";
+import { SubmitButton } from "@/src/components/ui/submit-button";
+import { Input } from "@/src/components/ui/input";
+import { createClient } from "@/src/lib/supabase/server";
 import { headers } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SubmitButton } from "@/components/ui/submit-button";
-import { Input } from "@/components/ui/input";
+import { OAuthErrorHandler, MicrosoftOAuthButton } from "@/src/components/login";
 
-export default function Login({
+export default async function Login({
   searchParams,
-}: {
-  searchParams: { message: string, returnUrl?: string };
-}) {
+}: Readonly<{
+  searchParams: Promise<{ message: string; returnUrl?: string }>;
+}>) {
+  const params = await searchParams;
+
   const signIn = async (_prevState: any, formData: FormData) => {
     "use server";
 
@@ -23,10 +26,10 @@ export default function Login({
     });
 
     if (error) {
-      return redirect(`/login?message=Could not authenticate user&returnUrl=${searchParams.returnUrl}`);
+      return redirect(`/login?message=Could not authenticate user&returnUrl=${params.returnUrl}`);
     }
 
-    return redirect(searchParams.returnUrl || "/dashboard");
+    return redirect(params.returnUrl ?? "/dashboard");
   };
 
   const signUp = async (_prevState: any, formData: FormData) => {
@@ -41,15 +44,15 @@ export default function Login({
       email,
       password,
       options: {
-        emailRedirectTo: `${origin}/auth/callback?returnUrl=${searchParams.returnUrl}`,
+        emailRedirectTo: `${origin}/auth/callback?returnUrl=${params.returnUrl}`,
       },
     });
 
     if (error) {
-      return redirect(`/login?message=Could not authenticate user&returnUrl=${searchParams.returnUrl}`);
+      return redirect(`/login?message=Could not authenticate user&returnUrl=${params.returnUrl}`);
     }
 
-    return redirect(`/login?message=Check email to continue sign in process&returnUrl=${searchParams.returnUrl}`);
+    return redirect(`/login?message=Check email to continue sign in process&returnUrl=${params.returnUrl}`);
   };
 
   return (
@@ -76,12 +79,22 @@ export default function Login({
       </Link>
 
       <form className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
+        <OAuthErrorHandler />
+        <div className="flex w-full flex-col gap-2">
+          <MicrosoftOAuthButton returnUrl={params.returnUrl} />
+        </div>
+        <div className="my-4 flex items-center gap-2">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-sm text-muted-foreground">or continue with email</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
         <label className="text-md" htmlFor="email">
           Email
         </label>
         <Input
           name="email"
           placeholder="you@example.com"
+          autoComplete="email"
           required
         />
         <label className="text-md" htmlFor="password">
@@ -91,6 +104,7 @@ export default function Login({
           type="password"
           name="password"
           placeholder="••••••••"
+          autoComplete="current-password"
           required
         />
         <SubmitButton
@@ -106,9 +120,9 @@ export default function Login({
         >
           Sign Up
         </SubmitButton>
-        {searchParams?.message && (
+        {params?.message && (
           <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
-            {searchParams.message}
+            {params.message}
           </p>
         )}
       </form>

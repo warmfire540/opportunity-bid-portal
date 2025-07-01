@@ -1,5 +1,5 @@
-import {createClient} from "@/lib/supabase/server";
-import DashboardHeader from "@/components/dashboard/dashboard-header";
+import {createClient} from "@lib/supabase/server";
+import DashboardHeader from "@components/dashboard/dashboard-header";
 
 export default async function PersonalAccountDashboard({children}: {children: React.ReactNode}) {
 

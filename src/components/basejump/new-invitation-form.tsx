@@ -1,10 +1,10 @@
 'use client'
 import { SubmitButton } from "../ui/submit-button"
 import { Label } from "../ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "@/components/ui/select";
-import { createInvitation } from "@/lib/actions/invitations";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "@components/ui/select";
+import { createInvitation } from "@lib/actions/invitations";
 import { useFormState } from "react-dom";
-import fullInvitationUrl from "@/lib/full-invitation-url";
+import fullInvitationUrl from "@lib/full-invitation-url";
 
 type Props = {
     accountId: string

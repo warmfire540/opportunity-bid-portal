@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@lib/supabase/server";
 import { Table, TableRow, TableBody, TableCell } from "../ui/table";
 import { Badge } from "../ui/badge";
 import CreateTeamInvitationButton from "./create-team-invitation-button";

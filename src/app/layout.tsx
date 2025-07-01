@@ -1,6 +1,6 @@
 import { Inter as FontSans } from "next/font/google"
 import "./globals.css";
-import { cn } from "@/lib/utils";
+import { cn } from "@lib/utils";
 
 const defaultUrl = process.env.NEXT_PUBLIC_URL as string || "http://localhost:3005";
 

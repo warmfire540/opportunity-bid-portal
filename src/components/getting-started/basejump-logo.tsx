@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 import Image from "next/image";
-import {cn} from "@/lib/utils";
+import {cn} from "@lib/utils";
 
 type Props = {
   size?: "sm" | "lg";

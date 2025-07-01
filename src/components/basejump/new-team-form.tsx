@@ -1,6 +1,6 @@
-import { Input } from "@/components/ui/input"
+import { Input } from "@components/ui/input"
 import { SubmitButton } from "../ui/submit-button"
-import { createTeam } from "@/lib/actions/teams";
+import { createTeam } from "@lib/actions/teams";
 import { Label } from "../ui/label";
 
 export default function NewTeamForm() {

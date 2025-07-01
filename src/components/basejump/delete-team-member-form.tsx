@@ -1,5 +1,5 @@
 import { SubmitButton } from "../ui/submit-button"
-import { removeTeamMember } from "@/lib/actions/members";
+import { removeTeamMember } from "@lib/actions/members";
 import { GetAccountMembersResponse } from "@usebasejump/shared";
 import { usePathname } from "next/navigation";
 

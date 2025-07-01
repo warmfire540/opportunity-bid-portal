@@ -1,5 +1,5 @@
-import {createClient} from "@/lib/supabase/server";
-import DashboardHeader from "@/components/dashboard/dashboard-header";
+import {createClient} from "@lib/supabase/server";
+import DashboardHeader from "@components/dashboard/dashboard-header";
 import { redirect } from "next/navigation";
 
 export default async function PersonalAccountDashboard({children, params: {accountSlug}}: {children: React.ReactNode, params: {accountSlug: string}}) {

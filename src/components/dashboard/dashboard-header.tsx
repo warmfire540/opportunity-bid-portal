@@ -1,7 +1,7 @@
 import Link from "next/link";
-import UserAccountButton from "@/components/basejump/user-account-button";
-import BasejumpLogo from "@/components/getting-started/basejump-logo";
-import NavigatingAccountSelector from "@/components/dashboard/navigation-account-selector";
+import UserAccountButton from "@components/basejump/user-account-button";
+import BasejumpLogo from "@components/getting-started/basejump-logo";
+import NavigatingAccountSelector from "@components/dashboard/navigation-account-selector";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { Menu } from "lucide-react";
 

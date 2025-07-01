@@ -1,4 +1,4 @@
-import {Button} from "@/components/ui/button"
+import {Button} from "@components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -7,10 +7,10 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@components/ui/dropdown-menu"
 import Link from "next/link";
 import {UserIcon} from "lucide-react";
-import {createClient} from "@/lib/supabase/server";
+import {createClient} from "@lib/supabase/server";
 import {redirect} from "next/navigation";
 
 export default async function UserAccountButton() {

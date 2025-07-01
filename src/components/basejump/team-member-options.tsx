@@ -5,10 +5,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Button } from "../ui/button";
 import { GetAccountMembersResponse } from "@usebasejump/shared";
 import { useEffect, useState } from "react";
-import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
+import { DialogHeader, Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogPortal, DialogOverlay } from "@components/ui/dialog";
 import EditTeamMemberRoleForm from "./edit-team-member-role-form";
 import { SubmitButton } from "../ui/submit-button";
-import { removeTeamMember as removeTeamMemberAction } from "@/lib/actions/members";
+import { removeTeamMember as removeTeamMemberAction } from "@lib/actions/members";
 import DeleteTeamMemberForm from "./delete-team-member-form";
 
 type Props = {

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@lib/supabase/server";
 import { Table, TableRow, TableBody, TableCell } from "../ui/table";
 import { Button } from "../ui/button";
 import Link from "next/link";

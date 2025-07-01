@@ -1,5 +1,5 @@
-import Header from '@/components/getting-started/header'
-import { Button } from '@/components/ui/button';
+import Header from '@components/getting-started/header'
+import { Button } from '@components/ui/button';
 import Link from 'next/link';
 
 export default async function Index() {

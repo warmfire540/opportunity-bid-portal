@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { validateSession } from "@/lib/supabase/middleware";
+import { validateSession } from "@lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   return await validateSession(request);
