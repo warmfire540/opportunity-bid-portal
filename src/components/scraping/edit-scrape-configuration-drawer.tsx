@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, GripVertical, Edit, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Trash2, GripVertical, Edit } from "lucide-react";
 
 import type {
   ScrapeConfiguration,
@@ -9,7 +9,10 @@ import type {
   PlaywrightStep,
   PromptStep,
 } from "@lib/actions/scrape-configurations";
-import { updateScrapeConfiguration } from "@lib/actions/scrape-configurations";
+import {
+  updateScrapeConfiguration,
+  createScrapeConfiguration,
+} from "@lib/actions/scrape-configurations";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -26,10 +29,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
+import { PlaywrightStep as PlaywrightStepComponent, AiPromptStep } from "./editor/steps";
 
 type Props = {
-  configuration: ScrapeConfiguration;
+  configuration?: ScrapeConfiguration;
   onUpdate?: () => void;
+  mode?: "create" | "edit";
+  trigger?: React.ReactNode;
 };
 
 const STEP_TYPES = [
@@ -39,36 +45,39 @@ const STEP_TYPES = [
   { value: "prompt_steps", label: "Prompt Steps" },
 ];
 
-const ACTION_TYPES = [
-  { value: "goto", label: "Navigate to URL" },
-  { value: "click", label: "Click Element" },
-  { value: "type", label: "Type Text" },
-  { value: "select", label: "Select Option" },
-  { value: "wait", label: "Wait" },
-  { value: "waitForDownload", label: "Wait for Download" },
-  { value: "saveDownload", label: "Save Download" },
-];
-
-const SELECTOR_TYPES = [
-  { value: "role", label: "Role" },
-  { value: "text", label: "Text" },
-  { value: "css", label: "CSS Selector" },
-  { value: "xpath", label: "XPath" },
-];
-
 export default function EditScrapeConfigurationDrawer({
   configuration,
   onUpdate,
+  mode = "edit",
+  trigger,
 }: Readonly<Props>) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ScrapeConfiguration>({
-    id: configuration.id,
-    name: configuration.name,
-    description: configuration.description ?? "",
-    target_url: configuration.target_url,
-    is_active: configuration.is_active ?? true,
-    steps: configuration.steps ?? [],
+    id: configuration?.id,
+    name: configuration?.name ?? "",
+    description: configuration?.description ?? "",
+    target_url: configuration?.target_url ?? "",
+    is_active: configuration?.is_active ?? true,
+    steps:
+      configuration?.steps ??
+      (mode === "create"
+        ? [
+            {
+              step_order: 1,
+              step_type: "playwright",
+              name: "Download RFP Data",
+              description: "Navigate to the site and download RFP data using Playwright automation",
+              sub_steps: [
+                {
+                  step_order: 1,
+                  action_type: "goto",
+                  description: "Navigate to the target URL",
+                },
+              ],
+            },
+          ]
+        : []),
   });
   const [expandedPlaywrightSections, setExpandedPlaywrightSections] = useState<Set<number>>(
     new Set()
@@ -116,114 +125,32 @@ export default function EditScrapeConfigurationDrawer({
     }));
   };
 
-  const addPlaywrightStep = (stepIndex: number) => {
-    const newPlaywrightStep: PlaywrightStep = {
-      step_order: (formData.steps[stepIndex].sub_steps?.length ?? 0) + 1,
-      action_type: "click",
-      selector: "",
-      selector_type: "role",
-      value: "",
-      description: "",
-    };
-    setFormData((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step, i) =>
-        i === stepIndex
-          ? {
-              ...step,
-              sub_steps: [...(step.sub_steps ?? []), newPlaywrightStep],
-            }
-          : step
-      ),
-    }));
-  };
-
-  const updatePlaywrightStep = (
-    stepIndex: number,
-    subStepIndex: number,
-    field: keyof PlaywrightStep,
-    value: any
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step, i) =>
-        i === stepIndex
-          ? {
-              ...step,
-              sub_steps:
-                step.sub_steps?.map((subStep, j) =>
-                  j === subStepIndex ? { ...subStep, [field]: value } : subStep
-                ) ?? [],
-            }
-          : step
-      ),
-    }));
-  };
-
-  const removePlaywrightStep = (stepIndex: number, subStepIndex: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step, i) =>
-        i === stepIndex
-          ? {
-              ...step,
-              sub_steps:
-                step.sub_steps
-                  ?.filter((_, j) => j !== subStepIndex)
-                  .map((subStep, j) => ({ ...subStep, step_order: j + 1 })) ?? [],
-            }
-          : step
-      ),
-    }));
-  };
-
-  const updatePromptStep = (stepIndex: number, field: keyof PromptStep, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step, i) =>
-        i === stepIndex
-          ? {
-              ...step,
-              prompt_data: [
-                {
-                  ...(step.prompt_data?.[0] ?? { prompt: "", storage_ids: [] }),
-                  [field]: value,
-                },
-              ],
-            }
-          : step
-      ),
-    }));
-  };
-
-  const updatePromptStepStorageIds = (stepIndex: number, fileId: string, checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step, i) =>
-        i === stepIndex
-          ? {
-              ...step,
-              prompt_data: [
-                {
-                  ...(step.prompt_data?.[0] ?? { prompt: "", storage_ids: [] }),
-                  storage_ids: checked
-                    ? [...(step.prompt_data?.[0]?.storage_ids ?? []), fileId]
-                    : (step.prompt_data?.[0]?.storage_ids ?? []).filter((id) => id !== fileId),
-                },
-              ],
-            }
-          : step
-      ),
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.id) return;
 
+    // For edit mode, we need an ID
+    if (mode === "edit" && !formData.id) return;
+
+    // Basic validation for create mode
+    if (mode === "create") {
+      if (!formData.name.trim() || !formData.target_url.trim()) {
+        console.error("Name and Target URL are required");
+        return;
+      }
+    }
+
+    console.log("Submitting form:", { mode, formData });
     setIsSubmitting(true);
     try {
-      await updateScrapeConfiguration(formData.id, formData);
+      if (mode === "create") {
+        console.log("Creating configuration...");
+        await createScrapeConfiguration(formData);
+        console.log("Configuration created successfully");
+      } else {
+        console.log("Updating configuration...");
+        await updateScrapeConfiguration(formData.id!, formData);
+        console.log("Configuration updated successfully");
+      }
       setIsOpen(false);
       onUpdate?.();
     } catch (error) {
@@ -236,14 +163,20 @@ export default function EditScrapeConfigurationDrawer({
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Edit className="h-3 w-3" />
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="sm">
+            <Edit className="h-3 w-3" />
+          </Button>
+        )}
       </SheetTrigger>
       <SheetContent className="!w-[80%] !max-w-none overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Edit Configuration</SheetTitle>
-          <SheetDescription>Update your scraping configuration and its steps.</SheetDescription>
+          <SheetTitle>{mode === "create" ? "New Configuration" : "Edit Configuration"}</SheetTitle>
+          <SheetDescription>
+            {mode === "create"
+              ? "Create a new scraping configuration and its steps."
+              : "Update your scraping configuration and its steps."}
+          </SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
@@ -348,208 +281,34 @@ export default function EditScrapeConfigurationDrawer({
 
                   {/* Playwright Sub-steps */}
                   {step.step_type === "playwright" && (
-                    <div className="space-y-4 border-t pt-4">
-                      <div
-                        className="flex cursor-pointer items-center justify-between"
-                        onClick={() => togglePlaywrightSection(stepIndex)}
-                      >
-                        <div className="flex items-center gap-2">
-                          {expandedPlaywrightSections.has(stepIndex) ? (
-                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                          )}
-                          <Label className="text-sm font-medium">Playwright Actions</Label>
-                        </div>
-                        <Button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addPlaywrightStep(stepIndex);
-                          }}
-                          size="sm"
-                          variant="outline"
-                        >
-                          <Plus className="mr-1 h-3 w-3" />
-                          Add Action
-                        </Button>
-                      </div>
-
-                      {expandedPlaywrightSections.has(stepIndex) && (
-                        <>
-                          {step.sub_steps?.map((subStep, subStepIndex) => (
-                            <Card key={subStepIndex} className="bg-muted/50 p-3">
-                              <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant="secondary" className="text-xs">
-                                      Action {subStep.step_order}
-                                    </Badge>
-                                  </div>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removePlaywrightStep(stepIndex, subStepIndex)}
-                                    className="h-6 w-6 p-0 text-destructive"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                  <div>
-                                    <Label className="text-xs">Action Type</Label>
-                                    <Select
-                                      value={subStep.action_type}
-                                      onValueChange={(value) =>
-                                        updatePlaywrightStep(
-                                          stepIndex,
-                                          subStepIndex,
-                                          "action_type",
-                                          value
-                                        )
-                                      }
-                                    >
-                                      <SelectTrigger className="h-8">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {ACTION_TYPES.map((type) => (
-                                          <SelectItem key={type.value} value={type.value}>
-                                            {type.label}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-
-                                  <div>
-                                    <Label className="text-xs">Selector Type</Label>
-                                    <Select
-                                      value={subStep.selector_type ?? "role"}
-                                      onValueChange={(value) =>
-                                        updatePlaywrightStep(
-                                          stepIndex,
-                                          subStepIndex,
-                                          "selector_type",
-                                          value
-                                        )
-                                      }
-                                    >
-                                      <SelectTrigger className="h-8">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {SELECTOR_TYPES.map((type) => (
-                                          <SelectItem key={type.value} value={type.value}>
-                                            {type.label}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                  <div>
-                                    <Label className="text-xs">Selector</Label>
-                                    <Input
-                                      value={subStep.selector ?? ""}
-                                      onChange={(e) =>
-                                        updatePlaywrightStep(
-                                          stepIndex,
-                                          subStepIndex,
-                                          "selector",
-                                          e.target.value
-                                        )
-                                      }
-                                      className="h-8"
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label className="text-xs">Value</Label>
-                                    <Input
-                                      value={subStep.value ?? ""}
-                                      onChange={(e) =>
-                                        updatePlaywrightStep(
-                                          stepIndex,
-                                          subStepIndex,
-                                          "value",
-                                          e.target.value
-                                        )
-                                      }
-                                      className="h-8"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <Label className="text-xs">Description</Label>
-                                  <Input
-                                    value={subStep.description ?? ""}
-                                    onChange={(e) =>
-                                      updatePlaywrightStep(
-                                        stepIndex,
-                                        subStepIndex,
-                                        "description",
-                                        e.target.value
-                                      )
-                                    }
-                                    className="h-8"
-                                  />
-                                </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </>
-                      )}
-                    </div>
+                    <PlaywrightStepComponent
+                      subSteps={step.sub_steps ?? []}
+                      onUpdate={(subSteps) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          steps: prev.steps.map((s, i) =>
+                            i === stepIndex ? { ...s, sub_steps: subSteps } : s
+                          ),
+                        }));
+                      }}
+                      expanded={expandedPlaywrightSections.has(stepIndex)}
+                      onToggleExpanded={() => togglePlaywrightSection(stepIndex)}
+                    />
                   )}
 
                   {/* Prompt Steps */}
                   {step.step_type === "prompt_steps" && (
-                    <div className="space-y-4 border-t pt-4">
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">AI Prompt Configuration</Label>
-                        
-                        <div>
-                          <Label className="text-sm">Prompt</Label>
-                          <Textarea
-                            value={step.prompt_data?.[0]?.prompt ?? ""}
-                            onChange={(e) => updatePromptStep(stepIndex, "prompt", e.target.value)}
-                            placeholder="Enter your AI prompt here..."
-                            rows={8}
-                          />
-                        </div>
-
-                        <div>
-                          <Label className="text-sm">Storage Files (Multi-select)</Label>
-                          <div className="rounded-md border p-3">
-                            <div className="space-y-2">
-                              {['fake-storage-id-1', 'fake-storage-id-2', 'fake-storage-id-3'].map((fileId) => (
-                                <div key={fileId} className="flex items-center space-x-2">
-                                  <input
-                                    type="checkbox"
-                                    id={fileId}
-                                    checked={step.prompt_data?.[0]?.storage_ids?.includes(fileId) ?? false}
-                                    onChange={(e) => updatePromptStepStorageIds(stepIndex, fileId, e.target.checked)}
-                                    className="h-4 w-4"
-                                  />
-                                  <label htmlFor={fileId} className="text-sm">
-                                    {fileId.includes('florida-rfp-data-2024-01') ? 'florida-rfp-data-2024-01.xlsx' :
-                                     fileId.includes('florida-rfp-data-2024-02') ? 'florida-rfp-data-2024-02.xlsx' :
-                                     fileId.includes('florida-rfp-data-2024-03') ? 'florida-rfp-data-2024-03.xlsx' :
-                                     fileId}
-                                  </label>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <AiPromptStep
+                      promptData={step.prompt_data ?? []}
+                      onUpdate={(promptData) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          steps: prev.steps.map((s, i) =>
+                            i === stepIndex ? { ...s, prompt_data: promptData } : s
+                          ),
+                        }));
+                      }}
+                    />
                   )}
                 </div>
               </Card>
@@ -561,7 +320,13 @@ export default function EditScrapeConfigurationDrawer({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting
+                ? mode === "create"
+                  ? "Creating..."
+                  : "Saving..."
+                : mode === "create"
+                  ? "Create Configuration"
+                  : "Save Changes"}
             </Button>
           </div>
         </form>

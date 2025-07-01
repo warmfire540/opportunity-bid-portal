@@ -1,10 +1,16 @@
+"use client";
+
 import { Plus } from "lucide-react";
-import Link from "next/link";
 
 import { Button } from "../ui/button";
 import { CardDescription, CardHeader, CardTitle } from "../ui/card";
+import EditScrapeConfigurationDrawer from "./edit-scrape-configuration-drawer";
 
-export default function ScrapeConfigurationsHeader() {
+type Props = {
+  onUpdate?: () => void;
+};
+
+export default function ScrapeConfigurationsHeader({ onUpdate }: Readonly<Props>) {
   return (
     <CardHeader>
       <div className="flex items-center justify-between">
@@ -14,12 +20,16 @@ export default function ScrapeConfigurationsHeader() {
             Manage your automated scraping configurations for RFP downloads
           </CardDescription>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/scrape-configurations/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Configuration
-          </Link>
-        </Button>
+        <EditScrapeConfigurationDrawer
+          mode="create"
+          onUpdate={onUpdate}
+          trigger={
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Configuration
+            </Button>
+          }
+        />
       </div>
     </CardHeader>
   );

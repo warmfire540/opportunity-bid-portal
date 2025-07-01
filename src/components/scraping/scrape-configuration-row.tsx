@@ -124,9 +124,11 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
           </div>
         </TableCell>
         <TableCell>
-          <Badge variant="outline">
-            {Array.isArray(configuration.steps) ? configuration.steps.length : 0} steps
-          </Badge>
+          <div className="flex justify-center">
+            <Badge variant="outline">
+              {Array.isArray(configuration.steps) ? configuration.steps.length : 0}
+            </Badge>
+          </div>
         </TableCell>
         <TableCell>
           <Badge variant={configuration.is_active ? "default" : "secondary"}>

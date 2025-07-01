@@ -222,9 +222,7 @@ export default function ScrapeConfigurationExpandedContent({
                 <span>AI Prompt Analysis</span>
               </span>
               <span className="flex items-center gap-2">
-                <CardDescription>
-                  AI prompts for analyzing downloaded data
-                </CardDescription>
+                <CardDescription>AI prompts for analyzing downloaded data</CardDescription>
                 {showPromptSteps ? (
                   <ChevronDown className="h-4 w-4" />
                 ) : (
@@ -246,31 +244,38 @@ export default function ScrapeConfigurationExpandedContent({
                         </div>
                         <Badge variant="secondary">Step {step.step_order}</Badge>
                       </div>
-                      
+
                       {step.prompt_data?.[0] && (
-                        <div className="space-y-3 rounded-lg border p-4 bg-muted/30">
+                        <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
                           <div>
                             <Label className="text-sm font-medium">Prompt</Label>
                             <div className="mt-2 rounded border bg-background p-3 text-sm">
-                              <pre className="whitespace-pre-wrap">{step.prompt_data[0].prompt}</pre>
+                              <pre className="whitespace-pre-wrap">
+                                {step.prompt_data[0].prompt}
+                              </pre>
                             </div>
                           </div>
-                          
-                          {step.prompt_data[0].storage_ids && step.prompt_data[0].storage_ids.length > 0 && (
-                            <div>
-                              <Label className="text-sm font-medium">Selected Files</Label>
-                              <div className="mt-2 space-y-1">
-                                {step.prompt_data[0].storage_ids.map((fileId) => (
-                                  <div key={fileId} className="text-sm text-muted-foreground">
-                                    • {fileId.includes('florida-rfp-data-2024-01') ? 'florida-rfp-data-2024-01.xlsx' :
-                                       fileId.includes('florida-rfp-data-2024-02') ? 'florida-rfp-data-2024-02.xlsx' :
-                                       fileId.includes('florida-rfp-data-2024-03') ? 'florida-rfp-data-2024-03.xlsx' :
-                                       fileId}
-                                  </div>
-                                ))}
+
+                          {step.prompt_data[0].storage_ids &&
+                            step.prompt_data[0].storage_ids.length > 0 && (
+                              <div>
+                                <Label className="text-sm font-medium">Selected Files</Label>
+                                <div className="mt-2 space-y-1">
+                                  {step.prompt_data[0].storage_ids.map((fileId) => (
+                                    <div key={fileId} className="text-sm text-muted-foreground">
+                                      •{" "}
+                                      {fileId.includes("florida-rfp-data-2024-01")
+                                        ? "florida-rfp-data-2024-01.xlsx"
+                                        : fileId.includes("florida-rfp-data-2024-02")
+                                          ? "florida-rfp-data-2024-02.xlsx"
+                                          : fileId.includes("florida-rfp-data-2024-03")
+                                            ? "florida-rfp-data-2024-03.xlsx"
+                                            : fileId}
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       )}
                     </div>
