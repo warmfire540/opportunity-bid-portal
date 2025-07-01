@@ -127,7 +127,6 @@ export default async function ManageScrapeConfigurations() {
                             "use server";
                             const id = formData.get("id") as string;
                             await deleteScrapeConfiguration(id);
-                            return { message: "Configuration deleted successfully" };
                           }}
                           className="text-destructive hover:text-destructive"
                         >

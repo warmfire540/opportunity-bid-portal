@@ -18,26 +18,26 @@ CREATE INDEX IF NOT EXISTS idx_scrape_download_configurations_created_by ON scra
 ALTER TABLE scrape_download_configurations ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies
-CREATE POLICY "Authenticated users can view their own scrape download configurations" ON scrape_download_configurations
+CREATE POLICY "Authenticated users can view all scrape download configurations" ON scrape_download_configurations
     FOR SELECT
     TO authenticated
     USING (true);
 
-CREATE POLICY "Users can insert their own scrape download configurations" ON scrape_download_configurations
+CREATE POLICY "Authenticated users can insert scrape download configurations" ON scrape_download_configurations
     FOR INSERT
     TO authenticated
-    WITH CHECK (created_by = auth.uid());
+    WITH CHECK (true);
 
-CREATE POLICY "Users can update their own scrape download configurations" ON scrape_download_configurations
+CREATE POLICY "Authenticated users can update scrape download configurations" ON scrape_download_configurations
     FOR UPDATE
     TO authenticated
-    USING (created_by = auth.uid())
-    WITH CHECK (created_by = auth.uid());
+    USING (true)
+    WITH CHECK (true);
 
-CREATE POLICY "Users can delete their own scrape download configurations" ON scrape_download_configurations
+CREATE POLICY "Authenticated users can delete scrape download configurations" ON scrape_download_configurations
     FOR DELETE
     TO authenticated
-    USING (created_by = auth.uid());
+    USING (true);
 
 -- Add triggers for timestamps and user tracking
 CREATE TRIGGER set_timestamps
@@ -78,51 +78,27 @@ CREATE INDEX IF NOT EXISTS idx_scrape_steps_created_by ON scrape_steps(created_b
 -- Enable RLS
 ALTER TABLE scrape_steps ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for steps (inherit from parent configuration)
-CREATE POLICY "Authenticated users can view steps for their own configurations" ON scrape_steps
+-- Create RLS policies for steps
+CREATE POLICY "Authenticated users can view all scrape steps" ON scrape_steps
     FOR SELECT
     TO authenticated
     USING (true);
 
-CREATE POLICY "Users can insert steps for their own configurations" ON scrape_steps
+CREATE POLICY "Authenticated users can insert scrape steps" ON scrape_steps
     FOR INSERT
     TO authenticated
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM scrape_download_configurations 
-            WHERE id = scrape_steps.configuration_id 
-            AND created_by = auth.uid()
-        )
-    );
+    WITH CHECK (true);
 
-CREATE POLICY "Users can update steps for their own configurations" ON scrape_steps
+CREATE POLICY "Authenticated users can update scrape steps" ON scrape_steps
     FOR UPDATE
     TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM scrape_download_configurations 
-            WHERE id = scrape_steps.configuration_id 
-            AND created_by = auth.uid()
-        )
-    )
-    WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM scrape_download_configurations 
-            WHERE id = scrape_steps.configuration_id 
-            AND created_by = auth.uid()
-        )
-    );
+    USING (true)
+    WITH CHECK (true);
 
-CREATE POLICY "Users can delete steps for their own configurations" ON scrape_steps
+CREATE POLICY "Authenticated users can delete scrape steps" ON scrape_steps
     FOR DELETE
     TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM scrape_download_configurations 
-            WHERE id = scrape_steps.configuration_id 
-            AND created_by = auth.uid()
-        )
-    );
+    USING (true);
 
 -- Add triggers for timestamps and user tracking
 CREATE TRIGGER set_timestamps
