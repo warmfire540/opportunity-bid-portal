@@ -2,8 +2,8 @@
 
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Alert, AlertDescription } from "../ui/alert";
 
+import { Alert, AlertDescription } from "../ui/alert";
 
 interface OAuthError {
   error: string;

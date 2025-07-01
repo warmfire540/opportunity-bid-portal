@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@lib/supabase/client";
+
 import { Button } from "../ui/button";
 
 interface MicrosoftOAuthButtonProps {

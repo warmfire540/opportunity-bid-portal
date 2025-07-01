@@ -1,11 +1,25 @@
-import { PartyPopper } from "lucide-react";
+import ManageScrapeConfigurations from "@/src/components/scraping/manage-scrape-configurations";
+import { createClient } from "@/src/lib/supabase/server";
 
-export default function PersonalAccountPage() {
-    return (
-        <div className="flex flex-col gap-y-4 py-12 h-full w-full items-center justify-center content-center max-w-screen-md mx-auto text-center">
-            <PartyPopper className="h-12 w-12 text-gray-400" />
-            <h1 className="text-2xl font-bold">Personal Account</h1>
-            <p>Here's where you'll put all your awesome personal account items. If you only want to support team accounts, you can just remove these pages</p>
+export default async function PersonalAccountPage() {
+  const supabaseClient = createClient();
+  const {
+    data: { user },
+  } = await supabaseClient.auth.getUser();
+
+  return (
+    <div className="flex flex-col gap-y-8">
+      {user && (
+        <div className="rounded-lg bg-blue-50 p-4">
+          <p className="text-sm text-blue-800">
+            <strong>Current User ID:</strong> {user.id}
+          </p>
+          <p className="text-sm text-blue-800">
+            <strong>Email:</strong> {user.email}
+          </p>
         </div>
-    )
+      )}
+      <ManageScrapeConfigurations />
+    </div>
+  );
 }
