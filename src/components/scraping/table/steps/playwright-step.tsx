@@ -10,7 +10,6 @@ import ScrapeConfigurationSteps from "../../scrape-configuration-steps";
 import StepCard from "./step-card";
 import StepDownloadedFiles from "./step-downloaded-files";
 
-
 interface Props {
   step: ScrapeDownloadStep;
   configuration: ScrapeConfiguration;

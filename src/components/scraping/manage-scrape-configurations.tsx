@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getScrapeConfigurations } from "@lib/actions/scraping";
 
 import { Card, CardContent } from "../ui/card";
+
 import ScrapeConfigurationsEmpty from "./scrape-configurations-empty";
 import ScrapeConfigurationsHeader from "./scrape-configurations-header";
 import ScrapeConfigurationsLoading from "./scrape-configurations-loading";

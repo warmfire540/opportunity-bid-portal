@@ -1,7 +1,7 @@
 // Re-export all types
 export type {
   PlaywrightStep,
-  PromptStep,
+  AiPromptStep,
   ScrapeDownloadStep,
   ScrapeConfiguration,
   StepExecutionResult,
@@ -21,12 +21,7 @@ export {
 } from "./crud";
 
 // Re-export step execution functions
-export {
-  executePlaywrightStep,
-  executeAiPromptStep,
-  executeLinksAnalysisStep,
-  executeStep,
-} from "./step-execution";
+export { executeStep } from "./step-execution";
 
 // Re-export session management functions
 export {

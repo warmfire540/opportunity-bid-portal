@@ -45,7 +45,7 @@ export default function StepCard({
       <Card
         className={cn(
           "transition-all duration-300",
-          isRunning && "bg-blue-50/50 shadow-lg ring-2 ring-blue-500 ring-offset-2"
+          isRunning && "bg-blue-50/50 shadow-lg shadow-blue-500/25 ring-2 ring-blue-500 ring-offset-2"
         )}
       >
         <CardHeader
@@ -59,11 +59,14 @@ export default function StepCard({
             <Badge
               variant={isRunning ? "default" : "secondary"}
               className={cn(
-                "mr-2 min-w-8 justify-center",
-                isRunning && "animate-pulse bg-blue-600"
+                "mr-2 min-w-8 justify-center relative",
+                isRunning && "bg-blue-600"
               )}
             >
-              {stepOrder}
+              {isRunning && (
+                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75" style={{ animationDuration: '2s' }} />
+              )}
+              <span className="relative z-10">{stepOrder}</span>
             </Badge>
             {stepTypeIcon}
             <span>{stepTypeLabel}</span>

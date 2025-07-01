@@ -1,4 +1,4 @@
-import type { NextRequest} from "next/server";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { createClient } from "@/src/lib/supabase/server";
@@ -12,7 +12,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing configuration ID parameter" }, { status: 400 });
   }
 
-  console.log(`[FILES API] Listing files for configuration: ${configurationId}${stepId != null && stepId !== "" ? `, step: ${stepId}` : ""}`);
+  console.log(
+    `[FILES API] Listing files for configuration: ${configurationId}${stepId != null && stepId !== "" ? `, step: ${stepId}` : ""}`
+  );
 
   try {
     const supabase = createClient();
@@ -45,7 +47,9 @@ export async function GET(req: NextRequest) {
       downloadUrl: `/api/scrape/download?filepath=${listPath}/${obj.name}`,
     }));
 
-    console.log(`[FILES API] Found ${files.length} files for ${stepId != null ? `step ${stepId}` : `configuration ${configurationId}`}`);
+    console.log(
+      `[FILES API] Found ${files.length} files for ${stepId != null ? `step ${stepId}` : `configuration ${configurationId}`}`
+    );
 
     return NextResponse.json({ files });
   } catch (error: any) {

@@ -38,7 +38,9 @@ export default function StepDownloadedFiles({ configuration, step }: Readonly<Pr
   const loadFiles = async () => {
     setIsLoadingFiles(true);
     try {
-      const response = await fetch(`/api/scrape/files?configurationId=${configuration.id}&stepId=${step.id}`);
+      const response = await fetch(
+        `/api/scrape/files?configurationId=${configuration.id}&stepId=${step.id}`
+      );
       if (response.ok) {
         const data = await response.json();
         setFiles(data.files ?? []);
@@ -148,4 +150,4 @@ export default function StepDownloadedFiles({ configuration, step }: Readonly<Pr
       )}
     </Card>
   );
-} 
+}
