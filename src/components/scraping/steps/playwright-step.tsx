@@ -11,9 +11,10 @@ import ScrapeConfigurationSteps from "../scrape-configuration-steps";
 interface Props {
   step: ScrapeDownloadStep;
   configuration: ScrapeConfiguration;
+  isRunning?: boolean;
 }
 
-export default function PlaywrightStep({ step }: Readonly<Props>) {
+export default function PlaywrightStep({ step, isRunning = false }: Readonly<Props>) {
   const [isExpanded, setIsExpanded] = useState(false);
   const subSteps = step.sub_steps ?? [];
 
@@ -26,6 +27,7 @@ export default function PlaywrightStep({ step }: Readonly<Props>) {
       description={step.description}
       expanded={isExpanded}
       onToggle={() => setIsExpanded((v) => !v)}
+      isRunning={isRunning}
     >
       <ScrapeConfigurationSteps subSteps={subSteps} />
     </StepCard>

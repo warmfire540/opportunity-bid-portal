@@ -7,16 +7,17 @@ import { PlaywrightStep, AiPromptStep } from "./index";
 type Props = {
   step: ScrapeDownloadStep;
   configuration: ScrapeConfiguration;
+  isRunning?: boolean;
 };
 
-export default function StepRenderer({ step, configuration }: Readonly<Props>) {
+export default function StepRenderer({ step, configuration, isRunning = false }: Readonly<Props>) {
   switch (step.step_type) {
     case "playwright":
-      return <PlaywrightStep step={step} configuration={configuration} />;
+      return <PlaywrightStep step={step} configuration={configuration} isRunning={isRunning} />;
     case "prompt_steps":
-      return <AiPromptStep step={step} />;
+      return <AiPromptStep step={step} isRunning={isRunning} />;
     case "ai_prompt":
-      return <AiPromptStep step={step} />;
+      return <AiPromptStep step={step} isRunning={isRunning} />;
     case "links_analysis":
       // TODO: Implement links analysis step component
       return (

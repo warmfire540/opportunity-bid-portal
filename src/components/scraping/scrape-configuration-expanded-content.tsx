@@ -34,6 +34,7 @@ type Props = {
   isRunning: boolean;
   onRunScrape: () => void;
   result?: ScrapeResult | null;
+  currentStepIndex?: number;
 };
 
 export default function ScrapeConfigurationExpandedContent({
@@ -41,6 +42,7 @@ export default function ScrapeConfigurationExpandedContent({
   isRunning,
   onRunScrape,
   result,
+  currentStepIndex,
 }: Readonly<Props>) {
   const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
   const playwrightSteps = steps.filter((step) => step.step_type === "playwright");
@@ -164,7 +166,12 @@ export default function ScrapeConfigurationExpandedContent({
         {/* Steps Section */}
         <div className="space-y-4">
           {steps.map((step, index) => (
-            <StepRenderer key={step.id ?? index} step={step} configuration={configuration} />
+            <StepRenderer 
+              key={step.id ?? index} 
+              step={step} 
+              configuration={configuration} 
+              isRunning={currentStepIndex === index}
+            />
           ))}
         </div>
       </div>

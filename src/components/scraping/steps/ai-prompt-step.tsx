@@ -7,13 +7,13 @@ import type { ScrapeDownloadStep } from "@lib/actions/scrape-configurations";
 
 import StepCard from "./step-card";
 import { Label } from "../../ui/label";
-import { Badge } from "../../ui/badge";
 
 interface Props {
   step: ScrapeDownloadStep;
+  isRunning?: boolean;
 }
 
-export default function AiPromptStep({ step }: Readonly<Props>) {
+export default function AiPromptStep({ step, isRunning = false }: Readonly<Props>) {
   const [isExpanded, setIsExpanded] = useState(false);
   const promptData = step.prompt_data ?? [];
 
@@ -26,6 +26,7 @@ export default function AiPromptStep({ step }: Readonly<Props>) {
       description={step.description}
       expanded={isExpanded}
       onToggle={() => setIsExpanded((v) => !v)}
+      isRunning={isRunning}
     >
       <div className="space-y-4">
         {promptData.map((prompt, index) => (

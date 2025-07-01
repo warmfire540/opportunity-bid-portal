@@ -33,6 +33,7 @@ type Props = {
 export default function ScrapeConfigurationRow({ configuration, onUpdate }: Readonly<Props>) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState<number | undefined>(undefined);
   const [result, setResult] = useState<ScrapeResult | null>(null);
 
   const handleToggle = async (prevState: any, formData: FormData) => {
@@ -49,44 +50,51 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
 
   const handleRunScrape = async () => {
     setIsRunning(true);
-    setResult(null); // Clear previous result
+    setResult(null);
+    setCurrentStepIndex(undefined);
+
+    const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
+    const startTime = Date.now();
+    let stepsExecuted = 0;
+
     try {
-      const response = await fetch("/api/scrape", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: configuration.id }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        console.log("Scrape completed successfully:", result);
-        setResult({
-          success: true,
-          downloadPath: result.downloadPath,
-          downloadUrl: result.downloadUrl,
-          executionTimeMs: result.executionTimeMs,
-          stepsExecuted: result.stepsExecuted,
-        });
-      } else {
-        console.error("Scrape failed:", result.error);
-        setResult({
-          success: false,
-          error: result.error,
-          executionTimeMs: result.executionTimeMs,
-          stepsExecuted: result.stepsExecuted,
-        });
+      // Execute each step one by one
+      for (let i = 0; i < steps.length; i++) {
+        setCurrentStepIndex(i);
+        
+        // Simulate step execution with a random delay between 1-5 seconds
+        const delay = Math.random() * 4000 + 1000; // 1-5 seconds
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        stepsExecuted++;
+        
+        // Simulate potential failure (10% chance for demo purposes)
+        if (Math.random() < 0.1) {
+          throw new Error(`Step ${i + 1} failed: Simulated error for demonstration`);
+        }
       }
+
+      // All steps completed successfully
+      const executionTimeMs = Date.now() - startTime;
+      setResult({
+        success: true,
+        downloadPath: `/downloads/${configuration.id}-${Date.now()}.xlsx`,
+        downloadUrl: `/api/scrape/download/${configuration.id}`,
+        executionTimeMs,
+        stepsExecuted,
+      });
     } catch (error) {
-      console.error("Failed to run scrape:", error);
+      const executionTimeMs = Date.now() - startTime;
+      console.error("Scrape execution failed:", error);
       setResult({
         success: false,
         error: error instanceof Error ? error.message : "An unexpected error occurred",
+        executionTimeMs,
+        stepsExecuted,
       });
     } finally {
       setIsRunning(false);
+      setCurrentStepIndex(undefined);
     }
   };
 
@@ -173,6 +181,7 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
               isRunning={isRunning}
               onRunScrape={handleRunScrape}
               result={result}
+              currentStepIndex={currentStepIndex}
             />
           </TableCell>
         </TableRow>
