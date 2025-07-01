@@ -44,7 +44,10 @@ const SELECTOR_TYPES = [
   { value: "xpath", label: "XPath" },
 ];
 
-export default function EditScrapeConfigurationDrawer({ configuration, onUpdate }: Props) {
+export default function EditScrapeConfigurationDrawer({
+  configuration,
+  onUpdate,
+}: Readonly<Props>) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ScrapeConfiguration>({
@@ -125,15 +128,13 @@ export default function EditScrapeConfigurationDrawer({ configuration, onUpdate 
           <Edit className="h-3 w-3" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[800px] sm:max-w-[800px] overflow-y-auto">
+      <SheetContent className="w-[800px] overflow-y-auto sm:max-w-[800px]">
         <SheetHeader>
           <SheetTitle>Edit Configuration</SheetTitle>
-          <SheetDescription>
-            Update your scraping configuration and steps
-          </SheetDescription>
+          <SheetDescription>Update your scraping configuration and steps</SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Configuration Details</CardTitle>
@@ -156,7 +157,9 @@ export default function EditScrapeConfigurationDrawer({ configuration, onUpdate 
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, description: e.target.value }))
+                  }
                   placeholder="Describe what this configuration does..."
                   rows={3}
                 />
@@ -179,7 +182,9 @@ export default function EditScrapeConfigurationDrawer({ configuration, onUpdate 
                   type="checkbox"
                   id="is_active"
                   checked={formData.is_active}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, is_active: e.target.checked }))
+                  }
                   className="rounded"
                 />
                 <Label htmlFor="is_active">Active</Label>
@@ -208,7 +213,7 @@ export default function EditScrapeConfigurationDrawer({ configuration, onUpdate 
               ) : (
                 <div className="space-y-4">
                   {formData.steps.map((step, index) => (
-                    <div key={index} className="space-y-4 rounded-lg border p-4">
+                    <div key={step.id} className="space-y-4 rounded-lg border p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-4 w-4 text-muted-foreground" />
@@ -354,4 +359,4 @@ export default function EditScrapeConfigurationDrawer({ configuration, onUpdate 
       </SheetContent>
     </Sheet>
   );
-} 
+}

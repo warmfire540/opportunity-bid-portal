@@ -162,3 +162,27 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION get_scrape_configurations_with_steps() TO authenticated; 
+
+/*
+===============================================================================
+                              STORAGE CONFIGURATION
+===============================================================================
+*/
+
+-- Create storage bucket for receipts
+insert into storage.buckets (id, name, public)
+values ('scrape-downloads', 'scrape-downloads', false);
+
+-- Create policy to allow users to upload scrape downloads
+CREATE POLICY "Users can upload scrape downloads"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+    bucket_id = 'scrape-downloads' 
+);
+
+-- Create policy to allow users to view scrape downloads
+CREATE POLICY "Users can view scrape downloads"
+ON storage.objects FOR SELECT
+TO authenticated
+USING ( bucket_id = 'scrape-downloads' );

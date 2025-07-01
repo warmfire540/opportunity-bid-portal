@@ -167,7 +167,7 @@ export async function getScrapeConfiguration(id: string) {
   }
 
   const configuration = data?.find((config: any) => config.id === id);
-  
+
   if (!configuration) {
     throw new Error(`Configuration with id ${id} not found`);
   }
