@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Download, FileText, Calendar } from "lucide-react";
 
-import type { ScrapeConfiguration } from "@lib/actions/scrape-configurations";
+import type { ScrapeConfiguration } from "@lib/actions/scraping";
 
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";

@@ -1,6 +1,6 @@
 "use client";
 
-import type { PlaywrightStep } from "@lib/actions/scrape-configurations";
+import type { PlaywrightStep } from "@lib/actions/scraping";
 
 import { Badge } from "../ui/badge";
 

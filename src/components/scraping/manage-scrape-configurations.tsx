@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-import { getScrapeConfigurations } from "@lib/actions/scrape-configurations";
+import { getScrapeConfigurations } from "@lib/actions/scraping";
 
 import { Card, CardContent } from "../ui/card";
 import ScrapeConfigurationsEmpty from "./scrape-configurations-empty";
 import ScrapeConfigurationsHeader from "./scrape-configurations-header";
 import ScrapeConfigurationsLoading from "./scrape-configurations-loading";
-import ScrapeConfigurationsTable from "./scrape-configurations-table";
+import ScrapeConfigurationsTable from "./table/scrape-configurations-table";
 
 export default function ManageScrapeConfigurations() {
   const [configurations, setConfigurations] = useState<any[]>([]);

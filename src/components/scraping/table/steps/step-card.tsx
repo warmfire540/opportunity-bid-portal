@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "../../ui/badge";
-import { Card, CardHeader, CardContent, CardDescription } from "../../ui/card";
+import { Badge } from "../../../ui/badge";
+import { Card, CardHeader, CardContent, CardDescription } from "../../../ui/card";
 import { cn } from "@lib/utils";
 
 interface StepCardProps {
@@ -28,10 +28,12 @@ export default function StepCard({
   isRunning = false,
 }: StepCardProps) {
   return (
-    <Card className={cn(
-      "transition-all duration-300",
-      isRunning && "ring-2 ring-blue-500 ring-offset-2 bg-blue-50/50 shadow-lg"
-    )}>
+    <Card
+      className={cn(
+        "transition-all duration-300",
+        isRunning && "bg-blue-50/50 shadow-lg ring-2 ring-blue-500 ring-offset-2"
+      )}
+    >
       <CardHeader
         className={cn(
           "flex cursor-pointer select-none flex-row items-center justify-between",
@@ -40,28 +42,31 @@ export default function StepCard({
         onClick={onToggle}
       >
         <span className="flex items-center gap-2">
-          <Badge 
-            variant={isRunning ? "default" : "secondary"} 
-            className={cn(
-              "mr-2 min-w-8 justify-center",
-              isRunning && "bg-blue-600 animate-pulse"
-            )}
+          <Badge
+            variant={isRunning ? "default" : "secondary"}
+            className={cn("mr-2 min-w-8 justify-center", isRunning && "animate-pulse bg-blue-600")}
           >
             {stepOrder}
           </Badge>
           {stepTypeIcon}
           <span>{stepTypeLabel}</span>
           {!expanded && (
-            <span className="ml-2 font-medium truncate max-w-xs text-ellipsis" title={title}>{title}</span>
+            <span className="ml-2 max-w-xs truncate text-ellipsis font-medium" title={title}>
+              {title}
+            </span>
           )}
         </span>
         <span className="flex items-center gap-2">
           <CardDescription>
-            {isRunning ? "Executing..." : (expanded ? description : `The sequence of actions for this step`)}
+            {isRunning
+              ? "Executing..."
+              : expanded
+                ? description
+                : `The sequence of actions for this step`}
           </CardDescription>
         </span>
       </CardHeader>
       {expanded && <CardContent>{children}</CardContent>}
     </Card>
   );
-} 
+}

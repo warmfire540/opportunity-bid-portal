@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { MessageSquare } from "lucide-react";
 
-import type { ScrapeDownloadStep } from "@lib/actions/scrape-configurations";
+import type { ScrapeDownloadStep } from "@lib/actions/scraping";
 
 import StepCard from "./step-card";
-import { Label } from "../../ui/label";
+import { Label } from "../../../ui/label";
 
 interface Props {
   step: ScrapeDownloadStep;
@@ -63,4 +63,4 @@ export default function AiPromptStep({ step, isRunning = false }: Readonly<Props
       </div>
     </StepCard>
   );
-} 
+}

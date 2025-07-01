@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 
-import type { PlaywrightStep } from "@lib/actions/scrape-configurations";
+import type { PlaywrightStep } from "@lib/actions/scraping";
 
 import { Badge } from "../../../ui/badge";
 import { Button } from "../../../ui/button";

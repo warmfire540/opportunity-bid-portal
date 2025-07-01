@@ -8,11 +8,11 @@ import type {
   ScrapeDownloadStep,
   PlaywrightStep,
   PromptStep,
-} from "@lib/actions/scrape-configurations";
+} from "@lib/actions/scraping";
 import {
   updateScrapeConfiguration,
   createScrapeConfiguration,
-} from "@lib/actions/scrape-configurations";
+} from "@lib/actions/scraping";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";

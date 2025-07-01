@@ -1,44 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
 import { createClient } from "@lib/supabase/server";
-
-export type PlaywrightStep = {
-  id?: string;
-  step_order: number;
-  action_type: string;
-  selector?: string;
-  selector_type?: string;
-  value?: string;
-  wait_time?: number;
-  description?: string;
-};
-
-export type PromptStep = {
-  id?: string;
-  prompt: string;
-  storage_ids?: string[];
-};
-
-export type ScrapeDownloadStep = {
-  id?: string;
-  step_order: number;
-  step_type: "playwright" | "ai_prompt" | "links_analysis" | "prompt_steps";
-  name: string;
-  description?: string;
-  sub_steps?: PlaywrightStep[]; // Only for playwright type
-  prompt_data?: PromptStep[]; // Only for prompt_steps type
-};
-
-export type ScrapeConfiguration = {
-  id?: string;
-  name: string;
-  description?: string;
-  target_url: string;
-  is_active?: boolean;
-  steps: ScrapeDownloadStep[];
-};
+import type { ScrapeConfiguration } from "./types";
 
 export async function getScrapeConfigurations() {
   const supabase = createClient();
@@ -271,6 +235,7 @@ export async function getScrapeConfiguration(id: string) {
   return configuration;
 }
 
+// Form action wrappers
 export async function toggleScrapeConfigurationAction(formData: FormData) {
   "use server";
   const id = formData.get("id") as string;
@@ -282,4 +247,4 @@ export async function deleteScrapeConfigurationAction(formData: FormData) {
   "use server";
   const id = formData.get("id") as string;
   await deleteScrapeConfiguration(id);
-}
+} 

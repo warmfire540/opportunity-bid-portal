@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getScrapeConfiguration } from "@/src/lib/actions/scrape-configurations";
+import { getScrapeConfiguration } from "@/src/lib/actions/scraping";
 import { chromium, Download } from "playwright";
 import { createClient } from "@/src/lib/supabase/server";
 

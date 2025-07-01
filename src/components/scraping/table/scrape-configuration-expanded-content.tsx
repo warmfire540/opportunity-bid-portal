@@ -1,24 +1,14 @@
 "use client";
 
-import {
-  Download,
-  Clock,
-  Play,
-  CheckCircle,
-  XCircle,
-  ExternalLink,
-  Code,
-} from "lucide-react";
+import { Download, Clock, Play, CheckCircle, XCircle, ExternalLink, Code } from "lucide-react";
 
-
-import type { ScrapeConfiguration } from "@lib/actions/scrape-configurations";
-
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Alert, AlertDescription } from "../ui/alert";
+import type { ScrapeConfiguration } from "@lib/actions/scraping";
+import { Alert, AlertDescription } from "../../ui/alert";
+import { Button } from "../../ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../ui/card";
+import DownloadedFiles from "../downloaded-files";
 import { StepRenderer } from "./steps";
-import DownloadedFiles from "./downloaded-files";
+import { Badge } from "../../ui/badge";
 
 type ScrapeResult = {
   success: boolean;
@@ -109,9 +99,7 @@ export default function ScrapeConfigurationExpandedContent({
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <AlertDescription className="text-green-800">
                           <div className="space-y-2">
-                            <p className="font-medium">
-                              Configuration executed successfully!
-                            </p>
+                            <p className="font-medium">Configuration executed successfully!</p>
                             <div className="space-y-1 text-sm">
                               <p>Steps executed: {result.stepsExecuted}</p>
                               <p>Execution time: {result.executionTimeMs}ms</p>
@@ -166,10 +154,10 @@ export default function ScrapeConfigurationExpandedContent({
         {/* Steps Section */}
         <div className="space-y-4">
           {steps.map((step, index) => (
-            <StepRenderer 
-              key={step.id ?? index} 
-              step={step} 
-              configuration={configuration} 
+            <StepRenderer
+              key={step.id ?? index}
+              step={step}
+              configuration={configuration}
               isRunning={currentStepIndex === index}
             />
           ))}

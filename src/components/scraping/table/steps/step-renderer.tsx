@@ -1,6 +1,6 @@
 "use client";
 
-import type { ScrapeDownloadStep, ScrapeConfiguration } from "@lib/actions/scrape-configurations";
+import type { ScrapeDownloadStep, ScrapeConfiguration } from "@lib/actions/scraping";
 
 import { PlaywrightStep, AiPromptStep } from "./index";
 
@@ -32,4 +32,4 @@ export default function StepRenderer({ step, configuration, isRunning = false }:
         </div>
       );
   }
-} 
+}

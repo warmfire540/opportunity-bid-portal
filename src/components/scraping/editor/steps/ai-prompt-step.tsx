@@ -1,6 +1,6 @@
 "use client";
 
-import type { PromptStep } from "@lib/actions/scrape-configurations";
+import type { PromptStep } from "@lib/actions/scraping";
 
 import { Label } from "../../../ui/label";
 import { Textarea } from "../../../ui/textarea";

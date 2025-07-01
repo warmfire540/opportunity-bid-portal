@@ -1,12 +1,10 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
-import { type ComponentProps } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-
+import { type ComponentProps } from "react";
 import { Button } from "@components/ui/button";
-
 import { Alert, AlertDescription } from "./alert";
+import { AlertTriangle } from "lucide-react";
 
 type Props = Omit<ComponentProps<typeof Button>, "formAction"> & {
   pendingText?: string;
@@ -35,7 +33,7 @@ export function SubmitButton({
       {Boolean(errorMessage || state?.message) && (
         <Alert variant="destructive" className="w-full">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>{errorMessage || state?.message}</AlertDescription>
+          <AlertDescription>{errorMessage ?? state?.message}</AlertDescription>
         </Alert>
       )}
       <div>

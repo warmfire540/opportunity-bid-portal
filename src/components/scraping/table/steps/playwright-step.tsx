@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { Code, ChevronDown, ChevronRight } from "lucide-react";
 
-import type { ScrapeDownloadStep, ScrapeConfiguration } from "@lib/actions/scrape-configurations";
+import type { ScrapeDownloadStep, ScrapeConfiguration } from "@lib/actions/scraping";
 
 import StepCard from "./step-card";
-import ScrapeConfigurationSteps from "../scrape-configuration-steps";
+import ScrapeConfigurationSteps from "../../scrape-configuration-steps";
 
 interface Props {
   step: ScrapeDownloadStep;
@@ -32,4 +32,4 @@ export default function PlaywrightStep({ step, isRunning = false }: Readonly<Pro
       <ScrapeConfigurationSteps subSteps={subSteps} />
     </StepCard>
   );
-} 
+}
