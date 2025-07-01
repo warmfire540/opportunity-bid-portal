@@ -81,7 +81,6 @@ export async function createScrapeConfiguration(configuration: ScrapeConfigurati
         const promptStepsToInsert = step.prompt_data.map((promptStep) => ({
           scrape_download_step_id: stepData.id,
           prompt: promptStep.prompt,
-          storage_ids: promptStep.storage_ids ?? [],
         }));
 
         const { error: promptStepsError } = await supabase
@@ -173,7 +172,6 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
         const promptStepsToInsert = step.prompt_data.map((promptStep) => ({
           scrape_download_step_id: stepData.id,
           prompt: promptStep.prompt,
-          storage_ids: promptStep.storage_ids ?? [],
         }));
 
         const { error: promptStepsError } = await supabase
@@ -247,4 +245,4 @@ export async function deleteScrapeConfigurationAction(formData: FormData) {
   "use server";
   const id = formData.get("id") as string;
   await deleteScrapeConfiguration(id);
-} 
+}

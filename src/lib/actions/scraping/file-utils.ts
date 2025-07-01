@@ -23,4 +23,4 @@ export function getContentType(filename: string): string {
     default:
       return "application/octet-stream";
   }
-} 
+}

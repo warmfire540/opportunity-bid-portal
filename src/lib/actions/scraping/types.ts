@@ -12,7 +12,6 @@ export type PlaywrightStep = {
 export type PromptStep = {
   id?: string;
   prompt: string;
-  storage_ids?: string[];
 };
 
 export type ScrapeDownloadStep = {
@@ -46,4 +45,4 @@ export type BrowserSession = {
   page: any;
   supabase: any;
   startTime: number;
-}; 
+};

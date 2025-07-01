@@ -40,4 +40,4 @@ export {
 export { executeConfigurationAction } from "./configuration-execution";
 
 // Re-export utility functions
-export { getContentType } from "./file-utils"; 
+export { getContentType } from "./file-utils";

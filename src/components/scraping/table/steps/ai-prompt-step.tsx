@@ -38,25 +38,6 @@ export default function AiPromptStep({ step, isRunning = false }: Readonly<Props
                   <pre className="whitespace-pre-wrap">{prompt.prompt}</pre>
                 </div>
               </div>
-              {prompt.storage_ids && prompt.storage_ids.length > 0 && (
-                <div>
-                  <Label className="text-sm font-medium">Selected Files</Label>
-                  <div className="mt-2 space-y-1">
-                    {prompt.storage_ids.map((fileId) => (
-                      <div key={fileId} className="text-sm text-muted-foreground">
-                        •{" "}
-                        {fileId.includes("florida-rfp-data-2024-01")
-                          ? "florida-rfp-data-2024-01.xlsx"
-                          : fileId.includes("florida-rfp-data-2024-02")
-                            ? "florida-rfp-data-2024-02.xlsx"
-                            : fileId.includes("florida-rfp-data-2024-03")
-                              ? "florida-rfp-data-2024-03.xlsx"
-                              : fileId}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         ))}

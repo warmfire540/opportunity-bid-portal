@@ -96,4 +96,4 @@ export async function executeConfigurationAction(configurationId: string): Promi
       }
     }
   }
-} 
+}
