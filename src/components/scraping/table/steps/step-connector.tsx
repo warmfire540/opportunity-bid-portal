@@ -2,16 +2,17 @@
 
 import { ArrowDown, Download, FileText, MessageSquare } from "lucide-react";
 
+import type { StepType } from "@lib/actions/scraping";
 import { cn } from "@lib/utils";
 
 import { StepOutputBlock } from "./step-output-block";
 
 interface StepConnectorProps {
-  stepType: "playwright" | "ai_prompt" | "links_analysis";
+  stepType: StepType;
   stepOrder: number;
   isLast?: boolean;
   hasNextStep?: boolean;
-  nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
+  nextStepType?: StepType;
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
 }

@@ -1,5 +1,6 @@
 // Re-export all types
 export type {
+  StepType,
   PlaywrightStep,
   AiPromptStep,
   ScrapeDownloadStep,

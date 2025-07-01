@@ -4,6 +4,7 @@ import type {
   ScrapeDownloadStep,
   ScrapeConfiguration,
   StepExecutionResult,
+  StepType,
 } from "@lib/actions/scraping";
 
 import { PlaywrightStep, AiPromptStep } from "./index";
@@ -14,7 +15,7 @@ type Props = {
   isRunning?: boolean;
   isLast?: boolean;
   hasNextStep?: boolean;
-  nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
+  nextStepType?: StepType;
   stepResult?: StepExecutionResult;
 };
 

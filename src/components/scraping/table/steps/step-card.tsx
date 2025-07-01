@@ -1,5 +1,6 @@
 "use client";
 
+import type { StepType } from "@lib/actions/scraping";
 import { cn } from "@lib/utils";
 
 import { Badge } from "../../../ui/badge";
@@ -18,10 +19,10 @@ interface StepCardProps {
   children: React.ReactNode;
   isRunning?: boolean;
   showConnector?: boolean;
-  stepType?: "playwright" | "ai_prompt" | "links_analysis";
+  stepType?: StepType;
   isLast?: boolean;
   hasNextStep?: boolean;
-  nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
+  nextStepType?: StepType;
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
 }

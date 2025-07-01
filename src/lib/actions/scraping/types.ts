@@ -1,3 +1,5 @@
+export type StepType = "playwright" | "ai_prompt" | "links_analysis";
+
 export type PlaywrightStep = {
   id?: string;
   step_order: number;
@@ -17,7 +19,7 @@ export type AiPromptStep = {
 export type ScrapeDownloadStep = {
   id?: string;
   step_order: number;
-  step_type: "playwright" | "ai_prompt" | "links_analysis";
+  step_type: StepType;
   name: string;
   description?: string;
   sub_steps?: PlaywrightStep[]; // Only for playwright type
@@ -41,6 +43,8 @@ export type StepExecutionResult = {
   downloadUrl?: string;
   downloadPath?: string;
   aiResponse?: string;
+  textResults?: string[]; // Array of extracted text results
+  urlArray?: string[]; // Array of URLs from AI step
 };
 
 export type BrowserSession = {

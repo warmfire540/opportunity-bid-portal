@@ -3,7 +3,7 @@
 import { Code } from "lucide-react";
 import { useState } from "react";
 
-import type { ScrapeDownloadStep, ScrapeConfiguration } from "@lib/actions/scraping";
+import type { ScrapeDownloadStep, ScrapeConfiguration, StepType } from "@lib/actions/scraping";
 
 import ScrapeConfigurationSteps from "../../scrape-configuration-steps";
 
@@ -29,7 +29,7 @@ export default function PlaywrightStep({
   Props & {
     isLast?: boolean;
     hasNextStep?: boolean;
-    nextStepType?: "playwright" | "ai_prompt" | "links_analysis";
+    nextStepType?: StepType;
   }
 >) {
   const [isExpanded, setIsExpanded] = useState(false);

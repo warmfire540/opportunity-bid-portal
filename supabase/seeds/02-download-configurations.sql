@@ -38,6 +38,19 @@ INSERT INTO scrape_download_steps (
     '00000000-0000-0000-0000-000000000000'
 );
 
+-- Insert scrape download step (playwright type) - Step 3 (Text Extraction)
+INSERT INTO scrape_download_steps (
+    id, configuration_id, step_order, step_type, name, description, created_by
+) VALUES (
+    'b7e2cfa9-0df1-54dd-921c-408ff22f3c4f',
+    '7d1bee87-9cef-43cc-810b-297ee11f2b3e',
+    3,
+    'playwright',
+    'Extract Bid Details',
+    'Extract bid header, inquiry details, description, and commodity codes from each bid page',
+    '00000000-0000-0000-0000-000000000000'
+);
+
 -- Insert playwright steps for the scrape download step
 INSERT INTO playwright_steps (
     scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
@@ -61,7 +74,7 @@ INSERT INTO playwright_steps (
 -- 9. Click "Export to Excel" button
 ('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 9, 'click', 'Export to Excel', 'role', NULL, NULL, 'Click Export to Excel', '00000000-0000-0000-0000-000000000000'),
 -- 10. Save download as file
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 10, 'saveDownload', NULL, NULL, 'test-1.xlsx', NULL, 'Save download as test-1.xlsx', '00000000-0000-0000-0000-000000000000');
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 10, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
 
 -- Insert prompt step with the specified prompt
 INSERT INTO prompt_steps (
@@ -102,6 +115,12 @@ INSERT INTO storage.objects (
 ('11111111-1111-1111-1111-111111111111', 'scrape-downloads', '7d1bee87-9cef-43cc-810b-297ee11f2b3e/florida-rfp-data-2024-01.xlsx', '00000000-0000-0000-0000-000000000000', now(), now(), now(), '{"size": 1024000, "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}'),
 ('22222222-2222-2222-2222-222222222222', 'scrape-downloads', '7d1bee87-9cef-43cc-810b-297ee11f2b3e/florida-rfp-data-2024-02.xlsx', '00000000-0000-0000-0000-000000000000', now(), now(), now(), '{"size": 2048000, "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}'),
 ('33333333-3333-3333-3333-333333333333', 'scrape-downloads', '7d1bee87-9cef-43cc-810b-297ee11f2b3e/florida-rfp-data-2024-03.xlsx', '00000000-0000-0000-0000-000000000000', now(), now(), now(), '{"size": 1536000, "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}');
+
+-- Insert playwright step for text extraction (extractText action)
+INSERT INTO playwright_steps (
+    scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
+) VALUES
+('b7e2cfa9-0df1-54dd-921c-408ff22f3c4f', 1, 'extractText', NULL, NULL, NULL, NULL, 'Extracts text from bid detail page', '00000000-0000-0000-0000-000000000000');
 
 -- Second Configuration: Example.com Scraping
 -- Insert configuration

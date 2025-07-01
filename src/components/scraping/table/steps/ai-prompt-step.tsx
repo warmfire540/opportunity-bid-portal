@@ -3,7 +3,7 @@
 import { MessageSquare } from "lucide-react";
 import { useState } from "react";
 
-import type { ScrapeDownloadStep } from "@lib/actions/scraping";
+import type { ScrapeDownloadStep, StepType } from "@lib/actions/scraping";
 
 import { Label } from "../../../ui/label";
 
@@ -26,7 +26,7 @@ export default function AiPromptStep({
   Props & {
     isLast?: boolean;
     hasNextStep?: boolean;
-    nextStepType?: "playwright" | "ai_prompt" | "links_analysis" | "ai_prompt";
+    nextStepType?: StepType;
   }
 >) {
   const [isExpanded, setIsExpanded] = useState(false);
