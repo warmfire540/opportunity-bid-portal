@@ -159,7 +159,9 @@ function InsightDetails({ insight }: { insight: MarketInsight }) {
           <div className="space-y-1">
             <div>
               Created:{" "}
-              {insight.created_at != null ? new Date(insight.created_at).toLocaleDateString() : "Unknown"}
+              {insight.created_at != null
+                ? new Date(insight.created_at).toLocaleDateString()
+                : "Unknown"}
             </div>
             {insight.updated_at != null && insight.updated_at !== insight.created_at && (
               <div>Updated: {new Date(insight.updated_at).toLocaleDateString()}</div>

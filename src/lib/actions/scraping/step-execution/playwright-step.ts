@@ -6,6 +6,7 @@ import type {
   ScrapeDownloadStep,
   StepExecutionResult,
   PlaywrightStep,
+  PageTextContent,
 } from "../types";
 
 import {
@@ -111,11 +112,21 @@ export async function executeSinglePlaywrightStep(
     }
 
     console.log(`[STEP EXECUTION] Playwright step completed successfully`);
+
+    // Convert to new structure
+    const pageTextContent: PageTextContent | undefined =
+      context.textResults.length > 0
+        ? {
+            pageId: dynamicValue ?? "single-page",
+            content: context.textResults,
+          }
+        : undefined;
+
     return {
       success: true,
       storageObjectId: context.storageObjectId,
       downloadPath: context.storageObjectId,
-      textResults: context.textResults.length > 0 ? context.textResults : undefined,
+      pageTextContent: pageTextContent != null ? [pageTextContent] : undefined,
     };
   } catch (error: unknown) {
     console.error(`[STEP EXECUTION] Playwright step failed:`, error);
@@ -134,40 +145,23 @@ export async function executePlaywrightStep(
   configuration: ScrapeConfiguration,
   page: Page,
   supabase: SupabaseClient,
-  previousStepResults?: StepExecutionResult[]
+  previousStepResult?: StepExecutionResult
 ): Promise<StepExecutionResult> {
   console.log(`[STEP EXECUTION] Starting execution of playwright step: ${step.name}`);
 
   // Check if previous step has typed data for dynamic execution
-  const typedDataFromPreviousStep = (() => {
-    if (previousStepResults == null || previousStepResults.length === 0) {
-      return null;
-    }
-
-    // Get the latest result (last step)
-    const latestResult = previousStepResults[previousStepResults.length - 1];
-
-    // First check for typed AI response (new format)
-    if (latestResult.typedAiResponse != null) {
-      console.log(
-        `[STEP EXECUTION] Found typed AI response: type=${latestResult.typedAiResponse.type}, values=${latestResult.typedAiResponse.values.length}`
-      );
-      return latestResult.typedAiResponse;
-    }
-
-    return null;
-  })();
+  const typedDataFromPreviousStep = previousStepResult?.typedAiResponse ?? null;
 
   if (typedDataFromPreviousStep != null && typedDataFromPreviousStep.values.length > 0) {
     console.log(
       `[STEP EXECUTION] Found ${typedDataFromPreviousStep.values.length} values of type "${typedDataFromPreviousStep.type}" from previous step`
     );
 
-    // For type "id", we should only execute once and use the values for type actions
+    // For type "id", we should execute for each ID and treat each as a separate page
     // For type "url", we should execute for each URL
     if (typedDataFromPreviousStep.type === "id") {
       console.log(
-        `[STEP EXECUTION] Executing playwright step once with ID values for type actions`
+        `[STEP EXECUTION] Executing playwright step for each ID value (treating each as separate page)`
       );
       const results: StepExecutionResult[] = [];
       for (const value of typedDataFromPreviousStep.values) {
@@ -182,13 +176,17 @@ export async function executePlaywrightStep(
         results.push(result);
       }
 
-      // Combine results
+      // For IDs, each result represents a separate page (like URLs)
+      const pageTextContents: PageTextContent[] = results
+        .filter((r) => r.pageTextContent != null && r.pageTextContent.length > 0)
+        .flatMap((r) => r.pageTextContent!);
+
       return {
         success: results.every((r) => r.success),
         error: results.find((r) => !r.success)?.error,
         storageObjectId: results.find((r) => r.storageObjectId != null)?.storageObjectId,
         downloadPath: results.find((r) => r.downloadPath != null)?.downloadPath,
-        textResults: results.flatMap((r) => r.textResults ?? []),
+        pageTextContent: pageTextContents.length > 0 ? pageTextContents : undefined,
       };
     } else {
       console.log(`[STEP EXECUTION] Executing playwright step for each URL value`);
@@ -205,13 +203,17 @@ export async function executePlaywrightStep(
         results.push(result);
       }
 
-      // Combine results
+      // Combine results - for URLs, each result represents a separate page
+      const pageTextContents: PageTextContent[] = results
+        .filter((r) => r.pageTextContent != null && r.pageTextContent.length > 0)
+        .flatMap((r) => r.pageTextContent!);
+
       return {
         success: results.every((r) => r.success),
         error: results.find((r) => !r.success)?.error,
         storageObjectId: results.find((r) => r.storageObjectId != null)?.storageObjectId,
         downloadPath: results.find((r) => r.downloadPath != null)?.downloadPath,
-        textResults: results.flatMap((r) => r.textResults ?? []),
+        pageTextContent: pageTextContents.length > 0 ? pageTextContents : undefined,
       };
     }
   }

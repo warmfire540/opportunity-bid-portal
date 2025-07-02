@@ -9,6 +9,7 @@ export type {
   ScrapeConfiguration,
   StepExecutionResult,
   BrowserSession,
+  PageTextContent,
 } from "./types";
 
 // Re-export CRUD operations

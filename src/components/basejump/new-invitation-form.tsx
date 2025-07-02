@@ -76,7 +76,7 @@ export default function NewInvitationForm({ accountId }: Props) {
             </Select>
           </div>
           <SubmitButton
-            formAction={async (prevState: any, formData: FormData) => formAction(formData)}
+            formAction={async (prevState: unknown, formData: FormData) => formAction(formData)}
             errorMessage={state?.message}
             pendingText="Creating..."
           >

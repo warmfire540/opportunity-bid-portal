@@ -2,6 +2,7 @@
 
 import { Clock, CheckCircle, XCircle, ExternalLink, Code, Zap } from "lucide-react";
 
+import type { ScrapeResult } from "@/src/lib/actions/scraping/types";
 import type { ScrapeConfiguration } from "@lib/actions/scraping";
 import { useAutoScroll } from "@lib/hooks/use-auto-scroll";
 
@@ -10,16 +11,6 @@ import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 
 import { StepRenderer } from "./steps";
-
-type ScrapeResult = {
-  success: boolean;
-  downloadPath?: string;
-  downloadUrl?: string;
-  executionTimeMs?: number;
-  stepsExecuted?: number;
-  error?: string;
-  stepResults?: any[];
-};
 
 type Props = {
   configuration: ScrapeConfiguration;
@@ -195,7 +186,7 @@ export default function ScrapeConfigurationExpandedContent({
         </div>
 
         {/* Result Display - Moved to bottom after steps */}
-        {result != null && (
+        {result != null && result.completed && (
           <div
             ref={resultsRef}
             className="scale-in-95 z-0 duration-500 animate-in slide-in-from-top-2"

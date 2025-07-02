@@ -3,6 +3,7 @@
 import { ChevronDown, ChevronRight, ExternalLink, Pause, Play, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import type { ScrapeResult } from "@/src/lib/actions/scraping/types";
 import type { ScrapeConfiguration, StepExecutionResult } from "@lib/actions/scraping";
 import {
   toggleScrapeConfigurationAction,
@@ -28,16 +29,6 @@ import EditScrapeConfigurationDrawer from "../edit-scrape-configuration-drawer";
 
 import ScrapeConfigurationExpandedContent from "./scrape-configuration-expanded-content";
 
-type ScrapeResult = {
-  success: boolean;
-  downloadPath?: string;
-  downloadUrl?: string;
-  executionTimeMs?: number;
-  stepsExecuted?: number;
-  error?: string;
-  stepResults?: StepExecutionResult[];
-};
-
 type Props = {
   configuration: ScrapeConfiguration;
   onUpdate: () => void;
@@ -51,13 +42,13 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const handleToggle = async (prevState: any, formData: FormData) => {
+  const handleToggle = async (prevState: unknown, formData: FormData) => {
     const result = await toggleScrapeConfigurationAction(formData);
     setTimeout(() => onUpdate(), 100);
     return result;
   };
 
-  const handleDelete = async (prevState: any, formData: FormData) => {
+  const handleDelete = async (prevState: unknown, formData: FormData) => {
     const result = await deleteScrapeConfigurationAction(formData);
     setTimeout(() => onUpdate(), 100);
     return result;
@@ -98,6 +89,7 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
         // update the ui after each step
         const executionTimeMs = Date.now() - startTime;
         setResult({
+          completed: false,
           success: true,
           downloadPath: stepResults[stepResults.length - 1]?.downloadPath,
           downloadUrl: stepResults[stepResults.length - 1]?.downloadUrl,
@@ -106,9 +98,22 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
           stepResults,
         });
       }
+
+      // update the ui after each step
+      const executionTimeMs = Date.now() - startTime;
+      setResult({
+        completed: true,
+        success: true,
+        downloadPath: stepResults[stepResults.length - 1]?.downloadPath,
+        downloadUrl: stepResults[stepResults.length - 1]?.downloadUrl,
+        executionTimeMs,
+        stepsExecuted: steps.length,
+        stepResults,
+      });
     } catch (error) {
       console.error(`[SCRAPE ROW] Scrape failed:`, error);
       setResult({
+        completed: true,
         success: false,
         error: error instanceof Error ? error.message : "Unknown error occurred",
         stepsExecuted: currentStepIndex ?? 0,

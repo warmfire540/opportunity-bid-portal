@@ -104,6 +104,12 @@ export type ScrapeConfiguration = {
   steps: ScrapeDownloadStep[];
 };
 
+// New type to represent text content from a single page
+export type PageTextContent = {
+  pageId?: string; // Optional identifier for the page (URL, ID, etc.)
+  content: string[]; // Multiple pieces of content from the same page
+};
+
 export type StepExecutionResult = {
   success: boolean;
   error?: string;
@@ -111,7 +117,7 @@ export type StepExecutionResult = {
   downloadUrl?: string;
   downloadPath?: string;
   aiResponse?: string;
-  textResults?: string[]; // Array of extracted text results
+  pageTextContent?: PageTextContent[]; // Array of page content, each page can have multiple content pieces
   urlArray?: string[]; // Array of URLs from AI step
   opportunities?: Opportunity[]; // Array of created opportunities
   opportunityCount?: number; // Number of opportunities created
@@ -131,4 +137,38 @@ export type BrowserSession = {
   supabase: SupabaseClient;
   startTime: number;
   previousStepResults?: StepExecutionResult[];
+};
+
+export type ScrapeResult = {
+  completed: boolean;
+  success: boolean;
+  downloadPath?: string;
+  downloadUrl?: string;
+  executionTimeMs?: number;
+  stepsExecuted?: number;
+  error?: string;
+  stepResults?: StepExecutionResponse[];
+};
+
+export type StepExecutionResponse = {
+  success: boolean;
+  error?: string;
+  isComplete: boolean;
+  currentStep: number;
+  totalSteps: number;
+  downloadUrl?: string;
+  stepName?: string;
+  result?: StepExecutionResult;
+};
+
+export type StartExecutionResponse = {
+  success: boolean;
+  error?: string;
+  sessionId: string;
+  totalSteps: number;
+};
+
+export type CleanupSessionResponse = {
+  success: boolean;
+  error?: string;
 };

@@ -14,7 +14,7 @@ export async function executeCreateOpportunityStep(
   step: ScrapeDownloadStep,
   configuration: ScrapeConfiguration,
   supabase: SupabaseClient,
-  previousStepResults?: StepExecutionResult[]
+  previousStepResult?: StepExecutionResult
 ): Promise<StepExecutionResult> {
   console.log(`[STEP EXECUTION] Starting create opportunity step: ${step.name}`);
 
@@ -25,84 +25,187 @@ export async function executeCreateOpportunityStep(
 
     const createOpportunityConfig = step.create_opportunity_data[0];
 
-    // Process previous step results to extract opportunity data and market insights
+    // Process the immediate previous step result to extract opportunity data and market insights
     const opportunities: Partial<Opportunity>[] = [];
     const marketInsights: Partial<MarketInsight>[] = [];
 
-    if (previousStepResults != null && previousStepResults.length > 0) {
-      for (const result of previousStepResults) {
-        if (result.success && result.aiResponse != null && result.aiResponse !== "") {
-          try {
-            // Parse AI response to extract opportunity data and market insights
-            const parsedData = JSON.parse(result.aiResponse);
+    if (
+      previousStepResult != null &&
+      previousStepResult.success &&
+      typeof previousStepResult.aiResponse === "string" &&
+      previousStepResult.aiResponse !== ""
+    ) {
+      try {
+        // Parse AI response to extract opportunity data and market insights
+        const parsedData = JSON.parse(previousStepResult.aiResponse);
 
-            // Extract opportunities
+        // Check if this is the new multi-page format
+        if (
+          Array.isArray(parsedData) &&
+          parsedData.length > 0 &&
+          typeof parsedData[0] === "object" &&
+          parsedData[0] != null &&
+          Object.prototype.hasOwnProperty.call(parsedData[0], "aiResponse")
+        ) {
+          // Handle multi-page AI responses
+          console.log(`[STEP EXECUTION] Processing ${parsedData.length} pages of AI responses`);
+          
+          for (const pageResult of parsedData) {
             if (
-              parsedData != null &&
-              typeof parsedData === "object" &&
-              "opportunities" in parsedData &&
-              Array.isArray(parsedData.opportunities)
+              pageResult != null &&
+              typeof pageResult.aiResponse === "string" &&
+              pageResult.aiResponse !== ""
             ) {
-              for (const item of parsedData.opportunities) {
-                const opportunity = createOpportunityFromData(
-                  item,
+              try {
+                const pageAiData = JSON.parse(pageResult.aiResponse);
+                console.log(`[STEP EXECUTION] Processing AI response from page ${Number(pageResult.pageIndex) + 1} (${pageResult.pageId})`);
+                
+                // Extract opportunities from this page
+                if (
+                  pageAiData != null &&
+                  typeof pageAiData === "object" &&
+                  Object.prototype.hasOwnProperty.call(pageAiData, "opportunities") &&
+                  Array.isArray(pageAiData.opportunities)
+                ) {
+                  for (const item of pageAiData.opportunities) {
+                    const opportunity = createOpportunityFromData(
+                      item,
+                      createOpportunityConfig,
+                      previousStepResult.downloadUrl ?? ""
+                    );
+                    if (opportunity != null) {
+                      opportunities.push(opportunity);
+                    }
+                  }
+                } else if (Array.isArray(pageAiData)) {
+                  // Handle array of opportunities (backward compatibility)
+                  for (const item of pageAiData) {
+                    const opportunity = createOpportunityFromData(
+                      item,
+                      createOpportunityConfig,
+                      previousStepResult.downloadUrl ?? ""
+                    );
+                    if (opportunity != null) {
+                      opportunities.push(opportunity);
+                    }
+                  }
+                } else if (
+                  pageAiData != null &&
+                  typeof pageAiData === "object"
+                ) {
+                  // Handle single opportunity (backward compatibility)
+                  const opportunity = createOpportunityFromData(
+                    pageAiData,
+                    createOpportunityConfig,
+                    previousStepResult.downloadUrl ?? ""
+                  );
+                  if (opportunity != null) {
+                    opportunities.push(opportunity);
+                  }
+                }
+
+                // Extract market insights from this page
+                if (
+                  pageAiData != null &&
+                  typeof pageAiData === "object" &&
+                  Object.prototype.hasOwnProperty.call(pageAiData, "marketInsights") &&
+                  typeof pageAiData.marketInsights === "object" &&
+                  pageAiData.marketInsights != null
+                ) {
+                  const insights = createMarketInsightsFromData(
+                    pageAiData.marketInsights,
+                    configuration.id ?? "",
+                    previousStepResult.downloadUrl ?? ""
+                  );
+                  marketInsights.push(...insights);
+                }
+              } catch (pageParseError) {
+                console.error(`[STEP EXECUTION] Failed to parse AI response from page ${Number(pageResult.pageIndex) + 1}: ${pageParseError}`);
+                // Try to create a basic opportunity from the raw text
+                const opportunity = createBasicOpportunityFromText(
+                  pageResult.aiResponse,
                   createOpportunityConfig,
-                  result.downloadUrl ?? ""
+                  previousStepResult.downloadUrl ?? ""
                 );
                 if (opportunity != null) {
                   opportunities.push(opportunity);
                 }
               }
-            } else if (Array.isArray(parsedData)) {
-              // Handle array of opportunities (backward compatibility)
-              for (const item of parsedData) {
-                const opportunity = createOpportunityFromData(
-                  item,
-                  createOpportunityConfig,
-                  result.downloadUrl ?? ""
-                );
-                if (opportunity != null) {
-                  opportunities.push(opportunity);
-                }
-              }
-            } else if (parsedData != null && typeof parsedData === "object") {
-              // Handle single opportunity (backward compatibility)
+            }
+          }
+        } else {
+          // Handle single page format (backward compatibility)
+          // Extract opportunities
+          if (
+            parsedData != null &&
+            typeof parsedData === "object" &&
+            Object.prototype.hasOwnProperty.call(parsedData, "opportunities") &&
+            Array.isArray(parsedData.opportunities)
+          ) {
+            for (const item of parsedData.opportunities) {
               const opportunity = createOpportunityFromData(
-                parsedData,
+                item,
                 createOpportunityConfig,
-                result.downloadUrl ?? ""
+                previousStepResult.downloadUrl ?? ""
               );
               if (opportunity != null) {
                 opportunities.push(opportunity);
               }
             }
-
-            // Extract market insights
-            if (
-              parsedData != null &&
-              typeof parsedData === "object" &&
-              "marketInsights" in parsedData &&
-              typeof parsedData.marketInsights === "object"
-            ) {
-              const insights = createMarketInsightsFromData(
-                parsedData.marketInsights,
-                configuration.id ?? "",
-                result.downloadUrl ?? ""
+          } else if (Array.isArray(parsedData)) {
+            // Handle array of opportunities (backward compatibility)
+            for (const item of parsedData) {
+              const opportunity = createOpportunityFromData(
+                item,
+                createOpportunityConfig,
+                previousStepResult.downloadUrl ?? ""
               );
-              marketInsights.push(...insights);
+              if (opportunity != null) {
+                opportunities.push(opportunity);
+              }
             }
-          } catch (parseError) {
-            console.warn(`[STEP EXECUTION] Failed to parse AI response as JSON: ${parseError}`);
-            // Try to create a basic opportunity from the raw text
-            const opportunity = createBasicOpportunityFromText(
-              result.aiResponse,
+          } else if (
+            parsedData != null &&
+            typeof parsedData === "object"
+          ) {
+            // Handle single opportunity (backward compatibility)
+            const opportunity = createOpportunityFromData(
+              parsedData,
               createOpportunityConfig,
-              result.downloadUrl ?? ""
+              previousStepResult.downloadUrl ?? ""
             );
             if (opportunity != null) {
               opportunities.push(opportunity);
             }
           }
+
+          // Extract market insights
+          if (
+            parsedData != null &&
+            typeof parsedData === "object" &&
+            Object.prototype.hasOwnProperty.call(parsedData, "marketInsights") &&
+            typeof parsedData.marketInsights === "object" &&
+            parsedData.marketInsights != null
+          ) {
+            const insights = createMarketInsightsFromData(
+              parsedData.marketInsights,
+              configuration.id ?? "",
+              previousStepResult.downloadUrl ?? ""
+            );
+            marketInsights.push(...insights);
+          }
+        }
+      } catch (parseError) {
+        console.error(`[STEP EXECUTION] Failed to parse AI response as JSON: ${parseError}`);
+        console.log(`[STEP EXECUTION] AI Response: ${previousStepResult.aiResponse}`);
+        // Try to create a basic opportunity from the raw text
+        const opportunity = createBasicOpportunityFromText(
+          previousStepResult.aiResponse,
+          createOpportunityConfig,
+          previousStepResult.downloadUrl ?? ""
+        );
+        if (opportunity != null) {
+          opportunities.push(opportunity);
         }
       }
     }

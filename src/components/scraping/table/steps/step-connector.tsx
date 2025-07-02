@@ -44,11 +44,9 @@ export default function StepConnector({
         // Determine which outputs are active based on actual results
         const fileName = stepResult?.downloadPath?.split("/").pop();
         const hasFileOutput = fileName != null && fileName !== "";
-        const hasTextResults =
-          stepResult?.textResults != null &&
-          Array.isArray(stepResult.textResults) &&
-          stepResult.textResults.length > 0;
-        const hasTextOutput = hasTextResults;
+        const hasPageTextContent =
+          stepResult?.pageTextContent != null && stepResult.pageTextContent.length > 0;
+        const hasTextOutput = hasPageTextContent;
 
         // If no stepResult (before execution or editor mode), show both as active
         const isBeforeExecution = stepResult == null;

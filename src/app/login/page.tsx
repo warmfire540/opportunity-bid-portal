@@ -14,7 +14,7 @@ export default async function Login({
 }>) {
   const params = await searchParams;
 
-  const signIn = async (_prevState: any, formData: FormData) => {
+  const signIn = async (_prevState: unknown, formData: FormData) => {
     "use server";
 
     const email = formData.get("email") as string;
@@ -33,7 +33,7 @@ export default async function Login({
     return redirect(params.returnUrl ?? "/dashboard");
   };
 
-  const signUp = async (_prevState: any, formData: FormData) => {
+  const signUp = async (_prevState: unknown, formData: FormData) => {
     "use server";
 
     const origin = headers().get("origin");

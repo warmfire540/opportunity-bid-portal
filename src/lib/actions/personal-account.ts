@@ -1,6 +1,6 @@
 import { createClient } from "../supabase/server";
 
-export async function editPersonalAccountName(prevState: any, formData: FormData) {
+export async function editPersonalAccountName(prevState: unknown, formData: FormData) {
   "use server";
 
   const name = formData.get("name") as string;

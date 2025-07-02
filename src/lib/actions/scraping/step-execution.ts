@@ -16,14 +16,19 @@ export async function executeStep(
 ): Promise<StepExecutionResult> {
   console.log(`[STEP EXECUTION] Starting execution of step: ${step.name} (${step.step_type})`);
 
+  // Only pass the immediate previous step result for safety
+  const previousStepResult = previousStepResults != null && previousStepResults.length > 0 
+    ? previousStepResults[previousStepResults.length - 1] 
+    : undefined;
+
   switch (step.step_type) {
     case "playwright": {
-      return await executePlaywrightStep(step, configuration, page, supabase, previousStepResults);
+      return await executePlaywrightStep(step, configuration, page, supabase, previousStepResult);
     }
     case "ai_prompt":
-      return await executeAiPromptStep(step, supabase, previousStepResults);
+      return await executeAiPromptStep(step, supabase, previousStepResult);
     case "create_opportunity":
-      return await executeCreateOpportunityStep(step, configuration, supabase, previousStepResults);
+      return await executeCreateOpportunityStep(step, configuration, supabase, previousStepResult);
     default:
       console.warn(`[STEP EXECUTION] Unknown step type "${step.step_type}" - skipping`);
       return {

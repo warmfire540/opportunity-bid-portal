@@ -6,17 +6,19 @@ import { createClient } from "@lib/supabase/server";
 
 import { getScrapeConfiguration } from "./crud";
 import { executeStep } from "./step-execution";
-import type { BrowserSession, StepExecutionResult } from "./types";
+import type {
+  BrowserSession,
+  StepExecutionResponse,
+  StartExecutionResponse,
+  CleanupSessionResponse,
+} from "./types";
 
 // In-memory store for browser sessions (in production, use Redis or similar)
 const browserSessions = new Map<string, BrowserSession>();
 
-export async function startStepExecutionAction(configurationId: string): Promise<{
-  success: boolean;
-  error?: string;
-  sessionId: string;
-  totalSteps: number;
-}> {
+export async function startStepExecutionAction(
+  configurationId: string
+): Promise<StartExecutionResponse> {
   console.log(`[STEP EXECUTION] Starting execution for configuration: ${configurationId}`);
 
   try {
@@ -64,16 +66,7 @@ export async function startStepExecutionAction(configurationId: string): Promise
 export async function executeNextStepAction(
   sessionId: string,
   stepIndex: number
-): Promise<{
-  success: boolean;
-  error?: string;
-  isComplete: boolean;
-  currentStep: number;
-  totalSteps: number;
-  downloadUrl?: string;
-  stepName?: string;
-  result?: StepExecutionResult;
-}> {
+): Promise<StepExecutionResponse> {
   console.log(`[STEP EXECUTION] Executing step ${stepIndex} for session: ${sessionId}`);
 
   try {
@@ -187,10 +180,7 @@ export async function executeNextStepAction(
   }
 }
 
-export async function cleanupSessionAction(sessionId: string): Promise<{
-  success: boolean;
-  error?: string;
-}> {
+export async function cleanupSessionAction(sessionId: string): Promise<CleanupSessionResponse> {
   try {
     const session = browserSessions.get(sessionId);
     if (session != null) {

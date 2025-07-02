@@ -8,7 +8,7 @@ import { AlertTriangle } from "lucide-react";
 
 type Props = Omit<ComponentProps<typeof Button>, "formAction"> & {
   pendingText?: string;
-  formAction: (prevState: any, formData: FormData) => Promise<any>;
+  formAction: (prevState: unknown, formData: FormData) => Promise<any>;
   errorMessage?: string;
 };
 

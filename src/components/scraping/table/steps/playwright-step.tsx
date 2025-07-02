@@ -43,7 +43,11 @@ export default function PlaywrightStep({
   // Compute preview and glow for Downloaded File or Text Results
   const fileName = stepResult?.downloadPath?.split("/").pop();
   const hasFile = fileName != null && fileName !== "";
-  const hasTextResults = stepResult?.textResults != null && stepResult.textResults.length > 0;
+
+  // Check for text results in new format
+  const hasPageTextContent =
+    stepResult?.pageTextContent != null && stepResult.pageTextContent.length > 0;
+  const hasTextResults = hasPageTextContent;
 
   let stepOutputPreview;
   if (hasFile) {
@@ -54,11 +58,21 @@ export default function PlaywrightStep({
       </div>
     );
   } else if (hasTextResults) {
+    // New format: show page-based content
+    const totalPages = stepResult.pageTextContent!.length;
+    const totalContentPieces = stepResult.pageTextContent!.reduce(
+      (sum, page) => sum + page.content.length,
+      0
+    );
+    const firstPageContent = stepResult.pageTextContent![0]?.content[0] ?? "";
+
     stepOutputPreview = (
       <div>
-        <div className="font-medium">{stepResult.textResults!.length} text(s) extracted</div>
+        <div className="font-medium">
+          {totalPages} page(s), {totalContentPieces} text piece(s) extracted
+        </div>
         <div className="text-xs text-muted-foreground">
-          {stepResult.textResults![0]?.substring(0, 1000)}...
+          {firstPageContent.substring(0, 1000)}...
         </div>
       </div>
     );
