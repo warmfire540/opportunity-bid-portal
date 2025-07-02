@@ -1,11 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
 import { createClient } from "@/src/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const filepath = searchParams.get("filepath");
 
-  if (!filepath) {
+  if (filepath == null || filepath === "") {
     return NextResponse.json({ error: "Missing filepath parameter" }, { status: 400 });
   }
 
@@ -19,7 +21,7 @@ export async function GET(req: NextRequest) {
       .from("scrape-downloads")
       .download(filepath);
 
-    if (downloadError !== null) {
+    if (downloadError != null) {
       console.error("[DOWNLOAD API] Download error:", downloadError);
       return NextResponse.json({ error: "Failed to download file" }, { status: 500 });
     }
@@ -35,12 +37,12 @@ export async function GET(req: NextRequest) {
         limit: 1,
       });
 
-    if (!fileInfo || fileInfo.length === 0) {
+    if (fileInfo == null || fileInfo.length === 0) {
       console.error("[DOWNLOAD API] File info not found:", filepath);
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    const file = fileInfo[0];
+    const file = fileInfo[0] as { metadata?: { mimetype?: string } };
 
     // Return the file as a response
     return new NextResponse(fileData, {
@@ -49,7 +51,7 @@ export async function GET(req: NextRequest) {
         "Content-Disposition": `attachment; filename="${filename}"`,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DOWNLOAD API] Unexpected error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

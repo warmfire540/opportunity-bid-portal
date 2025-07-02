@@ -6,6 +6,14 @@ import { Table, TableRow, TableBody, TableCell } from "../ui/table";
 
 import TeamMemberOptions from "./team-member-options";
 
+type TeamMember = {
+  user_id: string;
+  account_role: "owner" | "member";
+  name: string;
+  email: string;
+  is_primary_owner: boolean;
+};
+
 type Props = {
   accountId: string;
 };
@@ -19,7 +27,7 @@ export default async function ManageTeamMembers({ accountId }: Props) {
 
   const { data } = await supabaseClient.auth.getUser();
   const isPrimaryOwner = members?.find(
-    (member: any) => member.user_id === data?.user?.id
+    (member: TeamMember) => member.user_id === data.user?.id
   )?.is_primary_owner;
 
   return (
@@ -31,7 +39,7 @@ export default async function ManageTeamMembers({ accountId }: Props) {
       <CardContent>
         <Table>
           <TableBody>
-            {members?.map((member: any) => (
+            {members?.map((member: TeamMember) => (
               <TableRow key={member.user_id}>
                 <TableCell>
                   <div className="flex gap-x-2">
@@ -42,7 +50,7 @@ export default async function ManageTeamMembers({ accountId }: Props) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  {!Boolean(member.is_primary_owner) && (
+                  {!member.is_primary_owner && (
                     <TeamMemberOptions
                       teamMember={member}
                       accountId={accountId}

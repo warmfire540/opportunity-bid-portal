@@ -71,7 +71,7 @@ export default function AccountSelector({
             aria-label="Select a team"
             className={cn("w-[250px] justify-between", className)}
           >
-            {selectedAccount?.name || placeholder}
+            {selectedAccount?.name ?? placeholder}
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -84,8 +84,8 @@ export default function AccountSelector({
                 <CommandItem
                   key={personalAccount?.account_id}
                   onSelect={() => {
-                    if (onAccountSelected) {
-                      onAccountSelected(personalAccount!);
+                    if (personalAccount != null) {
+                      onAccountSelected?.(personalAccount);
                     }
                     setOpen(false);
                   }}
@@ -108,9 +108,7 @@ export default function AccountSelector({
                     <CommandItem
                       key={team.account_id}
                       onSelect={() => {
-                        if (onAccountSelected) {
-                          onAccountSelected(team);
-                        }
+                        onAccountSelected?.(team);
 
                         setOpen(false);
                       }}

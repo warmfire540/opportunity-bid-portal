@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { getScrapeConfigurations } from "@lib/actions/scraping";
+import type { ScrapeConfiguration } from "@lib/actions/scraping";
 
 import { Card, CardContent } from "../ui/card";
 
@@ -12,7 +13,7 @@ import ScrapeConfigurationsLoading from "./scrape-configurations-loading";
 import ScrapeConfigurationsTable from "./table/scrape-configurations-table";
 
 export default function ManageScrapeConfigurations() {
-  const [configurations, setConfigurations] = useState<any[]>([]);
+  const [configurations, setConfigurations] = useState<ScrapeConfiguration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadConfigurations = async () => {

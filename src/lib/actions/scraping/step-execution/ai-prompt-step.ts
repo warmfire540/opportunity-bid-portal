@@ -63,11 +63,13 @@ export async function executeAiPromptStep(
 
     if (previousStepResult != null) {
       console.log(`[STEP EXECUTION] Processing immediate previous step result`);
-      
+
       // Handle downloaded files from the previous step
       if (previousStepResult.downloadPath != null && previousStepResult.downloadPath !== "") {
         try {
-          console.log(`[STEP EXECUTION] Reading file from storage path: ${previousStepResult.downloadPath}`);
+          console.log(
+            `[STEP EXECUTION] Reading file from storage path: ${previousStepResult.downloadPath}`
+          );
 
           // Download the file directly from Supabase Storage
           const { data: fileData, error: downloadError } = await supabase.storage
@@ -102,12 +104,18 @@ export async function executeAiPromptStep(
             );
           }
         } catch (error) {
-          console.warn(`[STEP EXECUTION] Error reading file from ${previousStepResult.downloadPath}:`, error);
+          console.warn(
+            `[STEP EXECUTION] Error reading file from ${previousStepResult.downloadPath}:`,
+            error
+          );
         }
       }
 
       // Handle text content from the previous step
-      if (previousStepResult.pageTextContent != null && previousStepResult.pageTextContent.length > 0) {
+      if (
+        previousStepResult.pageTextContent != null &&
+        previousStepResult.pageTextContent.length > 0
+      ) {
         console.log(
           `[STEP EXECUTION] Found ${previousStepResult.pageTextContent.length} pages with text content from previous step`
         );
@@ -255,11 +263,15 @@ export async function executeAiPromptStep(
 
       let fullPrompt = aiPrompt.prompt;
       if (downloadedFilesContent !== "") {
-        console.log(`[STEP EXECUTION] Downloaded files content length: ${downloadedFilesContent.length} characters`);
+        console.log(
+          `[STEP EXECUTION] Downloaded files content length: ${downloadedFilesContent.length} characters`
+        );
         fullPrompt = `${aiPrompt.prompt}\n\n--- Downloaded Files Content ---${downloadedFilesContent}`;
       }
       if (textContentFromPreviousSteps !== "") {
-        console.log(`[STEP EXECUTION] Text content from previous steps length: ${textContentFromPreviousSteps.length} characters`);
+        console.log(
+          `[STEP EXECUTION] Text content from previous steps length: ${textContentFromPreviousSteps.length} characters`
+        );
         fullPrompt = `${fullPrompt}\n\n--- Text Content from Previous Steps ---${textContentFromPreviousSteps}`;
       }
 
@@ -337,11 +349,14 @@ export async function executeAiPromptStep(
         typedAiResponse: typedAiResponse,
       };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[STEP EXECUTION] AI prompt step failed:`, error);
     return {
       success: false,
-      error: error.message ?? "An unexpected error occurred during AI prompt step execution",
+      error:
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred during AI prompt step execution",
     };
   }
 }

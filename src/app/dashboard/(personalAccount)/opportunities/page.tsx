@@ -17,6 +17,7 @@ import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Separator } from "@components/ui/separator";
 import { getOpportunities } from "@lib/actions/opportunities";
+import type { Opportunity } from "@lib/actions/scraping";
 
 export default async function OpportunitiesPage() {
   const opportunities = await getOpportunities();
@@ -53,7 +54,7 @@ export default async function OpportunitiesPage() {
   );
 }
 
-function OpportunityCard({ opportunity }: { opportunity: any }) {
+function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "new":
@@ -135,16 +136,18 @@ function OpportunityCard({ opportunity }: { opportunity: any }) {
           <Badge className={getStatusColor(opportunity.status)}>
             {opportunity.status.replace("_", " ")}
           </Badge>
-          {opportunity.strategic_fit && (
+          {opportunity.strategic_fit != null && (
             <Badge variant="outline" className={getStrategicFitColor(opportunity.strategic_fit)}>
               <Target className="mr-1 h-3 w-3" />
               {opportunity.strategic_fit}
             </Badge>
           )}
-          {opportunity.win_probability && (
+          {(opportunity.win_probability === "high" ||
+            opportunity.win_probability === "medium" ||
+            opportunity.win_probability === "low") && (
             <Badge
               variant="outline"
-              className={getWinProbabilityColor(opportunity.win_probability)}
+              className={getWinProbabilityColor(opportunity.win_probability as string)}
             >
               <Award className="mr-1 h-3 w-3" />
               {opportunity.win_probability}
@@ -154,7 +157,7 @@ function OpportunityCard({ opportunity }: { opportunity: any }) {
 
         {/* Key Information */}
         <div className="space-y-2 text-sm">
-          {opportunity.bid_number && (
+          {opportunity.bid_number != null && opportunity.bid_number !== "" && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <FileText className="h-4 w-4" />
               <span className="font-medium">Bid:</span>
@@ -162,7 +165,7 @@ function OpportunityCard({ opportunity }: { opportunity: any }) {
             </div>
           )}
 
-          {opportunity.due_date && (
+          {opportunity.due_date != null && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-4 w-4" />
               <span className="font-medium">Due:</span>
@@ -170,7 +173,7 @@ function OpportunityCard({ opportunity }: { opportunity: any }) {
             </div>
           )}
 
-          {opportunity.estimated_value && (
+          {opportunity.estimated_value != null && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <DollarSign className="h-4 w-4" />
               <span className="font-medium">Value:</span>
@@ -180,7 +183,7 @@ function OpportunityCard({ opportunity }: { opportunity: any }) {
         </div>
 
         {/* Go/No-Go Decision */}
-        {opportunity.go_no_go_decision && (
+        {opportunity.go_no_go_decision != null && opportunity.go_no_go_decision !== "" && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               {opportunity.go_no_go_decision.toLowerCase().includes("go") ? (
@@ -197,7 +200,7 @@ function OpportunityCard({ opportunity }: { opportunity: any }) {
         )}
 
         {/* Tags */}
-        {opportunity.tags && opportunity.tags.length > 0 && (
+        {Array.isArray(opportunity.tags) && opportunity.tags.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
@@ -225,7 +228,7 @@ function OpportunityCard({ opportunity }: { opportunity: any }) {
   );
 }
 
-function OpportunityDetails({ opportunity }: { opportunity: any }) {
+function OpportunityDetails({ opportunity }: { opportunity: Opportunity }) {
   return (
     <details className="group">
       <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
@@ -235,7 +238,7 @@ function OpportunityDetails({ opportunity }: { opportunity: any }) {
 
       <div className="mt-4 space-y-4 border-t pt-4">
         {/* Description */}
-        {opportunity.description && (
+        {opportunity.description != null && opportunity.description !== "" && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Description</h4>
             <p className="line-clamp-3 text-sm text-muted-foreground">{opportunity.description}</p>
@@ -243,22 +246,23 @@ function OpportunityDetails({ opportunity }: { opportunity: any }) {
         )}
 
         {/* Key Messaging Points */}
-        {opportunity.key_messaging_points && opportunity.key_messaging_points.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Key Messaging Points</h4>
-            <ul className="space-y-1">
-              {opportunity.key_messaging_points.map((point: string, index: number) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <span className="mt-1 text-primary">•</span>
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {Array.isArray(opportunity.key_messaging_points) &&
+          opportunity.key_messaging_points.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Key Messaging Points</h4>
+              <ul className="space-y-1">
+                {opportunity.key_messaging_points.map((point: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <span className="mt-1 text-primary">•</span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
         {/* Risk Assessment */}
-        {opportunity.risk_assessment && (
+        {opportunity.risk_assessment != null && opportunity.risk_assessment !== "" && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Risk Assessment</h4>
             <p className="text-sm text-muted-foreground">{opportunity.risk_assessment}</p>
@@ -266,21 +270,22 @@ function OpportunityDetails({ opportunity }: { opportunity: any }) {
         )}
 
         {/* Required Certifications */}
-        {opportunity.required_certifications && opportunity.required_certifications.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Required Certifications</h4>
-            <div className="flex flex-wrap gap-1">
-              {opportunity.required_certifications.map((cert: string, index: number) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {cert}
-                </Badge>
-              ))}
+        {Array.isArray(opportunity.required_certifications) &&
+          opportunity.required_certifications.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Required Certifications</h4>
+              <div className="flex flex-wrap gap-1">
+                {opportunity.required_certifications.map((cert: string, index: number) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {cert}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Keywords */}
-        {opportunity.keywords && opportunity.keywords.length > 0 && (
+        {Array.isArray(opportunity.keywords) && opportunity.keywords.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Keywords</h4>
             <div className="flex flex-wrap gap-1">
@@ -294,7 +299,7 @@ function OpportunityDetails({ opportunity }: { opportunity: any }) {
         )}
 
         {/* Service Areas */}
-        {opportunity.service_areas && opportunity.service_areas.length > 0 && (
+        {Array.isArray(opportunity.service_areas) && opportunity.service_areas.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Service Areas</h4>
             <div className="flex flex-wrap gap-1">
@@ -308,7 +313,7 @@ function OpportunityDetails({ opportunity }: { opportunity: any }) {
         )}
 
         {/* Requirements */}
-        {opportunity.requirements && (
+        {opportunity.requirements != null && opportunity.requirements !== "" && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Requirements</h4>
             <p className="text-sm text-muted-foreground">{opportunity.requirements}</p>
@@ -316,7 +321,7 @@ function OpportunityDetails({ opportunity }: { opportunity: any }) {
         )}
 
         {/* Commodity Codes */}
-        {opportunity.commodity_codes && opportunity.commodity_codes.length > 0 && (
+        {Array.isArray(opportunity.commodity_codes) && opportunity.commodity_codes.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Commodity Codes</h4>
             <div className="flex flex-wrap gap-1">
@@ -330,23 +335,25 @@ function OpportunityDetails({ opportunity }: { opportunity: any }) {
         )}
 
         {/* Contact Info */}
-        {opportunity.contact_info && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Contact Information</h4>
-            <div className="text-sm text-muted-foreground">
-              <pre className="whitespace-pre-wrap rounded bg-muted p-2 text-xs">
-                {JSON.stringify(opportunity.contact_info, null, 2)}
-              </pre>
+        {opportunity.contact_info != null &&
+          typeof opportunity.contact_info === "object" &&
+          Object.keys(opportunity.contact_info).length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Contact Information</h4>
+              <div className="text-sm text-muted-foreground">
+                <pre className="whitespace-pre-wrap rounded bg-muted p-2 text-xs">
+                  {JSON.stringify(opportunity.contact_info, null, 2)}
+                </pre>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Metadata */}
         <Separator />
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
             Created:{" "}
-            {opportunity.created_at
+            {opportunity.created_at != null
               ? new Date(opportunity.created_at).toLocaleDateString()
               : "Unknown"}
           </span>

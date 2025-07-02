@@ -16,10 +16,10 @@ export async function executeCreateOpportunityStep(
   supabase: SupabaseClient,
   previousStepResult?: StepExecutionResult
 ): Promise<StepExecutionResult> {
-  console.log(`[STEP EXECUTION] Starting create opportunity step: ${step.name}`);
+  console.log(`[STEP EXECUTION] Executing create opportunity step: ${step.name}`);
 
   try {
-    if (!step.create_opportunity_data || step.create_opportunity_data.length === 0) {
+    if (step.create_opportunity_data == null || step.create_opportunity_data.length === 0) {
       throw new Error("No create opportunity data configured for this step");
     }
 
@@ -49,7 +49,7 @@ export async function executeCreateOpportunityStep(
         ) {
           // Handle multi-page AI responses
           console.log(`[STEP EXECUTION] Processing ${parsedData.length} pages of AI responses`);
-          
+
           for (const pageResult of parsedData) {
             if (
               pageResult != null &&
@@ -58,8 +58,10 @@ export async function executeCreateOpportunityStep(
             ) {
               try {
                 const pageAiData = JSON.parse(pageResult.aiResponse);
-                console.log(`[STEP EXECUTION] Processing AI response from page ${Number(pageResult.pageIndex) + 1} (${pageResult.pageId})`);
-                
+                console.log(
+                  `[STEP EXECUTION] Processing AI response from page ${Number(pageResult.pageIndex) + 1} (${pageResult.pageId})`
+                );
+
                 // Extract opportunities from this page
                 if (
                   pageAiData != null &&
@@ -89,10 +91,7 @@ export async function executeCreateOpportunityStep(
                       opportunities.push(opportunity);
                     }
                   }
-                } else if (
-                  pageAiData != null &&
-                  typeof pageAiData === "object"
-                ) {
+                } else if (pageAiData != null && typeof pageAiData === "object") {
                   // Handle single opportunity (backward compatibility)
                   const opportunity = createOpportunityFromData(
                     pageAiData,
@@ -120,7 +119,9 @@ export async function executeCreateOpportunityStep(
                   marketInsights.push(...insights);
                 }
               } catch (pageParseError) {
-                console.error(`[STEP EXECUTION] Failed to parse AI response from page ${Number(pageResult.pageIndex) + 1}: ${pageParseError}`);
+                console.error(
+                  `[STEP EXECUTION] Failed to parse AI response from page ${Number(pageResult.pageIndex) + 1}: ${pageParseError}`
+                );
                 // Try to create a basic opportunity from the raw text
                 const opportunity = createBasicOpportunityFromText(
                   pageResult.aiResponse,
@@ -164,10 +165,7 @@ export async function executeCreateOpportunityStep(
                 opportunities.push(opportunity);
               }
             }
-          } else if (
-            parsedData != null &&
-            typeof parsedData === "object"
-          ) {
+          } else if (parsedData != null && typeof parsedData === "object") {
             // Handle single opportunity (backward compatibility)
             const opportunity = createOpportunityFromData(
               parsedData,
@@ -219,10 +217,13 @@ export async function executeCreateOpportunityStep(
         .select()
         .single();
 
-      if (insertError) {
+      if (insertError != null) {
         console.error(`[STEP EXECUTION] Failed to insert opportunity: ${insertError.message}`);
-      } else if (createdOpp) {
-        createdOpportunities.push(createdOpp as Opportunity);
+        continue;
+      }
+
+      if (createdOpp != null) {
+        createdOpportunities.push(createdOpp);
       }
     }
 
@@ -235,10 +236,13 @@ export async function executeCreateOpportunityStep(
         .select()
         .single();
 
-      if (insertError) {
+      if (insertError != null) {
         console.error(`[STEP EXECUTION] Failed to insert market insight: ${insertError.message}`);
-      } else if (createdInsight) {
-        createdMarketInsights.push(createdInsight as MarketInsight);
+        continue;
+      }
+
+      if (createdInsight != null) {
+        createdMarketInsights.push(createdInsight);
       }
     }
 
@@ -256,68 +260,78 @@ export async function executeCreateOpportunityStep(
     console.error(`[STEP EXECUTION] Error in create opportunity step: ${error}`);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
+      error: error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 }
 
 function createOpportunityFromData(
-  data: any,
+  data: unknown,
   config: CreateOpportunityStep,
   sourceUrl: string
 ): Partial<Opportunity> | null {
-  try {
-    const opportunity: Partial<Opportunity> = {
-      title: extractValue(data, config.title_template) ?? "Untitled Opportunity",
-      description: config.description_template
-        ? extractValue(data, config.description_template)
-        : undefined,
-      source: extractValue(data, config.source_template) ?? sourceUrl,
-      status: "new",
-      bid_number:
-        config.bid_number_field != null ? extractValue(data, config.bid_number_field) : undefined,
-      agency: config.agency_field != null ? extractValue(data, config.agency_field) : undefined,
-      due_date:
-        config.due_date_field != null
-          ? parseDate(extractValue(data, config.due_date_field))
-          : undefined,
-      estimated_value:
-        config.estimated_value_field != null
-          ? parseNumber(extractValue(data, config.estimated_value_field))
-          : undefined,
-      commodity_codes:
-        config.commodity_codes_field != null
-          ? parseArray(extractValue(data, config.commodity_codes_field))
-          : undefined,
-      contact_info:
-        config.contact_info_template != null
-          ? extractContactInfo(data, config.contact_info_template)
-          : undefined,
-      requirements:
-        config.requirements_template != null
-          ? extractValue(data, config.requirements_template)
-          : undefined,
-      tags: config.tags_template != null ? extractTags(data, config.tags_template) : undefined,
-      // AI analysis fields
-      strategic_fit: data.strategicFit ? data.strategicFit.toLowerCase() : undefined,
-      go_no_go_decision: data.goNoGoDecision,
-      key_messaging_points: Array.isArray(data.keyMessagingPoints)
-        ? data.keyMessagingPoints
-        : undefined,
-      risk_assessment: data.riskAssessment,
-      win_probability: data.winProbability,
-      required_certifications: Array.isArray(data.requiredCertifications)
-        ? data.requiredCertifications
-        : undefined,
-      keywords: Array.isArray(data.keywords) ? data.keywords : undefined,
-      service_areas: Array.isArray(data.serviceAreas) ? data.serviceAreas : undefined,
-    };
-
-    return opportunity;
-  } catch (error) {
-    console.error(`[STEP EXECUTION] Error creating opportunity from data: ${error}`);
+  if (data == null || typeof data !== "object") {
     return null;
   }
+
+  const dataRecord = data as Record<string, unknown>;
+  const opportunity: Partial<Opportunity> = {
+    title: extractValue(data, config.title_template),
+    description:
+      config.description_template != null
+        ? extractValue(data, config.description_template)
+        : undefined,
+    source: extractValue(data, config.source_template) ?? sourceUrl,
+    status: "new",
+    bid_number:
+      config.bid_number_field != null ? extractValue(data, config.bid_number_field) : undefined,
+    agency: config.agency_field != null ? extractValue(data, config.agency_field) : undefined,
+    due_date:
+      config.due_date_field != null
+        ? parseDate(extractValue(data, config.due_date_field))
+        : undefined,
+    estimated_value:
+      config.estimated_value_field != null
+        ? parseNumber(extractValue(data, config.estimated_value_field))
+        : undefined,
+    commodity_codes:
+      config.commodity_codes_field != null
+        ? parseArray(extractValue(data, config.commodity_codes_field))
+        : undefined,
+    contact_info:
+      config.contact_info_template != null
+        ? extractContactInfo(data, config.contact_info_template)
+        : undefined,
+    requirements:
+      config.requirements_template != null
+        ? extractValue(data, config.requirements_template)
+        : undefined,
+    tags: config.tags_template != null ? extractTags(data, config.tags_template) : undefined,
+    // AI analysis fields
+    strategic_fit:
+      typeof dataRecord.strategicFit === "string"
+        ? (dataRecord.strategicFit.toLowerCase() as "low" | "medium" | "high")
+        : undefined,
+    go_no_go_decision:
+      typeof dataRecord.goNoGoDecision === "string" ? dataRecord.goNoGoDecision : undefined,
+    key_messaging_points: Array.isArray(dataRecord.keyMessagingPoints)
+      ? (dataRecord.keyMessagingPoints as string[])
+      : undefined,
+    risk_assessment:
+      typeof dataRecord.riskAssessment === "string" ? dataRecord.riskAssessment : undefined,
+    win_probability:
+      typeof dataRecord.winProbability === "string" ? dataRecord.winProbability : undefined,
+    required_certifications: Array.isArray(dataRecord.requiredCertifications)
+      ? (dataRecord.requiredCertifications as string[])
+      : undefined,
+    keywords: Array.isArray(dataRecord.keywords) ? (dataRecord.keywords as string[]) : undefined,
+    service_areas: Array.isArray(dataRecord.serviceAreas)
+      ? (dataRecord.serviceAreas as string[])
+      : undefined,
+  };
+
+  // Remove undefined values
+  return opportunity;
 }
 
 function createBasicOpportunityFromText(
@@ -325,104 +339,108 @@ function createBasicOpportunityFromText(
   config: CreateOpportunityStep,
   sourceUrl: string
 ): Partial<Opportunity> | null {
-  try {
-    const opportunity: Partial<Opportunity> = {
-      title: "Opportunity from Scraped Data",
-      description: text.length > 500 ? text.substring(0, 500) + "..." : text,
-      source: sourceUrl,
-      status: "new",
-    };
-
-    return opportunity;
-  } catch (error) {
-    console.error(`[STEP EXECUTION] Error creating basic opportunity from text: ${error}`);
+  if (text === "") {
     return null;
   }
+
+  return {
+    title: `Opportunity from ${sourceUrl}`,
+    description: text.length > 500 ? `${text.substring(0, 500)}...` : text,
+    source: sourceUrl,
+    status: "new",
+  };
 }
 
-function extractValue(data: any, template: string): string | undefined {
-  if (!template || !data) return undefined;
+function extractValue(data: unknown, template: string): string | undefined {
+  if (typeof data !== "object" || data == null) {
+    return undefined;
+  }
 
-  // Simple template replacement for now
-  // Replace {{field}} with data[field] or data.field
+  // Simple template replacement - replace {{field}} with actual values
   let result = template;
   const matches = template.match(/\{\{([^}]+)\}\}/g);
 
-  if (matches) {
+  if (matches != null) {
     for (const match of matches) {
-      const field = match.replace(/\{\{|\}\}/g, "");
-      const value = data[field] || data[field.replace(/_/g, ".")];
-      result = result.replace(match, value || "");
-    }
-  }
-
-  return result || undefined;
-}
-
-function parseDate(dateString: string | undefined): Date | undefined {
-  if (!dateString) return undefined;
-  try {
-    return new Date(dateString);
-  } catch {
-    return undefined;
-  }
-}
-
-function parseNumber(value: string | undefined): number | undefined {
-  if (!value) return undefined;
-  const parsed = parseFloat(value.replace(/[^\d.-]/g, ""));
-  return isNaN(parsed) ? undefined : parsed;
-}
-
-function parseArray(value: string | undefined): string[] | undefined {
-  if (!value) return undefined;
-  try {
-    if (Array.isArray(value)) return value;
-    if (typeof value === "string") {
-      // Try to parse as JSON array first
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) return parsed;
-      // If not JSON, split by common delimiters
-      return value
-        .split(/[,;|]/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-    }
-    return undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function extractContactInfo(
-  data: any,
-  template: Record<string, any>
-): Record<string, any> | undefined {
-  if (!template || !data) return undefined;
-
-  const contactInfo: Record<string, any> = {};
-
-  for (const [key, field] of Object.entries(template)) {
-    if (typeof field === "string") {
-      const value = extractValue(data, field);
-      if (value) {
-        contactInfo[key] = value;
+      const field = match.slice(2, -2); // Remove {{ and }}
+      const value = (data as Record<string, unknown>)[field];
+      if (value != null && typeof value === "string") {
+        result = result.replace(match, value);
       }
     }
   }
 
-  return Object.keys(contactInfo).length > 0 ? contactInfo : undefined;
+  return result !== template ? result : undefined;
 }
 
-function extractTags(data: any, template: string[]): string[] | undefined {
-  if (!template || !Array.isArray(template)) return undefined;
+function parseDate(dateString: string | undefined): Date | undefined {
+  if (dateString == null || dateString === "") {
+    return undefined;
+  }
+
+  const parsed = new Date(dateString);
+  return isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+function parseNumber(value: string | undefined): number | undefined {
+  if (value == null || value === "") {
+    return undefined;
+  }
+
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? undefined : parsed;
+}
+
+function parseArray(value: string | undefined): string[] | undefined {
+  if (value == null || value === "") {
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [value];
+  } catch {
+    // If not valid JSON, treat as comma-separated string
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== "");
+  }
+}
+
+function extractContactInfo(
+  data: unknown,
+  template: Record<string, unknown>
+): Record<string, unknown> | undefined {
+  if (typeof data !== "object" || data == null) {
+    return undefined;
+  }
+
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(template)) {
+    if (typeof value === "string") {
+      const extracted = extractValue(data, value);
+      if (extracted != null) {
+        result[key] = extracted;
+      }
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function extractTags(data: unknown, template: string[]): string[] | undefined {
+  if (typeof data !== "object" || data == null) {
+    return undefined;
+  }
 
   const tags: string[] = [];
 
   for (const tagTemplate of template) {
-    const value = extractValue(data, tagTemplate);
-    if (value) {
-      tags.push(value);
+    const extracted = extractValue(data, tagTemplate);
+    if (extracted != null && extracted !== "") {
+      tags.push(extracted);
     }
   }
 
@@ -430,71 +448,43 @@ function extractTags(data: any, template: string[]): string[] | undefined {
 }
 
 function createMarketInsightsFromData(
-  data: any,
+  data: unknown,
   configurationId: string,
-  sourceUrl: string
+  _sourceUrl: string
 ): Partial<MarketInsight>[] {
-  const insights: Partial<MarketInsight>[] = [];
-
-  try {
-    // Process trends
-    if (Array.isArray(data.trends)) {
-      for (const trend of data.trends) {
-        insights.push({
-          scrape_configuration_id: configurationId,
-          insight_type: "trends",
-          insight_text: trend,
-        });
-      }
-    }
-
-    // Process prioritization
-    if (Array.isArray(data.prioritization)) {
-      for (const priority of data.prioritization) {
-        insights.push({
-          scrape_configuration_id: configurationId,
-          insight_type: "prioritization",
-          insight_text: priority,
-        });
-      }
-    }
-
-    // Process resource needs
-    if (Array.isArray(data.resourceNeeds)) {
-      for (const need of data.resourceNeeds) {
-        insights.push({
-          scrape_configuration_id: configurationId,
-          insight_type: "resource_needs",
-          insight_text: need,
-        });
-      }
-    }
-
-    // Process competitive analysis
-    if (Array.isArray(data.competitiveAnalysis)) {
-      for (const analysis of data.competitiveAnalysis) {
-        insights.push({
-          scrape_configuration_id: configurationId,
-          insight_type: "competitive_analysis",
-          insight_text: analysis,
-        });
-      }
-    }
-
-    // Process market overview
-    if (Array.isArray(data.marketOverview)) {
-      for (const overview of data.marketOverview) {
-        insights.push({
-          scrape_configuration_id: configurationId,
-          insight_type: "market_overview",
-          insight_text: overview,
-        });
-      }
-    }
-
-    return insights;
-  } catch (error) {
-    console.error(`[STEP EXECUTION] Error creating market insights from data: ${error}`);
+  if (typeof data !== "object" || data == null) {
     return [];
   }
+
+  const insights: Partial<MarketInsight>[] = [];
+  const insightTypes = [
+    "trends",
+    "prioritization",
+    "resource_needs",
+    "competitive_analysis",
+    "market_overview",
+  ] as const;
+
+  for (const insightType of insightTypes) {
+    const insightData = (data as Record<string, unknown>)[insightType];
+    if (typeof insightData === "string" && insightData !== "") {
+      insights.push({
+        scrape_configuration_id: configurationId,
+        insight_type: insightType,
+        insight_text: insightData,
+      });
+    } else if (Array.isArray(insightData)) {
+      for (const item of insightData) {
+        if (typeof item === "string" && item !== "") {
+          insights.push({
+            scrape_configuration_id: configurationId,
+            insight_type: insightType,
+            insight_text: item,
+          });
+        }
+      }
+    }
+  }
+
+  return insights;
 }

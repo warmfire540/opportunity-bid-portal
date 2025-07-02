@@ -7,12 +7,23 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Table, TableRow, TableBody, TableCell } from "../ui/table";
 
+type Team = {
+  account_id: string;
+  account_role: "owner" | "member";
+  is_primary_owner: boolean;
+  name: string;
+  slug: string;
+  personal_account: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export default async function ManageTeams() {
   const supabaseClient = createClient();
 
   const { data } = await supabaseClient.rpc("get_accounts");
 
-  const teams: any[] = data?.filter((team: any) => team.personal_account === false);
+  const teams: Team[] = data?.filter((team: Team) => !team.personal_account) ?? [];
 
   return (
     <Card>

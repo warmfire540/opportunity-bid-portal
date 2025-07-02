@@ -30,7 +30,7 @@ export type CreateOpportunityStep = {
   due_date_field?: string;
   estimated_value_field?: string;
   commodity_codes_field?: string;
-  contact_info_template?: Record<string, any>;
+  contact_info_template?: Record<string, unknown>;
   requirements_template?: string;
   tags_template?: string[];
 };
@@ -46,7 +46,7 @@ export type Opportunity = {
   due_date?: Date;
   estimated_value?: number;
   commodity_codes?: string[];
-  contact_info?: Record<string, any>;
+  contact_info?: Record<string, unknown>;
   requirements?: string;
   attachments?: string[];
   tags?: string[];

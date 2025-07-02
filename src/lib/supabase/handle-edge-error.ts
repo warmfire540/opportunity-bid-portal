@@ -4,7 +4,7 @@ import {
   FunctionsRelayError,
 } from "@supabase/supabase-js";
 
-export default async function handleEdgeFunctionError(error: any) {
+export default async function handleEdgeFunctionError(error: unknown) {
   if (error instanceof FunctionsHttpError) {
     const errorMessage = await error.context.json();
     return {

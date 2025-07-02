@@ -6,4 +6,4 @@ export default function ConfigurationsPage() {
       <ManageScrapeConfigurations />
     </div>
   );
-} 
+}

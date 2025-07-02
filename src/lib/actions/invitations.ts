@@ -23,7 +23,7 @@ export async function createInvitation(
     account_role: accountRole,
   });
 
-  if (error) {
+  if (error != null) {
     return {
       message: error.message,
     };
@@ -48,7 +48,7 @@ export async function deleteInvitation(prevState: unknown, formData: FormData) {
     invitation_id: invitationId,
   });
 
-  if (error) {
+  if (error != null) {
     return {
       message: error.message,
     };
@@ -67,7 +67,7 @@ export async function acceptInvitation(prevState: unknown, formData: FormData) {
     lookup_invitation_token: token,
   });
 
-  if (error) {
+  if (error != null) {
     return {
       message: error.message,
     };

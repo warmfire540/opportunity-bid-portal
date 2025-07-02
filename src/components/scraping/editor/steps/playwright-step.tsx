@@ -55,7 +55,11 @@ export default function PlaywrightStep({
     onUpdate([...subSteps, newPlaywrightStep]);
   };
 
-  const updatePlaywrightStep = (subStepIndex: number, field: keyof PlaywrightStep, value: any) => {
+  const updatePlaywrightStep = (
+    subStepIndex: number,
+    field: keyof PlaywrightStep,
+    value: string | number | undefined
+  ) => {
     const updatedSteps = subSteps.map((subStep, j) =>
       j === subStepIndex ? { ...subStep, [field]: value } : subStep
     );

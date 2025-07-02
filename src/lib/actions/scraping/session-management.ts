@@ -51,12 +51,16 @@ export async function startStepExecutionAction(
       sessionId,
       totalSteps: steps.length,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[STEP EXECUTION] Error starting execution:`, error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "An unexpected error occurred while starting execution";
 
     return {
       success: false,
-      error: error.message ?? "An unexpected error occurred while starting execution",
+      error: errorMessage,
       sessionId: "",
       totalSteps: 0,
     };
@@ -156,8 +160,10 @@ export async function executeNextStepAction(
       stepName: step.name,
       result: stepResult,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[STEP EXECUTION] Error during step execution:`, error);
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred during step execution";
 
     // Clean up session on error
     const session = browserSessions.get(sessionId);
@@ -172,7 +178,7 @@ export async function executeNextStepAction(
 
     return {
       success: false,
-      error: error.message ?? "An unexpected error occurred during step execution",
+      error: errorMessage,
       isComplete: false,
       currentStep: stepIndex,
       totalSteps: 0,
@@ -190,11 +196,15 @@ export async function cleanupSessionAction(sessionId: string): Promise<CleanupSe
     }
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[STEP EXECUTION] Error cleaning up session:`, error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "An unexpected error occurred while cleaning up session";
     return {
       success: false,
-      error: error.message ?? "An unexpected error occurred while cleaning up session",
+      error: errorMessage,
     };
   }
 }

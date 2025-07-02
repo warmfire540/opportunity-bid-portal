@@ -4,7 +4,13 @@ import { Plus, Trash2, GripVertical, Edit } from "lucide-react";
 import { useState } from "react";
 
 import { Textarea } from "@/src/components/ui/textarea";
-import type { ScrapeConfiguration, ScrapeDownloadStep } from "@lib/actions/scraping";
+import type {
+  ScrapeConfiguration,
+  ScrapeDownloadStep,
+  PlaywrightStep,
+  AiPromptStep,
+  CreateOpportunityStep,
+} from "@lib/actions/scraping";
 import { updateScrapeConfiguration, createScrapeConfiguration } from "@lib/actions/scraping";
 
 import { Badge } from "../ui/badge";
@@ -113,7 +119,18 @@ export default function EditScrapeConfigurationDrawer({
     }));
   };
 
-  const updateStep = (index: number, field: keyof ScrapeDownloadStep, value: any) => {
+  const updateStep = (
+    index: number,
+    field: keyof ScrapeDownloadStep,
+    value:
+      | string
+      | number
+      | boolean
+      | undefined
+      | PlaywrightStep[]
+      | AiPromptStep[]
+      | CreateOpportunityStep[]
+  ) => {
     setFormData((prev) => ({
       ...prev,
       steps: prev.steps.map((step, i) => (i === index ? { ...step, [field]: value } : step)),

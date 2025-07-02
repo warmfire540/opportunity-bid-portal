@@ -35,12 +35,13 @@ export default async function Index() {
           <h1 className="mb-6 text-5xl font-bold tracking-tight lg:text-6xl">
             Automate Your
             <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              {" "}RFP Discovery
+              {" "}
+              RFP Discovery
             </span>
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground">
-            Transform how you find and evaluate government contract opportunities. 
-            Our AI-powered platform automates RFP discovery, analysis, and strategic decision-making.
+            Transform how you find and evaluate government contract opportunities. Our AI-powered
+            platform automates RFP discovery, analysis, and strategic decision-making.
           </p>
         </div>
       </section>
@@ -53,20 +54,22 @@ export default async function Index() {
               Everything You Need to Win More Contracts
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              From automated discovery to strategic analysis, our platform streamlines your entire RFP process.
+              From automated discovery to strategic analysis, our platform streamlines your entire
+              RFP process.
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Automated Discovery */}
-            <Card className="group hover:shadow-lg transition-all duration-300">
+            <Card className="group transition-all duration-300 hover:shadow-lg">
               <CardHeader>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <Search className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Automated Discovery</CardTitle>
                 <CardDescription>
-                  Automatically scrape government websites and procurement portals for new opportunities
+                  Automatically scrape government websites and procurement portals for new
+                  opportunities
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -88,7 +91,7 @@ export default async function Index() {
             </Card>
 
             {/* AI-Powered Analysis */}
-            <Card className="group hover:shadow-lg transition-all duration-300">
+            <Card className="group transition-all duration-300 hover:shadow-lg">
               <CardHeader>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <Brain className="h-6 w-6 text-primary" />
@@ -117,7 +120,7 @@ export default async function Index() {
             </Card>
 
             {/* Opportunity Management */}
-            <Card className="group hover:shadow-lg transition-all duration-300">
+            <Card className="group transition-all duration-300 hover:shadow-lg">
               <CardHeader>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <Target className="h-6 w-6 text-primary" />
@@ -146,7 +149,7 @@ export default async function Index() {
             </Card>
 
             {/* Team Collaboration */}
-            <Card className="group hover:shadow-lg transition-all duration-300">
+            <Card className="group transition-all duration-300 hover:shadow-lg">
               <CardHeader>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <Users className="h-6 w-6 text-primary" />
@@ -175,7 +178,7 @@ export default async function Index() {
             </Card>
 
             {/* Market Insights */}
-            <Card className="group hover:shadow-lg transition-all duration-300">
+            <Card className="group transition-all duration-300 hover:shadow-lg">
               <CardHeader>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <BarChart3 className="h-6 w-6 text-primary" />
@@ -204,7 +207,7 @@ export default async function Index() {
             </Card>
 
             {/* Enterprise Security */}
-            <Card className="group hover:shadow-lg transition-all duration-300">
+            <Card className="group transition-all duration-300 hover:shadow-lg">
               <CardHeader>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <Shield className="h-6 w-6 text-primary" />
@@ -239,9 +242,7 @@ export default async function Index() {
       <section className="w-full bg-muted/30 py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold lg:text-4xl">
-              How It Works
-            </h2>
+            <h2 className="mb-4 text-3xl font-bold lg:text-4xl">How It Works</h2>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
               Get started in minutes with our simple three-step process
             </p>
@@ -254,7 +255,8 @@ export default async function Index() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Configure Sources</h3>
               <p className="text-muted-foreground">
-                Set up automated scraping configurations for your target government websites and procurement portals.
+                Set up automated scraping configurations for your target government websites and
+                procurement portals.
               </p>
             </div>
             <div className="text-center">
@@ -263,7 +265,8 @@ export default async function Index() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">AI Analysis</h3>
               <p className="text-muted-foreground">
-                Our AI automatically analyzes each opportunity for strategic fit, win probability, and key requirements.
+                Our AI automatically analyzes each opportunity for strategic fit, win probability,
+                and key requirements.
               </p>
             </div>
             <div className="text-center">
@@ -272,14 +275,13 @@ export default async function Index() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Take Action</h3>
               <p className="text-muted-foreground">
-                Review insights, make informed decisions, and track opportunities through your pipeline to submission.
+                Review insights, make informed decisions, and track opportunities through your
+                pipeline to submission.
               </p>
             </div>
           </div>
         </div>
       </section>
-
-
 
       {/* Footer */}
       <footer className="w-full border-t border-t-foreground/10 py-8">
@@ -290,8 +292,12 @@ export default async function Index() {
               <span className="font-semibold">Opportunity Bid Portal</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link href="/login" className="hover:underline">Sign In</Link>
-              <Link href="/login" className="hover:underline">Get Started</Link>
+              <Link href="/login" className="hover:underline">
+                Sign In
+              </Link>
+              <Link href="/login" className="hover:underline">
+                Get Started
+              </Link>
               <span>© 2024 Opportunity Bid Portal. All rights reserved.</span>
             </div>
           </div>

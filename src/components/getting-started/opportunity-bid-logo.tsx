@@ -22,11 +22,11 @@ const Logo = ({ size = "sm", className, logoOnly = false }: Props) => {
     >
       <div
         className={cn({
-          "w-8 h-8 md:w-10 md:h-10": size === "lg",
-          "w-6 h-6 md:w-8 md:h-8": size === "sm",
+          "h-8 w-8 md:h-10 md:w-10": size === "lg",
+          "h-6 w-6 md:h-8 md:w-8": size === "sm",
         })}
       >
-        <Target className="w-full h-full text-primary" />
+        <Target className="h-full w-full text-primary" />
       </div>
       {!logoOnly && (
         <h1
@@ -42,4 +42,4 @@ const Logo = ({ size = "sm", className, logoOnly = false }: Props) => {
   );
 };
 
-export default Logo; 
+export default Logo;

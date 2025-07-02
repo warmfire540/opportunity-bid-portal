@@ -21,7 +21,7 @@ export async function setupNewSubscription(prevState: unknown, formData: FormDat
     },
   });
 
-  if (error) {
+  if (error != null) {
     return await handleEdgeFunctionError(error);
   }
 
@@ -45,7 +45,7 @@ export async function manageSubscription(prevState: unknown, formData: FormData)
     },
   });
 
-  if (error) {
+  if (error != null) {
     return await handleEdgeFunctionError(error);
   }
 

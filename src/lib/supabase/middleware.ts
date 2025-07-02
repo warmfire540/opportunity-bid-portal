@@ -7,7 +7,7 @@ function forceLoginWithReturn(request: NextRequest) {
   const query = originalUrl.searchParams.toString();
   return NextResponse.redirect(
     new URL(
-      `/login?returnUrl=${encodeURIComponent(path + (query ? `?${query}` : ""))}`,
+      `/login?returnUrl=${encodeURIComponent(path + (query !== "" ? `?${query}` : ""))}`,
       request.url
     )
   );
@@ -80,13 +80,13 @@ export const validateSession = async (request: NextRequest) => {
 
     const protectedRoutes = ["/dashboard", "/invitation"];
 
-    if (!user && protectedRoutes.some((path) => request.nextUrl.pathname.startsWith(path))) {
+    if (user == null && protectedRoutes.some((path) => request.nextUrl.pathname.startsWith(path))) {
       // redirect to /login
       return forceLoginWithReturn(request);
     }
 
     return response;
-  } catch (e) {
+  } catch {
     // If you are here, a Supabase client could not be created!
     // This is likely because you have not set up environment variables.
     // Check out http://localhost:3005 for Next Steps.

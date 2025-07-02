@@ -7,11 +7,11 @@ import { createClient } from "../supabase/client";
 export const useAccounts = (options?: SWRConfiguration) => {
   const supabaseClient = createClient();
   return useSWR<GetAccountsResponse>(
-    !!supabaseClient && ["accounts"],
+    ["accounts"],
     async () => {
       const { data, error } = await supabaseClient.rpc("get_accounts");
 
-      if (error) {
+      if (error != null) {
         throw new Error(error.message);
       }
 

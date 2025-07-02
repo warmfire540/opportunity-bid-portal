@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function AiPromptStep({ ai_prompt_data, onUpdate }: Readonly<Props>) {
-  const updatePromptStep = (field: keyof AiPromptStep, value: any) => {
+  const updatePromptStep = (field: keyof AiPromptStep, value: string) => {
     const updatedPromptData = [
       {
         ...(ai_prompt_data[0] ?? { prompt: "" }),

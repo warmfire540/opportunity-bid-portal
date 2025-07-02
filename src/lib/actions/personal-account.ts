@@ -12,7 +12,7 @@ export async function editPersonalAccountName(prevState: unknown, formData: Form
     account_id: accountId,
   });
 
-  if (error) {
+  if (error != null) {
     return {
       message: error.message,
     };

@@ -9,6 +9,13 @@ import { Table, TableRow, TableBody, TableCell } from "../ui/table";
 import CreateTeamInvitationButton from "./create-team-invitation-button";
 import DeleteTeamInvitationButton from "./delete-team-invitation-button";
 
+type Invitation = {
+  account_role: string;
+  created_at: string;
+  invitation_type: string;
+  invitation_id: string;
+};
+
 type Props = {
   accountId: string;
 };
@@ -35,7 +42,7 @@ export default async function ManageTeamInvitations({ accountId }: Props) {
         <CardContent>
           <Table>
             <TableBody>
-              {invitations?.map((invitation: any) => (
+              {invitations?.map((invitation: Invitation) => (
                 <TableRow key={invitation.invitation_id}>
                   <TableCell>
                     <div className="flex gap-x-2">

@@ -26,8 +26,10 @@ export default async function Login({
       password,
     });
 
-    if (error) {
-      return redirect(`/login?message=Could not authenticate user&returnUrl=${params.returnUrl}`);
+    if (error != null) {
+      return redirect(
+        `/login?message=Could not authenticate user&returnUrl=${params.returnUrl ?? ""}`
+      );
     }
 
     return redirect(params.returnUrl ?? "/dashboard");
@@ -49,12 +51,14 @@ export default async function Login({
       },
     });
 
-    if (error) {
-      return redirect(`/login?message=Could not authenticate user&returnUrl=${params.returnUrl}`);
+    if (error != null) {
+      return redirect(
+        `/login?message=Could not authenticate user&returnUrl=${params.returnUrl ?? ""}`
+      );
     }
 
     return redirect(
-      `/login?message=Check email to continue sign in process&returnUrl=${params.returnUrl}`
+      `/login?message=Check email to continue sign in process&returnUrl=${params.returnUrl ?? ""}`
     );
   };
 
@@ -84,7 +88,7 @@ export default async function Login({
       <form className="flex w-full flex-1 flex-col justify-center gap-2 text-foreground animate-in">
         <OAuthErrorHandler />
         <div className="flex w-full flex-col gap-2">
-          <MicrosoftOAuthButton returnUrl={params.returnUrl} />
+          <MicrosoftOAuthButton returnUrl={params.returnUrl ?? undefined} />
         </div>
         <div className="my-4 flex items-center gap-2">
           <div className="h-px flex-1 bg-border" />
@@ -111,7 +115,7 @@ export default async function Login({
         <SubmitButton formAction={signUp} variant="outline" pendingText="Signing Up...">
           Sign Up
         </SubmitButton>
-        {params?.message && (
+        {params.message !== "" && (
           <p className="mt-4 bg-foreground/10 p-4 text-center text-foreground">{params.message}</p>
         )}
       </form>

@@ -3,6 +3,17 @@ import { NextResponse } from "next/server";
 
 import { createClient } from "@/src/lib/supabase/server";
 
+interface StorageObject {
+  id: string;
+  name: string;
+  metadata?: {
+    size?: number;
+    mimetype?: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const configurationId = searchParams.get("configurationId");
@@ -36,7 +47,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Transform the objects into a more useful format
-    const files = objects.map((obj: any) => ({
+    const files = objects.map((obj: StorageObject) => ({
       id: obj.id,
       name: obj.name,
       filename: obj.name.split("/").pop() ?? obj.name,
@@ -52,7 +63,7 @@ export async function GET(req: NextRequest) {
     );
 
     return NextResponse.json({ files });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[FILES API] Unexpected error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

@@ -1,21 +1,28 @@
-import { 
-  TrendingUp, 
-  FileText, 
-  Settings, 
-  Rocket, 
+import {
+  TrendingUp,
+  FileText,
+  Settings,
+  Rocket,
   Calendar,
   Target,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
 import { getMarketInsights } from "@/src/lib/actions/insights";
 import { getOpportunities } from "@/src/lib/actions/opportunities";
 import { getScrapeConfigurations } from "@/src/lib/actions/scraping/crud";
 import { createClient } from "@/src/lib/supabase/server";
+import type { ScrapeConfiguration } from "@lib/actions/scraping";
 
 export default async function PersonalAccountPage() {
   const supabaseClient = createClient();
@@ -27,21 +34,27 @@ export default async function PersonalAccountPage() {
   const [opportunities, insights, configurations] = await Promise.allSettled([
     getOpportunities(),
     getMarketInsights(),
-    getScrapeConfigurations()
+    getScrapeConfigurations(),
   ]);
 
-  const opportunitiesData = opportunities.status === 'fulfilled' ? opportunities.value : [];
-  const insightsData = insights.status === 'fulfilled' ? insights.value : [];
-  const configurationsData = configurations.status === 'fulfilled' ? configurations.value : [];
+  const opportunitiesData = opportunities.status === "fulfilled" ? opportunities.value : [];
+  const insightsData = insights.status === "fulfilled" ? insights.value : [];
+  const configurationsData = configurations.status === "fulfilled" ? configurations.value : [];
 
   // Calculate statistics
   const totalOpportunities = opportunitiesData.length;
-  const newOpportunities = opportunitiesData.filter(opp => opp.status === 'new').length;
-  const inProgressOpportunities = opportunitiesData.filter(opp => opp.status === 'in_progress').length;
-  const submittedOpportunities = opportunitiesData.filter(opp => opp.status === 'submitted').length;
-  
+  const newOpportunities = opportunitiesData.filter((opp) => opp.status === "new").length;
+  const inProgressOpportunities = opportunitiesData.filter(
+    (opp) => opp.status === "in_progress"
+  ).length;
+  const submittedOpportunities = opportunitiesData.filter(
+    (opp) => opp.status === "submitted"
+  ).length;
+
   const totalInsights = insightsData.length;
-  const activeConfigurations = configurationsData.filter((config: any) => config.is_active === true).length;
+  const activeConfigurations = configurationsData.filter(
+    (config: ScrapeConfiguration) => config.is_active === true
+  ).length;
   const totalConfigurations = configurationsData.length;
 
   // Get recent opportunities
@@ -49,24 +62,25 @@ export default async function PersonalAccountPage() {
 
   // Get upcoming due dates
   const upcomingDueDates = opportunitiesData
-    .filter(opp => opp.due_date != null && opp.status !== 'awarded' && opp.status !== 'rejected')
+    .filter((opp) => opp.due_date != null && opp.status !== "awarded" && opp.status !== "rejected")
     .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())
     .slice(0, 3);
 
   return (
     <div className="flex flex-col gap-y-8">
       {/* Welcome Section */}
-      <div className="rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border border-blue-200">
-        <h1 className="text-3xl font-bold text-blue-900 mb-2">
-          Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}!
+      <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+        <h1 className="mb-2 text-3xl font-bold text-blue-900">
+          Welcome back
+          {user?.email != null && user.email !== "" ? `, ${user.email.split("@")[0]}` : ""}!
         </h1>
         <p className="text-blue-700">
-          Here's what's happening with your opportunity tracking system.
+          Here&apos;s what&apos;s happening with your opportunity tracking system.
         </p>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Opportunities</CardTitle>
@@ -87,9 +101,7 @@ export default async function PersonalAccountPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalInsights}</div>
-            <p className="text-xs text-muted-foreground">
-              AI-generated insights available
-            </p>
+            <p className="text-xs text-muted-foreground">AI-generated insights available</p>
           </CardContent>
         </Card>
 
@@ -113,15 +125,13 @@ export default async function PersonalAccountPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{submittedOpportunities}</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting responses
-            </p>
+            <p className="text-xs text-muted-foreground">Awaiting responses</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Opportunities */}
         <Card>
           <CardHeader>
@@ -129,25 +139,39 @@ export default async function PersonalAccountPage() {
               <FileText className="h-5 w-5" />
               Recent Opportunities
             </CardTitle>
-            <CardDescription>
-              Latest opportunities added to your system
-            </CardDescription>
+            <CardDescription>Latest opportunities added to your system</CardDescription>
           </CardHeader>
           <CardContent>
             {recentOpportunities.length > 0 ? (
               <div className="space-y-3">
                 {recentOpportunities.map((opportunity, idx) => (
-                  <div key={opportunity.id ?? idx} className="flex items-center justify-between p-3 rounded-lg border">
+                  <div
+                    key={opportunity.id ?? idx}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm truncate">{typeof opportunity.title === "string" && opportunity.title.trim() !== "" ? opportunity.title : "Untitled"}</h4>
-                      <p className="text-xs text-muted-foreground">{typeof opportunity.agency === "string" && opportunity.agency.trim() !== "" ? opportunity.agency : "No agency"}</p>
+                      <h4 className="truncate text-sm font-medium">
+                        {typeof opportunity.title === "string" && opportunity.title.trim() !== ""
+                          ? opportunity.title
+                          : "Untitled"}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {typeof opportunity.agency === "string" && opportunity.agency.trim() !== ""
+                          ? opportunity.agency
+                          : "No agency"}
+                      </p>
                     </div>
-                    <Badge variant={
-                      opportunity.status === "new" ? "default" :
-                      opportunity.status === "in_progress" ? "secondary" :
-                      opportunity.status === "submitted" ? "outline" :
-                      "destructive"
-                    }>
+                    <Badge
+                      variant={
+                        opportunity.status === "new"
+                          ? "default"
+                          : opportunity.status === "in_progress"
+                            ? "secondary"
+                            : opportunity.status === "submitted"
+                              ? "outline"
+                              : "destructive"
+                      }
+                    >
                       {typeof opportunity.status === "string" && opportunity.status.trim() !== ""
                         ? opportunity.status.replace(/_/g, " ")
                         : "Unknown"}
@@ -156,8 +180,8 @@ export default async function PersonalAccountPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6 text-muted-foreground">
-                <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <div className="py-6 text-center text-muted-foreground">
+                <FileText className="mx-auto mb-2 h-8 w-8 opacity-50" />
                 <p>No opportunities yet</p>
               </div>
             )}
@@ -176,22 +200,31 @@ export default async function PersonalAccountPage() {
               <Calendar className="h-5 w-5" />
               Upcoming Due Dates
             </CardTitle>
-            <CardDescription>
-              Opportunities with approaching deadlines
-            </CardDescription>
+            <CardDescription>Opportunities with approaching deadlines</CardDescription>
           </CardHeader>
           <CardContent>
             {upcomingDueDates.length > 0 ? (
               <div className="space-y-3">
                 {upcomingDueDates.map((opportunity, idx) => (
-                  <div key={opportunity.id ?? idx} className="flex items-center justify-between p-3 rounded-lg border">
+                  <div
+                    key={opportunity.id ?? idx}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm truncate">{typeof opportunity.title === "string" && opportunity.title.trim() !== "" ? opportunity.title : "Untitled"}</h4>
+                      <h4 className="truncate text-sm font-medium">
+                        {typeof opportunity.title === "string" && opportunity.title.trim() !== ""
+                          ? opportunity.title
+                          : "Untitled"}
+                      </h4>
                       <p className="text-xs text-muted-foreground">
-                        Due: {opportunity.due_date ? new Date(opportunity.due_date).toLocaleDateString() : "No date"}
+                        Due:{" "}
+                        {opportunity.due_date != null
+                          ? new Date(opportunity.due_date).toLocaleDateString()
+                          : "No date"}
                       </p>
                     </div>
-                    {typeof opportunity.estimated_value === "number" && !isNaN(opportunity.estimated_value) && opportunity.estimated_value !== null ? (
+                    {typeof opportunity.estimated_value === "number" &&
+                    !isNaN(opportunity.estimated_value) ? (
                       <div className="text-right">
                         <p className="text-sm font-medium">
                           ${opportunity.estimated_value.toLocaleString()}
@@ -202,8 +235,8 @@ export default async function PersonalAccountPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6 text-muted-foreground">
-                <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <div className="py-6 text-center text-muted-foreground">
+                <Calendar className="mx-auto mb-2 h-8 w-8 opacity-50" />
                 <p>No upcoming deadlines</p>
               </div>
             )}
@@ -217,27 +250,25 @@ export default async function PersonalAccountPage() {
               <Rocket className="h-5 w-5" />
               Getting Started
             </CardTitle>
-            <CardDescription>
-              Quick actions to get you up and running
-            </CardDescription>
+            <CardDescription>Quick actions to get you up and running</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <Button asChild className="w-full justify-start" variant="outline">
                 <Link href="/dashboard/configurations">
-                  <Settings className="h-4 w-4 mr-2" />
+                  <Settings className="mr-2 h-4 w-4" />
                   Create Your First Configuration
                 </Link>
               </Button>
               <Button asChild className="w-full justify-start" variant="outline">
                 <Link href="/dashboard/opportunities">
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="mr-2 h-4 w-4" />
                   View Opportunities
                 </Link>
               </Button>
               <Button asChild className="w-full justify-start" variant="outline">
                 <Link href="/dashboard/insights">
-                  <TrendingUp className="h-4 w-4 mr-2" />
+                  <TrendingUp className="mr-2 h-4 w-4" />
                   Check Market Insights
                 </Link>
               </Button>
@@ -252,9 +283,7 @@ export default async function PersonalAccountPage() {
               <Target className="h-5 w-5" />
               System Status
             </CardTitle>
-            <CardDescription>
-              Current system configuration and health
-            </CardDescription>
+            <CardDescription>Current system configuration and health</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -275,7 +304,7 @@ export default async function PersonalAccountPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm">System Status</span>
                 <Badge variant="default" className="bg-green-100 text-green-800">
-                  <CheckCircle className="h-3 w-3 mr-1" />
+                  <CheckCircle className="mr-1 h-3 w-3" />
                   Operational
                 </Badge>
               </div>
@@ -288,25 +317,31 @@ export default async function PersonalAccountPage() {
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Common tasks and shortcuts
-          </CardDescription>
+          <CardDescription>Common tasks and shortcuts</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button asChild className="h-auto p-4 flex flex-col items-center gap-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Button asChild className="flex h-auto flex-col items-center gap-2 p-4">
               <Link href="/dashboard/configurations">
                 <Settings className="h-6 w-6" />
                 <span>Manage Configurations</span>
               </Link>
             </Button>
-            <Button asChild className="h-auto p-4 flex flex-col items-center gap-2" variant="outline">
+            <Button
+              asChild
+              className="flex h-auto flex-col items-center gap-2 p-4"
+              variant="outline"
+            >
               <Link href="/dashboard/opportunities">
                 <FileText className="h-6 w-6" />
                 <span>View Opportunities</span>
               </Link>
             </Button>
-            <Button asChild className="h-auto p-4 flex flex-col items-center gap-2" variant="outline">
+            <Button
+              asChild
+              className="flex h-auto flex-col items-center gap-2 p-4"
+              variant="outline"
+            >
               <Link href="/dashboard/insights">
                 <TrendingUp className="h-6 w-6" />
                 <span>Market Insights</span>

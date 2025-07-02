@@ -1,6 +1,6 @@
 "use client";
 
-import type { StepType } from "@lib/actions/scraping";
+import type { StepType, StepExecutionResult } from "@lib/actions/scraping";
 import { useAutoScroll } from "@lib/hooks/use-auto-scroll";
 import { cn } from "@lib/utils";
 
@@ -27,7 +27,7 @@ interface StepCardProps {
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
   playwrightOutputType?: "file" | "text" | null;
-  stepResult?: any;
+  stepResult?: StepExecutionResult;
 }
 
 export default function StepCard({

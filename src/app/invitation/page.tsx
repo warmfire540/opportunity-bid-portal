@@ -4,10 +4,10 @@ import AcceptTeamInvitation from "@components/basejump/accept-team-invitation";
 
 export default async function AcceptInvitationPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: { token?: string };
-}) {
-  if (!searchParams.token) {
+}>) {
+  if (searchParams.token == null || searchParams.token === "") {
     redirect("/");
   }
 

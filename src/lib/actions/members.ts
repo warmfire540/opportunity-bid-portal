@@ -17,7 +17,7 @@ export async function removeTeamMember(prevState: unknown, formData: FormData) {
     account_id: accountId,
   });
 
-  if (error) {
+  if (error != null) {
     return {
       message: error.message,
     };
@@ -44,7 +44,7 @@ export async function updateTeamMemberRole(prevState: unknown, formData: FormDat
     make_primary_owner: makePrimaryOwner,
   });
 
-  if (error) {
+  if (error != null) {
     return {
       message: error.message,
     };

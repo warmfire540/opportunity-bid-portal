@@ -17,9 +17,10 @@ export async function executeStep(
   console.log(`[STEP EXECUTION] Starting execution of step: ${step.name} (${step.step_type})`);
 
   // Only pass the immediate previous step result for safety
-  const previousStepResult = previousStepResults != null && previousStepResults.length > 0 
-    ? previousStepResults[previousStepResults.length - 1] 
-    : undefined;
+  const previousStepResult =
+    previousStepResults != null && previousStepResults.length > 0
+      ? previousStepResults[previousStepResults.length - 1]
+      : undefined;
 
   switch (step.step_type) {
     case "playwright": {

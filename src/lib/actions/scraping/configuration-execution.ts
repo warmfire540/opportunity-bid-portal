@@ -75,13 +75,17 @@ export async function executeConfigurationAction(configurationId: string): Promi
       stepsExecuted,
       stepResults,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     const executionTimeMs = Date.now() - startTime;
     console.error(`[CONFIGURATION EXECUTION] Error during execution:`, error);
 
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "An unexpected error occurred during configuration execution";
     return {
       success: false,
-      error: error.message ?? "An unexpected error occurred during configuration execution",
+      error: errorMessage,
       executionTimeMs,
       stepsExecuted: 0,
     };

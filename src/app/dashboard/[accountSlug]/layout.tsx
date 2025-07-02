@@ -12,11 +12,11 @@ export default async function PersonalAccountDashboard({
 }) {
   const supabaseClient = createClient();
 
-  const { data: teamAccount, error } = await supabaseClient.rpc("get_account_by_slug", {
+  const { data: teamAccount, error: _error } = await supabaseClient.rpc("get_account_by_slug", {
     slug: accountSlug,
   });
 
-  if (!teamAccount) {
+  if (teamAccount == null) {
     redirect("/dashboard");
   }
 

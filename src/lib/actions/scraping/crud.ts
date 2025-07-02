@@ -11,7 +11,7 @@ export async function getScrapeConfigurations() {
 
   const { data, error } = await supabase.rpc("get_scrape_configurations_with_steps");
 
-  if (error) {
+  if (error != null) {
     throw new Error(`Failed to fetch configurations: ${error.message}`);
   }
 
@@ -33,7 +33,7 @@ export async function createScrapeConfiguration(configuration: ScrapeConfigurati
     .select()
     .single();
 
-  if (configError) {
+  if (configError != null) {
     throw new Error(`Failed to create configuration: ${configError.message}`);
   }
 
@@ -52,12 +52,12 @@ export async function createScrapeConfiguration(configuration: ScrapeConfigurati
         .select()
         .single();
 
-      if (stepError) {
+      if (stepError != null) {
         throw new Error(`Failed to create scrape download step: ${stepError.message}`);
       }
 
       // Insert playwright sub-steps if this is a playwright step
-      if (step.step_type === "playwright" && step.sub_steps && step.sub_steps.length > 0) {
+      if (step.step_type === "playwright" && step.sub_steps != null && step.sub_steps.length > 0) {
         const playwrightStepsToInsert = step.sub_steps.map((subStep) => ({
           scrape_download_step_id: stepData.id,
           step_order: subStep.step_order,
@@ -73,7 +73,7 @@ export async function createScrapeConfiguration(configuration: ScrapeConfigurati
           .from("playwright_steps")
           .insert(playwrightStepsToInsert);
 
-        if (playwrightStepsError) {
+        if (playwrightStepsError != null) {
           throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
         }
       }
@@ -98,7 +98,7 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
     })
     .eq("id", id);
 
-  if (configError) {
+  if (configError != null) {
     throw new Error(`Failed to update configuration: ${configError.message}`);
   }
 
@@ -108,7 +108,7 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
     .delete()
     .eq("configuration_id", id);
 
-  if (deleteError) {
+  if (deleteError != null) {
     throw new Error(`Failed to delete existing steps: ${deleteError.message}`);
   }
 
@@ -127,12 +127,12 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
         .select()
         .single();
 
-      if (stepError) {
+      if (stepError != null) {
         throw new Error(`Failed to create scrape download step: ${stepError.message}`);
       }
 
       // Insert playwright sub-steps if this is a playwright step
-      if (step.step_type === "playwright" && step.sub_steps && step.sub_steps.length > 0) {
+      if (step.step_type === "playwright" && step.sub_steps != null && step.sub_steps.length > 0) {
         const playwrightStepsToInsert = step.sub_steps.map((subStep) => ({
           scrape_download_step_id: stepData.id,
           step_order: subStep.step_order,
@@ -148,7 +148,7 @@ export async function updateScrapeConfiguration(id: string, configuration: Scrap
           .from("playwright_steps")
           .insert(playwrightStepsToInsert);
 
-        if (playwrightStepsError) {
+        if (playwrightStepsError != null) {
           throw new Error(`Failed to create playwright steps: ${playwrightStepsError.message}`);
         }
       }
@@ -163,7 +163,7 @@ export async function deleteScrapeConfiguration(id: string) {
 
   const { error } = await supabase.from("scrape_download_configurations").delete().eq("id", id);
 
-  if (error) {
+  if (error != null) {
     throw new Error(`Failed to delete configuration: ${error.message}`);
   }
 
@@ -178,7 +178,7 @@ export async function toggleScrapeConfiguration(id: string, isActive: boolean) {
     .update({ is_active: isActive })
     .eq("id", id);
 
-  if (error) {
+  if (error != null) {
     throw new Error(`Failed to toggle configuration: ${error.message}`);
   }
 
@@ -190,13 +190,18 @@ export async function getScrapeConfiguration(id: string) {
 
   const { data, error } = await supabase.rpc("get_scrape_configurations_with_steps");
 
-  if (error) {
+  if (error != null) {
     throw new Error(`Failed to fetch configurations: ${error.message}`);
   }
 
-  const configuration = data?.find((config: any) => config.id === id);
+  const configuration = data?.find((config: unknown) => {
+    if (typeof config === "object" && config != null && "id" in config) {
+      return config.id === id;
+    }
+    return false;
+  });
 
-  if (!configuration) {
+  if (configuration == null) {
     throw new Error(`Configuration with id ${id} not found`);
   }
 
