@@ -323,25 +323,12 @@ export default function EditScrapeConfigurationDrawer({
 
                       {/* Playwright Sub-steps */}
                       {step.step_type === "playwright" && (
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <Label>Playwright Actions</Label>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => togglePlaywrightSection(stepIndex)}
-                            >
-                              {expandedPlaywrightSections.has(stepIndex) ? "Hide" : "Show"} Actions
-                            </Button>
-                          </div>
-                          {expandedPlaywrightSections.has(stepIndex) && (
-                            <PlaywrightStepComponent
-                              subSteps={step.sub_steps ?? []}
-                              onUpdate={(subSteps) => updateStep(stepIndex, "sub_steps", subSteps)}
-                            />
-                          )}
-                        </div>
+                        <PlaywrightStepComponent
+                          subSteps={step.sub_steps ?? []}
+                          onUpdate={(subSteps) => updateStep(stepIndex, "sub_steps", subSteps)}
+                          expanded={expandedPlaywrightSections.has(stepIndex)}
+                          onToggleExpanded={() => togglePlaywrightSection(stepIndex)}
+                        />
                       )}
 
                       {/* AI Prompt Configuration */}

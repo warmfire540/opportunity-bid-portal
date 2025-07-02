@@ -6,13 +6,17 @@ export async function handleGotoAction(
   subStep: PlaywrightStep,
   page: Page,
   configuration: ScrapeConfiguration,
-  dynamicUrl?: string
+  dynamicValue?: string
 ): Promise<void> {
-  let urlToNavigate = dynamicUrl ?? configuration.target_url;
+  let urlToNavigate = dynamicValue ?? configuration.target_url;
 
-  // Handle template variables like {url}
-  if (subStep.value != null && subStep.value.includes("{url}") && dynamicUrl != null) {
-    urlToNavigate = subStep.value.replace("{url}", dynamicUrl);
+  // Handle template variables like {url} or {id}
+  if (subStep.value != null && dynamicValue != null) {
+    if (subStep.value.includes("{url}")) {
+      urlToNavigate = subStep.value.replace("{url}", dynamicValue);
+    } else if (subStep.value.includes("{id}")) {
+      urlToNavigate = subStep.value.replace("{id}", dynamicValue);
+    }
   }
 
   console.log(`[STEP EXECUTION] Navigating to ${urlToNavigate}`);

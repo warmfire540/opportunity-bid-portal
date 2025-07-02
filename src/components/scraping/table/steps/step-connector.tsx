@@ -152,8 +152,8 @@ export default function StepConnector({
         return [
           {
             icon: <ExternalLink className="h-4 w-4 text-blue-600" />,
-            label: "URLs",
-            description: "Optional URL input",
+            label: "Structured Data",
+            description: "Optional structured data input",
             color: "text-blue-600",
             bgColor: "bg-blue-50",
             borderColor: "border-blue-200",

@@ -27,13 +27,13 @@ async function executeSubStep(
   configuration: ScrapeConfiguration,
   step: ScrapeDownloadStep,
   context: PlaywrightContext,
-  dynamicUrl?: string
+  dynamicValue?: string
 ): Promise<void> {
   console.log(`[STEP EXECUTION] Executing sub-step ${subStepNumber}: ${subStep.action_type}`);
 
   switch (subStep.action_type) {
     case "goto":
-      await handleGotoAction(subStep, page, configuration, dynamicUrl);
+      await handleGotoAction(subStep, page, configuration, dynamicValue);
       break;
 
     case "click":
@@ -78,7 +78,7 @@ export async function executeSinglePlaywrightStep(
   configuration: ScrapeConfiguration,
   page: Page,
   supabase: SupabaseClient,
-  dynamicUrl?: string
+  dynamicValue?: string
 ): Promise<StepExecutionResult> {
   try {
     console.log(`[STEP EXECUTION] Executing playwright step: ${step.name}`);
@@ -106,7 +106,7 @@ export async function executeSinglePlaywrightStep(
         configuration,
         step,
         context,
-        dynamicUrl
+        dynamicValue
       );
     }
 
@@ -138,8 +138,8 @@ export async function executePlaywrightStep(
 ): Promise<StepExecutionResult> {
   console.log(`[STEP EXECUTION] Starting execution of playwright step: ${step.name}`);
 
-  // Check if previous step has URL data for dynamic execution
-  const urlsFromPreviousStep = (() => {
+  // Check if previous step has typed data for dynamic execution
+  const valuesFromPreviousStep = (() => {
     if (previousStepResults == null || previousStepResults.length === 0) {
       return [];
     }
@@ -147,11 +147,18 @@ export async function executePlaywrightStep(
     // Get the latest result (last step)
     const latestResult = previousStepResults[previousStepResults.length - 1];
 
-    // Check if it has an aiResponse field
+    // First check for typed AI response (new format)
+    if (latestResult.typedAiResponse != null) {
+      console.log(`[STEP EXECUTION] Found typed AI response: type=${latestResult.typedAiResponse.type}, values=${latestResult.typedAiResponse.values.length}`);
+      return latestResult.typedAiResponse.values.filter((value) => typeof value === "string" && value.length > 0);
+    }
+
+    // Fallback to legacy parsing for backward compatibility
     if (latestResult.aiResponse != null && latestResult.aiResponse.length > 0) {
       try {
         const parsedResponse = JSON.parse(latestResult.aiResponse);
         if (Array.isArray(parsedResponse)) {
+          console.log(`[STEP EXECUTION] Found legacy array response with ${parsedResponse.length} items`);
           return parsedResponse.filter((url) => typeof url === "string" && url.length > 0);
         }
       } catch (error) {
@@ -162,15 +169,15 @@ export async function executePlaywrightStep(
     return [];
   })();
 
-  if (urlsFromPreviousStep.length > 0) {
+  if (valuesFromPreviousStep.length > 0) {
     console.log(
-      `[STEP EXECUTION] Found ${urlsFromPreviousStep.length} URLs from previous step, executing playwright step for each URL`
+      `[STEP EXECUTION] Found ${valuesFromPreviousStep.length} values from previous step, executing playwright step for each value`
     );
 
     const results: StepExecutionResult[] = [];
-    for (const url of urlsFromPreviousStep) {
-      console.log(`[STEP EXECUTION] Executing playwright step for URL: ${url}`);
-      const result = await executeSinglePlaywrightStep(step, configuration, page, supabase, url);
+    for (const value of valuesFromPreviousStep) {
+      console.log(`[STEP EXECUTION] Executing playwright step for value: ${value}`);
+      const result = await executeSinglePlaywrightStep(step, configuration, page, supabase, value);
       results.push(result);
     }
 

@@ -53,7 +53,7 @@ Step 2: AI Prompt Analysis
 ├── Output: Analysis Results
 │   ↓ (connection line)
 Step 3: Playwright Text Extraction
-├── Input: URLs from previous step
+├── Input: Structured Data from previous step
 ├── Output: Text Content
 │   ↓ (connection line)
 Step 4: AI Prompt Analysis

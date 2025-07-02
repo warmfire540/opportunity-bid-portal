@@ -121,6 +121,13 @@ export type StepExecutionResult = {
   opportunities?: Opportunity[]; // Array of created opportunities
   opportunityCount?: number; // Number of opportunities created
   marketInsights?: MarketInsight[]; // Array of market insights
+  typedAiResponse?: TypedAiResponse; // New typed AI response structure
+};
+
+// New type for type-aware AI responses
+export type TypedAiResponse = {
+  type: "url" | "id";
+  values: string[];
 };
 
 export type BrowserSession = {

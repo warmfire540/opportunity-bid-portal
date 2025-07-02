@@ -108,16 +108,19 @@ Look for bids containing these keywords:
 - Assessments (personality, leadership, organizational)
 - Consulting services
 - Staff Development',
-    'IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed. You must return a valid JSON array of URLs as a string.
+    'IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed. You must return a valid JSON object with type and values fields.
     
 For each relevant opportunity found:
 1. Extract the bid number (remove "RFP-" prefix if present)
 2. Create the direct link: https://vendor.myfloridamarketplace.com/search/bids/detail/{number}
 
-Return ONLY a JSON array of links in this exact format:
-["https://vendor.myfloridamarketplace.com/search/bids/detail/12345", "https://vendor.myfloridamarketplace.com/search/bids/detail/67890"]
+Return ONLY a JSON object in this exact format:
+{
+  "type": "url",
+  "values": ["https://vendor.myfloridamarketplace.com/search/bids/detail/12345", "https://vendor.myfloridamarketplace.com/search/bids/detail/67890"]
+}
 
-Do not include any other text, analysis, or formatting. Just the JSON array.',
+Do not include any other text, analysis, or formatting. Just the JSON object.',
     ARRAY['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333'],
     '00000000-0000-0000-0000-000000000000'
 );
@@ -332,16 +335,16 @@ INSERT INTO scrape_download_steps (
 
 -- Insert playwright steps for North Carolina (Step 1)
 INSERT INTO playwright_steps (
-    id, scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
+    scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
 ) VALUES
 -- 1. Go to URL
-('562e2f22-3c3e-4599-b40c-e0c78601cb07', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the NC solicitations page', '00000000-0000-0000-0000-000000000000'),
+('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the NC solicitations page', '00000000-0000-0000-0000-000000000000'),
 -- 2. Wait for download event
-('335f5056-96cc-4182-ae29-1f0a4dcfcb1e', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 2, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
+('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 2, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
 -- 3. Click download link
-('c64b956b-16c5-49d6-bda9-4050186a7abd', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 3, 'click', 'a[title="Download"]', 'css', NULL, NULL, 'Click download link', '00000000-0000-0000-0000-000000000000'),
+('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 3, 'click', 'a[title="Download"]', 'css', NULL, NULL, 'Click download link', '00000000-0000-0000-0000-000000000000'),
 -- 4. Save download as file
-('5b728b6a-c95b-4a27-959a-2dcf6fa59a5e', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 4, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
+('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 4, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
 
 -- Insert prompt step for North Carolina (Step 2)
 INSERT INTO prompt_steps (
@@ -362,14 +365,17 @@ Look for bids containing these keywords:
 - Assessments (personality, leadership, organizational)
 - Consulting services
 - Staff Development',
-    'IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed. You must return a valid JSON array of Solicitation Numbers as a string.
+    'IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed. You must return a valid JSON object with type and values fields.
     
 For each relevant opportunity found:
 1. Extract the Solicitation Number
-2. Return ONLY a JSON array of solicitation numbers in this exact format:
-["12345", "67890", "ABCDE"]
+2. Return ONLY a JSON object in this exact format:
+{
+  "type": "id",
+  "values": ["12345", "67890", "ABCDE"]
+}
 
-Do not include any other text, analysis, or formatting. Just the JSON array of solicitation numbers.',
+Do not include any other text, analysis, or formatting. Just the JSON object of solicitation numbers.',
     ARRAY['44444444-4444-4444-4444-444444444444', '55555555-5555-5555-5555-555555555555', '66666666-6666-6666-6666-666666666666'],
     '00000000-0000-0000-0000-000000000000'
 );
@@ -481,9 +487,14 @@ INSERT INTO create_opportunity_steps (
     '00000000-0000-0000-0000-000000000000'
 );
 
--- Insert playwright steps for text extraction (Step 3) - same as Florida but for NC
+-- Insert playwright steps for text extraction (Step 3) - NC uses search and navigation
 INSERT INTO playwright_steps (
-    id, scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
+    scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
 ) VALUES
-('804a35fc-4e04-4a1a-bc76-be2bee01c36d', '53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 1, 'goto', NULL, NULL, '{url}', NULL, 'Navigate to bid detail page using dynamic URL', '00000000-0000-0000-0000-000000000000'),
-('e1a2b3c4-5d6e-7f80-9a1b-2c3d4e5f6071', '53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 2, 'getInnerText', 'body', 'page', NULL, NULL, 'Extract all text from the bid detail page', '00000000-0000-0000-0000-000000000000');
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the NC solicitations page', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 2, 'click', 'textbox', 'role', 'To search on partial text,', NULL, 'Click the search textbox', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 3, 'type', 'textbox', 'role', '{id}', NULL, 'Fill search box with the ID from AI response', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 4, 'click', 'button', 'role', 'Search Results', NULL, 'Click the Search Results button', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 5, 'click', 'table.table-striped td a', 'css', NULL, NULL, 'Click the first result in the table', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 6, 'wait', NULL, NULL, 'networkidle', NULL, 'Wait for page to load completely', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 7, 'getInnerText', 'body', 'page', NULL, NULL, 'Extract all text from the bid detail page', '00000000-0000-0000-0000-000000000000');

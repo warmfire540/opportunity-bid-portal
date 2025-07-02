@@ -1,7 +1,8 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 import * as XLSX from "xlsx";
 
-import type { ScrapeConfiguration, ScrapeDownloadStep, StepExecutionResult } from "../types";
+import type { ScrapeConfiguration, ScrapeDownloadStep, StepExecutionResult, TypedAiResponse } from "../types";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY ?? "",
@@ -33,7 +34,7 @@ async function convertExcelToCsv(buffer: ArrayBuffer): Promise<string> {
 export async function executeAiPromptStep(
   step: ScrapeDownloadStep,
   configuration: ScrapeConfiguration,
-  supabase: any,
+  supabase: SupabaseClient,
   previousStepResults?: StepExecutionResult[]
 ): Promise<StepExecutionResult> {
   try {
@@ -148,10 +149,42 @@ export async function executeAiPromptStep(
     const aiResponse = completion.choices[0]?.message?.content ?? "No response from AI";
     console.log(`[STEP EXECUTION] AI Response received (${aiResponse.length} characters):`);
     console.log(`[STEP EXECUTION] ${aiResponse.substring(0, 200)}...`);
+
+    // Parse the AI response to extract typed data
+    let typedAiResponse: TypedAiResponse | undefined;
+    try {
+      const parsedResponse = JSON.parse(aiResponse);
+      
+      // Check if it's the new typed format
+      if (parsedResponse && typeof parsedResponse === "object" && parsedResponse !== null && "type" in parsedResponse && "values" in parsedResponse) {
+        const typedResponse = parsedResponse as { type: string; values: unknown };
+        typedAiResponse = {
+          type: typedResponse.type as "url" | "id",
+          values: Array.isArray(typedResponse.values) ? typedResponse.values as string[] : []
+        };
+        console.log(`[STEP EXECUTION] Parsed typed AI response: type=${typedAiResponse.type}, values=${typedAiResponse.values.length}`);
+      } else if (Array.isArray(parsedResponse)) {
+        // Handle legacy array format - determine type based on content
+        const firstItem = parsedResponse[0];
+        if (typeof firstItem === "string") {
+          // Check if it looks like a URL or an ID
+          const isUrl = firstItem.startsWith("http") || firstItem.includes("/");
+          typedAiResponse = {
+            type: isUrl ? "url" : "id",
+            values: parsedResponse
+          };
+          console.log(`[STEP EXECUTION] Converted legacy array to typed response: type=${typedAiResponse.type}, values=${typedAiResponse.values.length}`);
+        }
+      }
+    } catch (parseError) {
+      console.warn(`[STEP EXECUTION] Failed to parse AI response as JSON: ${parseError}`);
+    }
+
     console.log(`[STEP EXECUTION] AI Prompt step completed successfully`);
     return {
       success: true,
       aiResponse: aiResponse,
+      typedAiResponse: typedAiResponse,
     };
   } catch (error: any) {
     console.error(`[STEP EXECUTION] AI prompt step failed:`, error);
