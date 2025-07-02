@@ -107,8 +107,9 @@ Look for bids containing these keywords:
 - Executive Leadership Training
 - Assessments (personality, leadership, organizational)
 - Consulting services
-- Staff Development
-
+- Staff Development',
+    'IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed. You must return a valid JSON array of URLs as a string.
+    
 For each relevant opportunity found:
 1. Extract the bid number (remove "RFP-" prefix if present)
 2. Create the direct link: https://vendor.myfloridamarketplace.com/search/bids/detail/{number}
@@ -117,7 +118,6 @@ Return ONLY a JSON array of links in this exact format:
 ["https://vendor.myfloridamarketplace.com/search/bids/detail/12345", "https://vendor.myfloridamarketplace.com/search/bids/detail/67890"]
 
 Do not include any other text, analysis, or formatting. Just the JSON array.',
-    'IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed. You must return a valid JSON array of URLs as a string.',
     ARRAY['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333'],
     '00000000-0000-0000-0000-000000000000'
 );
@@ -248,3 +248,242 @@ INSERT INTO playwright_steps (
 ) VALUES
 ('b7e2cfa9-0df1-54dd-921c-408ff22f3c4f', 1, 'goto', NULL, NULL, '{url}', NULL, 'Navigate to bid detail page using dynamic URL', '00000000-0000-0000-0000-000000000000'),
 ('b7e2cfa9-0df1-54dd-921c-408ff22f3c4f', 2, 'getInnerText', 'body', 'page', NULL, NULL, 'Extract all text from the bid detail page', '00000000-0000-0000-0000-000000000000');
+
+-- ===============================================================================
+-- NORTH CAROLINA ELECTRONIC VENDOR PORTAL CONFIGURATION
+-- ===============================================================================
+
+-- Insert North Carolina configuration
+INSERT INTO scrape_download_configurations (
+    id, name, description, target_url, is_active, created_by
+) VALUES (
+    '92349122-9870-4657-8c6e-d29826c532fc',
+    'North Carolina RFP Download',
+    'Downloads RFPs from the North Carolina Electronic Vendor Portal',
+    'https://evp.nc.gov/solicitations/',
+    true,
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert scrape download step (playwright type) - Step 1
+INSERT INTO scrape_download_steps (
+    id, configuration_id, step_order, step_type, name, description, created_by
+) VALUES (
+    'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225',
+    '92349122-9870-4657-8c6e-d29826c532fc',
+    1,
+    'playwright',
+    'Download RFP Data',
+    'Navigate to the NC portal and download RFP data using Playwright automation',
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert scrape download step (ai_prompt type) - Step 2
+INSERT INTO scrape_download_steps (
+    id, configuration_id, step_order, step_type, name, description, created_by
+) VALUES (
+    '7787395d-a6c3-4fd3-87fc-d6d15a315608',
+    '92349122-9870-4657-8c6e-d29826c532fc',
+    2,
+    'ai_prompt',
+    'Analyze RFP Data',
+    'Use AI to analyze the downloaded RFP data and identify relevant opportunities',
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert scrape download step (playwright type) - Step 3 (Text Extraction)
+INSERT INTO scrape_download_steps (
+    id, configuration_id, step_order, step_type, name, description, created_by
+) VALUES (
+    '53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3',
+    '92349122-9870-4657-8c6e-d29826c532fc',
+    3,
+    'playwright',
+    'Extract Bid Details',
+    'Extract bid header, inquiry details, description, and commodity codes from each bid page',
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert scrape download step (ai_prompt type) - Step 4 (AI Analysis of Text Content)
+INSERT INTO scrape_download_steps (
+    id, configuration_id, step_order, step_type, name, description, created_by
+) VALUES (
+    'f578fb1e-094a-4172-9d49-ec888e4e3971',
+    '92349122-9870-4657-8c6e-d29826c532fc',
+    4,
+    'ai_prompt',
+    'Analyze Extracted Bid Content',
+    'Use AI to analyze the extracted bid details and identify key opportunities',
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert opportunity creation step (Step 5) for North Carolina
+INSERT INTO scrape_download_steps (
+    id, configuration_id, step_order, step_type, name, description, created_by
+) VALUES (
+    'bcd71d4a-9f97-4878-8f3b-a0d10bfdf217',
+    '92349122-9870-4657-8c6e-d29826c532fc',
+    5,
+    'create_opportunity',
+    'Create Opportunities & Market Insights',
+    'Parse AI response and create opportunities and market insights in the database',
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert playwright steps for North Carolina (Step 1)
+INSERT INTO playwright_steps (
+    id, scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
+) VALUES
+-- 1. Go to URL
+('562e2f22-3c3e-4599-b40c-e0c78601cb07', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the NC solicitations page', '00000000-0000-0000-0000-000000000000'),
+-- 2. Wait for download event
+('335f5056-96cc-4182-ae29-1f0a4dcfcb1e', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 2, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
+-- 3. Click download link
+('c64b956b-16c5-49d6-bda9-4050186a7abd', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 3, 'click', 'a[title="Download"]', 'css', NULL, NULL, 'Click download link', '00000000-0000-0000-0000-000000000000'),
+-- 4. Save download as file
+('5b728b6a-c95b-4a27-959a-2dcf6fa59a5e', 'd9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 4, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
+
+-- Insert prompt step for North Carolina (Step 2)
+INSERT INTO prompt_steps (
+    scrape_download_step_id, prompt, system_prompt, storage_ids, created_by
+) VALUES (
+    '7787395d-a6c3-4fd3-87fc-d6d15a315608',
+    'Analyze this North Carolina Electronic Vendor Portal bid data and identify procurement opportunities that match our services.
+
+Look for bids containing these keywords:
+- Leadership development
+- Coaching (executive, business, or organizational)
+- Executive coaching
+- Organizational development
+- Strategy consulting
+- Leadership training
+- Employee development
+- Executive Leadership Training
+- Assessments (personality, leadership, organizational)
+- Consulting services
+- Staff Development',
+    'IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed. You must return a valid JSON array of Solicitation Numbers as a string.
+    
+For each relevant opportunity found:
+1. Extract the Solicitation Number
+2. Return ONLY a JSON array of solicitation numbers in this exact format:
+["12345", "67890", "ABCDE"]
+
+Do not include any other text, analysis, or formatting. Just the JSON array of solicitation numbers.',
+    ARRAY['44444444-4444-4444-4444-444444444444', '55555555-5555-5555-5555-555555555555', '66666666-6666-6666-6666-666666666666'],
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert prompt step for North Carolina (Step 4)
+INSERT INTO prompt_steps (
+    scrape_download_step_id, prompt, system_prompt, storage_ids, created_by
+) VALUES (
+    'f578fb1e-094a-4172-9d49-ec888e4e3971',
+    'As a CEO of a leadership development and consulting company, analyze this Request for Proposal and provide strategic insights for our bidding approach:
+
+## BIDDING STRATEGY ANALYSIS
+
+For the RFP, evaluate:
+
+**1. Strategic Fit Assessment**
+- How well does this RFP align with our core leadership development services?
+- Which of our key service areas (executive coaching, team development, organizational change, strategic planning) are most relevant?
+- What is the potential for long-term relationship building vs. one-time project?
+
+**2. Competitive Positioning**
+- What unique value propositions should we emphasize?
+- How can we differentiate from typical government contractors?
+- What leadership expertise gaps might exist in the current vendor pool?
+
+**3. Keyword & Requirements Alignment**
+- Identify leadership-related keywords and requirements that match our expertise
+- Highlight any specific leadership competencies, certifications, or methodologies mentioned
+- Note any organizational development, change management, or strategic planning elements
+
+**4. Bidding Recommendations**
+- Recommended approach: Full bid, joint venture, or pass?
+- Key differentiators to emphasize in our proposal
+- Potential partners or subcontractors to consider
+- Risk factors and mitigation strategies
+
+**5. Resource & Timeline Assessment**
+- Estimated effort level (Low/Medium/High) and why
+- Key personnel needed for successful delivery
+- Timeline feasibility and potential conflicts
+- Required certifications or qualifications
+
+## OVERALL STRATEGIC INSIGHTS
+
+- **Market Trends**: What patterns emerge about leadership development needs in North Carolina government?
+- **Opportunity Prioritization**: Rank these RFPs by strategic value and win probability
+- **Resource Planning**: What capabilities should we develop or strengthen?
+- **Relationship Building**: Which agencies show recurring leadership development needs?
+
+## ACTIONABLE RECOMMENDATIONS
+
+For each RFP, provide:
+- **Go/No-Go Decision** with clear rationale
+- **3-5 Key Messaging Points** for our proposal
+- **Risk Assessment** (Low/Medium/High) with specific concerns
+- **Estimated Win Probability** (Low/Medium/High) with reasoning
+
+Focus on insights that help us make strategic decisions about where to invest our bidding resources and how to position ourselves as the premier leadership development partner for North Carolina government agencies.',
+    'IMPORTANT: You must return your analysis in a specific JSON format that can be used to create opportunities. Return ONLY valid JSON with the following structure:
+
+{
+  "opportunities": [
+    {
+      "bidNumber": "string - The bid/RFP number",
+      "title": "string - The title of the RFP",
+      "agency": "string - The government agency issuing the RFP",
+      "description": "string - Brief description of the opportunity",
+      "strategicFit": "string - Low/Medium/High - How well it aligns with our services",
+      "goNoGoDecision": "string - Go/No-Go with brief rationale",
+      "keyMessagingPoints": ["string", "string", "string"] - Array of 3-5 key points for our proposal,
+      "riskAssessment": "string - Low/Medium/High with specific concerns",
+      "winProbability": "string - Low/Medium/High with reasoning",
+      "estimatedValue": "string - Estimated contract value if available",
+      "deadline": "string - Submission deadline if available",
+      "requiredCertifications": ["string"] - Array of required certifications or qualifications,
+      "keywords": ["string"] - Array of relevant keywords found in the RFP,
+      "serviceAreas": ["string"] - Array of our service areas that match this opportunity
+    }
+  ],
+  "marketInsights": {
+    "trends": ["string"] - Array of market trends identified,
+    "prioritization": ["string"] - Array of recommendations for opportunity prioritization,
+    "resourceNeeds": ["string"] - Array of capabilities we should develop
+  }
+}
+
+Do not include any markdown formatting, explanatory text, or code blocks. Return only the JSON object.',
+    NULL,
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert create opportunity step configuration for North Carolina
+INSERT INTO create_opportunity_steps (
+    scrape_download_step_id, title_template, description_template, source_template, 
+    bid_number_field, agency_field, due_date_field, estimated_value_field,
+    commodity_codes_field, requirements_template, tags_template, created_by
+) VALUES (
+    'bcd71d4a-9f97-4878-8f3b-a0d10bfdf217',
+    '{{title}}',
+    '{{description}}',
+    'https://evp.nc.gov/solicitations/{{bidNumber}}',
+    'bidNumber',
+    'agency',
+    'deadline',
+    'estimatedValue',
+    'commodityCodes',
+    'strategicFit',
+    ARRAY['leadership', 'development', 'consulting', 'north-carolina'],
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert playwright steps for text extraction (Step 3) - same as Florida but for NC
+INSERT INTO playwright_steps (
+    id, scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
+) VALUES
+('804a35fc-4e04-4a1a-bc76-be2bee01c36d', '53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 1, 'goto', NULL, NULL, '{url}', NULL, 'Navigate to bid detail page using dynamic URL', '00000000-0000-0000-0000-000000000000'),
+('e1a2b3c4-5d6e-7f80-9a1b-2c3d4e5f6071', '53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 2, 'getInnerText', 'body', 'page', NULL, NULL, 'Extract all text from the bid detail page', '00000000-0000-0000-0000-000000000000');

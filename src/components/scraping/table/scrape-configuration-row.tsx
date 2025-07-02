@@ -70,6 +70,11 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
     setResult(null);
     setCurrentStepIndex(undefined);
 
+    // Declare variables outside try block so they're accessible in catch
+    const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
+    const stepResults: StepExecutionResult[] = [];
+    const startTime = Date.now();
+
     try {
       // Start the execution
       const startResult = await startStepExecutionAction(configuration.id!);
@@ -78,11 +83,6 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
       }
 
       setSessionId(startResult.sessionId!);
-
-      const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
-      const stepResults: StepExecutionResult[] = [];
-      let executionTimeMs = 0;
-      const startTime = Date.now();
 
       // Execute each step
       for (let i = 0; i < steps.length; i++) {
@@ -94,24 +94,26 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
         }
 
         stepResults.push(stepResult);
+
+        // update the ui after each step
+        const executionTimeMs = Date.now() - startTime;
+        setResult({
+          success: true,
+          downloadPath: stepResults[stepResults.length - 1]?.downloadPath,
+          downloadUrl: stepResults[stepResults.length - 1]?.downloadUrl,
+          executionTimeMs,
+          stepsExecuted: steps.length,
+          stepResults,
+        });
       }
-
-      executionTimeMs = Date.now() - startTime;
-
-      setResult({
-        success: true,
-        downloadPath: stepResults[stepResults.length - 1]?.downloadPath,
-        downloadUrl: stepResults[stepResults.length - 1]?.downloadUrl,
-        executionTimeMs,
-        stepsExecuted: steps.length,
-        stepResults,
-      });
     } catch (error) {
       console.error(`[SCRAPE ROW] Scrape failed:`, error);
       setResult({
         success: false,
         error: error instanceof Error ? error.message : "Unknown error occurred",
         stepsExecuted: currentStepIndex ?? 0,
+        stepResults: stepResults, // Preserve the step results that were collected before the error
+        executionTimeMs: Date.now() - startTime,
       });
     } finally {
       // Clean up session if it exists

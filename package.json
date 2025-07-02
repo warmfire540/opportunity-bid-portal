@@ -7,6 +7,12 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "db:reset": "npx supabase db reset",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:record": "playwright codegen https://vendor.myfloridamarketplace.com/search/bids",
+    "test:report": "playwright show-report",
     "update": "npx npm-check-updates -u && npm i"
   },
   "dependencies": {
@@ -45,6 +51,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.53.2",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
