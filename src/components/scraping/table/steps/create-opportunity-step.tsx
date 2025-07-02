@@ -61,7 +61,7 @@ export default function CreateOpportunityStep({
             </div>
             {stepResult.marketInsights.slice(0, 3).map((insight, index) => (
               <div key={index} className="text-xs">
-                • {insight.title}
+                • {insight.insight_text}
               </div>
             ))}
             {stepResult.marketInsights.length > 3 && (

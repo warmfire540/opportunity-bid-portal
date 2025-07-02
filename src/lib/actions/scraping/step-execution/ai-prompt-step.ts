@@ -3,7 +3,6 @@ import OpenAI from "openai";
 import * as XLSX from "xlsx";
 
 import type {
-  ScrapeConfiguration,
   ScrapeDownloadStep,
   StepExecutionResult,
   TypedAiResponse,

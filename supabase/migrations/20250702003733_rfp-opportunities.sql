@@ -94,12 +94,7 @@ CREATE TABLE IF NOT EXISTS market_insights (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     scrape_configuration_id UUID REFERENCES scrape_download_configurations(id) ON DELETE CASCADE,
     insight_type TEXT NOT NULL CHECK (insight_type IN ('trends', 'prioritization', 'resource_needs', 'competitive_analysis', 'market_overview')),
-    title TEXT NOT NULL,
-    description TEXT,
-    insights JSONB NOT NULL, -- Array of insight strings
-    source_data TEXT, -- Description of what data this insight was derived from
-    confidence_level TEXT CHECK (confidence_level IN ('low', 'medium', 'high')),
-    actionable BOOLEAN DEFAULT true, -- Whether this insight leads to actionable recommendations
+    insight_text TEXT NOT NULL, -- Individual insight string
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     created_by UUID REFERENCES auth.users(id),
@@ -110,7 +105,7 @@ CREATE TABLE IF NOT EXISTS market_insights (
 CREATE INDEX IF NOT EXISTS idx_market_insights_configuration_id ON market_insights(scrape_configuration_id);
 CREATE INDEX IF NOT EXISTS idx_market_insights_insight_type ON market_insights(insight_type);
 CREATE INDEX IF NOT EXISTS idx_market_insights_created_by ON market_insights(created_by);
-CREATE INDEX IF NOT EXISTS idx_market_insights_actionable ON market_insights(actionable);
+CREATE INDEX IF NOT EXISTS idx_market_insights_created_at ON market_insights(created_at);
 
 -- Enable RLS
 ALTER TABLE market_insights ENABLE ROW LEVEL SECURITY;

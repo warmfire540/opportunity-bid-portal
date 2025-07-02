@@ -82,18 +82,14 @@ export async function executeCreateOpportunityStep(
               parsedData != null &&
               typeof parsedData === "object" &&
               "marketInsights" in parsedData &&
-              Array.isArray(parsedData.marketInsights)
+              typeof parsedData.marketInsights === "object"
             ) {
-              for (const insight of parsedData.marketInsights) {
-                const marketInsight = createMarketInsightFromData(
-                  insight,
-                  configuration.id ?? "",
-                  result.downloadUrl ?? ""
-                );
-                if (marketInsight != null) {
-                  marketInsights.push(marketInsight);
-                }
-              }
+              const insights = createMarketInsightsFromData(
+                parsedData.marketInsights,
+                configuration.id ?? "",
+                result.downloadUrl ?? ""
+              );
+              marketInsights.push(...insights);
             }
           } catch (parseError) {
             console.warn(`[STEP EXECUTION] Failed to parse AI response as JSON: ${parseError}`);
@@ -330,28 +326,72 @@ function extractTags(data: any, template: string[]): string[] | undefined {
   return tags.length > 0 ? tags : undefined;
 }
 
-function createMarketInsightFromData(
+function createMarketInsightsFromData(
   data: any,
   configurationId: string,
   sourceUrl: string
-): Partial<MarketInsight> | null {
-  try {
-    const insight: Partial<MarketInsight> = {
-      scrape_configuration_id: configurationId,
-      insight_type: data.insight_type || "market_overview",
-      title: data.title || "Market Insight",
-      description: data.description,
-      insights: Array.isArray(data.insights)
-        ? data.insights
-        : [data.insights || "No specific insights provided"],
-      source_data: data.source_data || `Derived from ${sourceUrl}`,
-      confidence_level: data.confidence_level || "medium",
-      actionable: data.actionable ?? true,
-    };
+): Partial<MarketInsight>[] {
+  const insights: Partial<MarketInsight>[] = [];
 
-    return insight;
+  try {
+    // Process trends
+    if (Array.isArray(data.trends)) {
+      for (const trend of data.trends) {
+        insights.push({
+          scrape_configuration_id: configurationId,
+          insight_type: "trends",
+          insight_text: trend,
+        });
+      }
+    }
+
+    // Process prioritization
+    if (Array.isArray(data.prioritization)) {
+      for (const priority of data.prioritization) {
+        insights.push({
+          scrape_configuration_id: configurationId,
+          insight_type: "prioritization",
+          insight_text: priority,
+        });
+      }
+    }
+
+    // Process resource needs
+    if (Array.isArray(data.resourceNeeds)) {
+      for (const need of data.resourceNeeds) {
+        insights.push({
+          scrape_configuration_id: configurationId,
+          insight_type: "resource_needs",
+          insight_text: need,
+        });
+      }
+    }
+
+    // Process competitive analysis
+    if (Array.isArray(data.competitiveAnalysis)) {
+      for (const analysis of data.competitiveAnalysis) {
+        insights.push({
+          scrape_configuration_id: configurationId,
+          insight_type: "competitive_analysis",
+          insight_text: analysis,
+        });
+      }
+    }
+
+    // Process market overview
+    if (Array.isArray(data.marketOverview)) {
+      for (const overview of data.marketOverview) {
+        insights.push({
+          scrape_configuration_id: configurationId,
+          insight_type: "market_overview",
+          insight_text: overview,
+        });
+      }
+    }
+
+    return insights;
   } catch (error) {
-    console.error(`[STEP EXECUTION] Error creating market insight from data: ${error}`);
-    return null;
+    console.error(`[STEP EXECUTION] Error creating market insights from data: ${error}`);
+    return [];
   }
 }

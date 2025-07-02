@@ -191,11 +191,15 @@ Focus on insights that help us make strategic decisions about where to invest ou
     }
   ],
   "marketInsights": {
-    "trends": ["string"] - Array of market trends identified,
-    "prioritization": ["string"] - Array of recommendations for opportunity prioritization,
-    "resourceNeeds": ["string"] - Array of capabilities we should develop
+    "trends": ["string"] - Array of market trends identified (e.g., "Increasing demand for leadership development in government agencies"),
+    "prioritization": ["string"] - Array of recommendations for opportunity prioritization (e.g., "Focus on agencies with recurring training needs"),
+    "resourceNeeds": ["string"] - Array of capabilities we should develop (e.g., "Need for certified leadership assessment tools"),
+    "competitiveAnalysis": ["string"] - Array of competitive insights (e.g., "Limited expertise in organizational change management among competitors"),
+    "marketOverview": ["string"] - Array of market overview insights (e.g., "Growing emphasis on measurable leadership outcomes")
   }
 }
+
+Note: For marketInsights, you do not need to be exhaustive or find insights for every category. Generate insights naturally based on the content provided. Focus on the most relevant and actionable insights that emerge from your analysis.
 
 Do not include any markdown formatting, explanatory text, or code blocks. Return only the JSON object.',
     NULL,
@@ -327,13 +331,9 @@ INSERT INTO scrape_download_steps (
 INSERT INTO playwright_steps (
     scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
 ) VALUES
--- 1. Go to URL
 ('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the NC solicitations page', '00000000-0000-0000-0000-000000000000'),
--- 2. Wait for download event
 ('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 2, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
--- 3. Click download link
 ('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 3, 'click', 'a[title="Download"]', NULL, NULL, NULL, 'Click download link', '00000000-0000-0000-0000-000000000000'),
--- 4. Save download as file
 ('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 4, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
 
 -- Insert prompt step for North Carolina (Step 2)
@@ -446,11 +446,15 @@ Focus on insights that help us make strategic decisions about where to invest ou
     }
   ],
   "marketInsights": {
-    "trends": ["string"] - Array of market trends identified,
-    "prioritization": ["string"] - Array of recommendations for opportunity prioritization,
-    "resourceNeeds": ["string"] - Array of capabilities we should develop
+    "trends": ["string"] - Array of market trends identified (e.g., "Increasing demand for leadership development in government agencies"),
+    "prioritization": ["string"] - Array of recommendations for opportunity prioritization (e.g., "Focus on agencies with recurring training needs"),
+    "resourceNeeds": ["string"] - Array of capabilities we should develop (e.g., "Need for certified leadership assessment tools"),
+    "competitiveAnalysis": ["string"] - Array of competitive insights (e.g., "Limited expertise in organizational change management among competitors"),
+    "marketOverview": ["string"] - Array of market overview insights (e.g., "Growing emphasis on measurable leadership outcomes")
   }
 }
+
+Note: For marketInsights, you do not need to be exhaustive or find insights for every category. Generate insights naturally based on the content provided. Focus on the most relevant and actionable insights that emerge from your analysis.
 
 Do not include any markdown formatting, explanatory text, or code blocks. Return only the JSON object.',
     NULL,
@@ -483,7 +487,7 @@ INSERT INTO playwright_steps (
 ) VALUES
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the NC solicitations page', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 2, 'click', 'textbox', 'role', 'To search on partial text,', NULL, 'Click the search textbox', '00000000-0000-0000-0000-000000000000'),
-('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 3, 'type', 'textbox', 'role', '{id}', NULL, 'Fill search box with the ID from AI response', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 3, 'type', 'To search on partial text,', 'role', '{id}', NULL, 'Fill search box with the ID from AI response', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 4, 'click', 'button', 'role', 'Search Results', NULL, 'Click the Search Results button', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 5, 'click', 'table.table-striped td a', NULL, NULL, NULL, 'Click the first result in the table', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 6, 'wait', NULL, NULL, 'networkidle', NULL, 'Wait for page to load completely', '00000000-0000-0000-0000-000000000000'),

@@ -74,12 +74,7 @@ export type MarketInsight = {
     | "resource_needs"
     | "competitive_analysis"
     | "market_overview";
-  title: string;
-  description?: string;
-  insights: string[]; // Array of insight strings
-  source_data?: string;
-  confidence_level?: "low" | "medium" | "high";
-  actionable?: boolean;
+  insight_text: string; // Individual insight string
   created_at?: Date;
   updated_at?: Date;
   created_by?: string;
