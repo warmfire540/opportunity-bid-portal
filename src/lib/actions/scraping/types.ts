@@ -1,3 +1,6 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Browser, Page } from "playwright";
+
 export type StepType = "playwright" | "ai_prompt" | "create_opportunity";
 
 export type PlaywrightStep = {
@@ -112,9 +115,9 @@ export type StepExecutionResult = {
 };
 
 export type BrowserSession = {
-  browser: any;
-  page: any;
-  supabase: any;
+  browser: Browser;
+  page: Page;
+  supabase: SupabaseClient;
   startTime: number;
   previousStepResults?: StepExecutionResult[];
 };

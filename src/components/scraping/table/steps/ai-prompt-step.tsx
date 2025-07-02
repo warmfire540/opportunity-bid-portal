@@ -36,9 +36,9 @@ export default function AiPromptStep({
   const stepOutputPreview =
     aiResponse !== "" ? (
       <div>
-        <div className="font-medium">
-          {aiResponse.slice(0, 100)}
-          {aiResponse.length > 100 ? "…" : ""}
+        <div className="text-xs text-muted-foreground">
+          {aiResponse.slice(0, 4000)}
+          {aiResponse.length > 4000 ? "…" : ""}
         </div>
         <div className="text-xs text-muted-foreground">AI generated content</div>
       </div>

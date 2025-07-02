@@ -236,7 +236,7 @@ export default function ScrapeConfigurationExpandedContent({
               isLast={index === steps.length - 1}
               hasNextStep={index < steps.length - 1}
               nextStepType={index < steps.length - 1 ? steps[index + 1]?.step_type : undefined}
-              stepResult={result?.stepResults?.[index]}
+              stepResult={result?.stepResults?.[index].result}
             />
           ))}
         </div>

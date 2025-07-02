@@ -10,7 +10,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import type { StepType } from "@lib/actions/scraping";
+import type { StepExecutionResult, StepType } from "@lib/actions/scraping";
 
 import { StepInputBlock } from "./step-input-block";
 import { StepOutputBlock } from "./step-output-block";
@@ -24,7 +24,7 @@ interface StepConnectorProps {
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
   playwrightOutputType?: "file" | "text" | null;
-  stepResult?: any; // Add stepResult to determine actual outputs
+  stepResult?: StepExecutionResult;
 }
 
 export default function StepConnector({
@@ -40,7 +40,7 @@ export default function StepConnector({
 }: Readonly<StepConnectorProps>) {
   const getStepOutputs = () => {
     switch (stepType) {
-      case "playwright":
+      case "playwright": {
         // Determine which outputs are active based on actual results
         const fileName = stepResult?.downloadPath?.split("/").pop();
         const hasFileOutput = fileName != null && fileName !== "";
@@ -62,6 +62,9 @@ export default function StepConnector({
             bgColor: isBeforeExecution || hasFileOutput ? "bg-blue-50" : "bg-gray-50",
             borderColor: isBeforeExecution || hasFileOutput ? "border-blue-200" : "border-gray-200",
             isActive: isBeforeExecution || hasFileOutput,
+            tooltipContent: isBeforeExecution || hasFileOutput 
+              ? stepOutputPreview 
+              : "No file was downloaded in this step",
           },
           {
             icon: <FileText className="h-4 w-4" />,
@@ -72,8 +75,12 @@ export default function StepConnector({
             borderColor:
               isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
             isActive: isBeforeExecution || hasTextOutput,
+            tooltipContent: isBeforeExecution || hasTextOutput 
+              ? stepOutputPreview 
+              : "No text was extracted in this step",
           },
         ];
+      }
       case "ai_prompt":
         return [
           {
@@ -84,9 +91,18 @@ export default function StepConnector({
             bgColor: "bg-purple-50",
             borderColor: "border-purple-200",
             isActive: true,
+            tooltipContent: stepOutputPreview ?? "AI response content",
           },
         ];
-      case "create_opportunity":
+      case "create_opportunity": {
+        const isBeforeExecution = stepResult == null;
+        const hasMarketInsights = stepResult != null && stepResult.success &&
+          stepResult.marketInsights != null &&
+          stepResult.marketInsights.length > 0;
+        const hasOpportunities = stepResult != null && stepResult.success &&
+          stepResult.opportunities != null &&
+          stepResult.opportunities.length > 0;
+        
         return [
           {
             icon: <Briefcase className="h-4 w-4 text-green-600" />,
@@ -95,24 +111,27 @@ export default function StepConnector({
             color: "text-green-600",
             bgColor: "bg-green-50",
             borderColor: "border-green-200",
-            isActive:
-              stepResult?.success === true &&
-              stepResult?.opportunities != null &&
-              stepResult.opportunities.length > 0,
+            isActive: hasOpportunities,
+            tooltipContent: hasOpportunities 
+              ? stepOutputPreview 
+              : "No opportunities were created in this step",
           },
           {
-            icon: <TrendingUp className="h-4 w-4 text-blue-600" />,
+            icon: <TrendingUp className="h-4 w-4" />,
             label: "Market Insights",
             description: "Generated insights",
-            color: "text-blue-600",
-            bgColor: "bg-blue-50",
-            borderColor: "border-blue-200",
-            isActive:
-              stepResult?.success === true &&
-              stepResult?.marketInsights != null &&
-              stepResult.marketInsights.length > 0,
+            color: isBeforeExecution || hasMarketInsights ? "text-blue-600" : "text-gray-400",
+            bgColor: isBeforeExecution || hasMarketInsights ? "bg-blue-50" : "bg-gray-50",
+            borderColor: isBeforeExecution || hasMarketInsights ? "border-blue-200" : "border-gray-200",
+            isActive: isBeforeExecution || hasMarketInsights,
+            tooltipContent: isBeforeExecution 
+              ? "Market insights will be generated here" 
+              : hasMarketInsights 
+                ? stepOutputPreview 
+                : "No market insights were generated in this step",
           },
         ];
+      }
       default:
         return null;
     }
@@ -206,7 +225,7 @@ export default function StepConnector({
                 bgColor={output.bgColor}
                 borderColor={output.borderColor}
                 glow={output.isActive && stepOutputGlow}
-                tooltipContent={output.isActive ? stepOutputPreview : undefined}
+                tooltipContent={output.tooltipContent ?? (output.isActive ? stepOutputPreview : "No data available")}
               />
             ))}
           </div>
