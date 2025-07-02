@@ -1,3 +1,8 @@
+import { ChevronRight, TrendingUp, Target, Users, BarChart3, Lightbulb, Calendar, CheckCircle, AlertTriangle, Zap } from "lucide-react";
+
+import { Badge } from "@components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
+import { Separator } from "@components/ui/separator";
 import { getMarketInsights } from "@lib/actions/insights";
 
 export default async function InsightsPage() {
@@ -15,49 +20,242 @@ export default async function InsightsPage() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="mb-6 text-2xl font-bold">Market Insights</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border text-sm">
-          <thead>
-            <tr className="bg-muted">
-              <th className="px-4 py-2 text-left">Title</th>
-              <th className="px-4 py-2 text-left">Type</th>
-              <th className="px-4 py-2 text-left">Confidence</th>
-              <th className="px-4 py-2 text-left">Created</th>
-              <th className="px-4 py-2 text-left">Insights</th>
-            </tr>
-          </thead>
-          <tbody>
-            {insights.map((insight) => (
-              <tr key={insight.id} className="border-t">
-                <td className="px-4 py-2 font-medium">{insight.title}</td>
-                <td className="px-4 py-2 capitalize">{insight.insight_type.replace(/_/g, " ")}</td>
-                <td className="px-4 py-2 capitalize">{insight.confidence_level ?? "-"}</td>
-                <td className="px-4 py-2">
-                  {insight.created_at != null
-                    ? new Date(insight.created_at).toLocaleDateString()
-                    : "-"}
-                </td>
-                <td className="px-4 py-2">
-                  {Array.isArray(insight.insights)
-                    ? insight.insights.slice(0, 2).map((i, idx) => (
-                        <div key={idx} className="mb-1">
-                          • {i}
-                        </div>
-                      ))
-                    : "-"}
-                  {Array.isArray(insight.insights) && insight.insights.length > 2 && (
-                    <div className="text-xs text-muted-foreground">
-                      ...and {insight.insights.length - 2} more
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Market Insights</h1>
+          <p className="text-muted-foreground">
+            Strategic insights and market intelligence from your data analysis
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-sm">
+            {insights.length} insights
+          </Badge>
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {insights.map((insight) => (
+          <InsightCard key={insight.id} insight={insight} />
+        ))}
       </div>
     </div>
+  );
+}
+
+function InsightCard({ insight }: { insight: any }) {
+  const getInsightTypeIcon = (type: string) => {
+    switch (type) {
+      case "trends":
+        return <TrendingUp className="h-4 w-4" />;
+      case "prioritization":
+        return <Target className="h-4 w-4" />;
+      case "resource_needs":
+        return <Users className="h-4 w-4" />;
+      case "competitive_analysis":
+        return <BarChart3 className="h-4 w-4" />;
+      case "market_overview":
+        return <Lightbulb className="h-4 w-4" />;
+      default:
+        return <Lightbulb className="h-4 w-4" />;
+    }
+  };
+
+  const getInsightTypeColor = (type: string) => {
+    switch (type) {
+      case "trends":
+        return "bg-blue-100 text-blue-800";
+      case "prioritization":
+        return "bg-green-100 text-green-800";
+      case "resource_needs":
+        return "bg-purple-100 text-purple-800";
+      case "competitive_analysis":
+        return "bg-orange-100 text-orange-800";
+      case "market_overview":
+        return "bg-indigo-100 text-indigo-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getConfidenceColor = (confidence: string) => {
+    switch (confidence) {
+      case "high":
+        return "bg-green-100 text-green-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const formatInsightType = (type: string) => {
+    return type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
+  return (
+    <Card className="group hover:shadow-lg transition-all duration-200">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+              {insight.title}
+            </CardTitle>
+            <CardDescription className="mt-1 line-clamp-1">
+              {insight.description ?? "Market intelligence insight"}
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-1">
+            {insight.actionable && (
+              <Badge variant="outline" className="text-xs">
+                <Zap className="h-3 w-3 mr-1" />
+                Actionable
+              </Badge>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {/* Type and Confidence */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge className={getInsightTypeColor(insight.insight_type)}>
+            {getInsightTypeIcon(insight.insight_type)}
+            <span className="ml-1">{formatInsightType(insight.insight_type)}</span>
+          </Badge>
+          {insight.confidence_level && (
+            <Badge variant="outline" className={getConfidenceColor(insight.confidence_level)}>
+              {insight.confidence_level} confidence
+            </Badge>
+          )}
+        </div>
+
+        {/* Key Insights Preview */}
+        {insight.insights && insight.insights.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Key Insights</span>
+            </div>
+            <div className="space-y-1">
+              {insight.insights.slice(0, 2).map((insightText: string, index: number) => (
+                <p key={index} className="text-sm text-muted-foreground line-clamp-2">
+                  • {insightText}
+                </p>
+              ))}
+              {insight.insights.length > 2 && (
+                <p className="text-xs text-muted-foreground">
+                  ...and {insight.insights.length - 2} more insights
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Metadata */}
+        <div className="space-y-2 text-sm">
+          {insight.created_at && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span className="font-medium">Created:</span>
+              <span>{new Date(insight.created_at).toLocaleDateString()}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Expandable Details */}
+        <InsightDetails insight={insight} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function InsightDetails({ insight }: { insight: any }) {
+  return (
+    <details className="group">
+      <summary className="flex items-center gap-2 cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+        <ChevronRight className="h-4 w-4 group-open:rotate-90 transition-transform" />
+        View Full Details
+      </summary>
+      
+      <div className="mt-4 space-y-4 pt-4 border-t">
+        {/* Description */}
+        {insight.description && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">Description</h4>
+            <p className="text-sm text-muted-foreground">
+              {insight.description}
+            </p>
+          </div>
+        )}
+
+        {/* All Insights */}
+        {insight.insights && insight.insights.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">All Insights</h4>
+            <ul className="space-y-2">
+              {insight.insights.map((insightText: string, index: number) => (
+                <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                  <span className="text-primary mt-1">•</span>
+                  <span>{insightText}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Source Data */}
+        {insight.source_data && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">Source Data</h4>
+            <p className="text-sm text-muted-foreground">{insight.source_data}</p>
+          </div>
+        )}
+
+        {/* Actionable Status */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">Actionability</h4>
+          <div className="flex items-center gap-2">
+            {insight.actionable ? (
+              <>
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-green-600 font-medium">Actionable</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <span className="text-sm text-yellow-600 font-medium">Informational</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Configuration Reference */}
+        {insight.scrape_configuration_id && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">Configuration</h4>
+            <div className="text-sm text-muted-foreground">
+              <code className="bg-muted px-2 py-1 rounded text-xs">
+                {insight.scrape_configuration_id}
+              </code>
+            </div>
+          </div>
+        )}
+
+        {/* Metadata */}
+        <Separator />
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="space-y-1">
+            <div>Created: {insight.created_at ? new Date(insight.created_at).toLocaleDateString() : "Unknown"}</div>
+            {insight.updated_at && insight.updated_at !== insight.created_at && (
+              <div>Updated: {new Date(insight.updated_at).toLocaleDateString()}</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </details>
   );
 }

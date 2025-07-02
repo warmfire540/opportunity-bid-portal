@@ -169,30 +169,49 @@ function createOpportunityFromData(
 ): Partial<Opportunity> | null {
   try {
     const opportunity: Partial<Opportunity> = {
-      title: extractValue(data, config.title_template) || "Untitled Opportunity",
+      title: extractValue(data, config.title_template) ?? "Untitled Opportunity",
       description: config.description_template
         ? extractValue(data, config.description_template)
         : undefined,
-      source: extractValue(data, config.source_template) || sourceUrl,
+      source: extractValue(data, config.source_template) ?? sourceUrl,
       status: "new",
-      bid_number: config.bid_number_field ? extractValue(data, config.bid_number_field) : undefined,
-      agency: config.agency_field ? extractValue(data, config.agency_field) : undefined,
-      due_date: config.due_date_field
-        ? parseDate(extractValue(data, config.due_date_field))
+      bid_number:
+        config.bid_number_field != null ? extractValue(data, config.bid_number_field) : undefined,
+      agency: config.agency_field != null ? extractValue(data, config.agency_field) : undefined,
+      due_date:
+        config.due_date_field != null
+          ? parseDate(extractValue(data, config.due_date_field))
+          : undefined,
+      estimated_value:
+        config.estimated_value_field != null
+          ? parseNumber(extractValue(data, config.estimated_value_field))
+          : undefined,
+      commodity_codes:
+        config.commodity_codes_field != null
+          ? parseArray(extractValue(data, config.commodity_codes_field))
+          : undefined,
+      contact_info:
+        config.contact_info_template != null
+          ? extractContactInfo(data, config.contact_info_template)
+          : undefined,
+      requirements:
+        config.requirements_template != null
+          ? extractValue(data, config.requirements_template)
+          : undefined,
+      tags: config.tags_template != null ? extractTags(data, config.tags_template) : undefined,
+      // AI analysis fields
+      strategic_fit: data.strategicFit ? data.strategicFit.toLowerCase() : undefined,
+      go_no_go_decision: data.goNoGoDecision,
+      key_messaging_points: Array.isArray(data.keyMessagingPoints)
+        ? data.keyMessagingPoints
         : undefined,
-      estimated_value: config.estimated_value_field
-        ? parseNumber(extractValue(data, config.estimated_value_field))
+      risk_assessment: data.riskAssessment,
+      win_probability: data.winProbability,
+      required_certifications: Array.isArray(data.requiredCertifications)
+        ? data.requiredCertifications
         : undefined,
-      commodity_codes: config.commodity_codes_field
-        ? parseArray(extractValue(data, config.commodity_codes_field))
-        : undefined,
-      contact_info: config.contact_info_template
-        ? extractContactInfo(data, config.contact_info_template)
-        : undefined,
-      requirements: config.requirements_template
-        ? extractValue(data, config.requirements_template)
-        : undefined,
-      tags: config.tags_template ? extractTags(data, config.tags_template) : undefined,
+      keywords: Array.isArray(data.keywords) ? data.keywords : undefined,
+      service_areas: Array.isArray(data.serviceAreas) ? data.serviceAreas : undefined,
     };
 
     return opportunity;

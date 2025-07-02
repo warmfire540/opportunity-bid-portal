@@ -231,13 +231,13 @@ INSERT INTO create_opportunity_steps (
     'ef0ed781-3438-4ea9-b549-ddf5f397e5f3',
     '{{title}}',
     '{{description}}',
-    '{{source_url}}',
+    'https://vendor.myfloridamarketplace.com/search/bids/detail/{{bidNumber}}',
     'bidNumber',
     'agency',
     'deadline',
     'estimatedValue',
     'commodityCodes',
-    'requirements',
+    'strategicFit',
     ARRAY['leadership', 'development', 'consulting'],
     '00000000-0000-0000-0000-000000000000'
 );

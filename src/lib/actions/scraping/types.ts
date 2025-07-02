@@ -50,6 +50,15 @@ export type Opportunity = {
   requirements?: string;
   attachments?: string[];
   tags?: string[];
+  // AI analysis fields
+  strategic_fit?: "low" | "medium" | "high";
+  go_no_go_decision?: string;
+  key_messaging_points?: string[];
+  risk_assessment?: string;
+  win_probability?: string;
+  required_certifications?: string[];
+  keywords?: string[];
+  service_areas?: string[];
   created_at?: Date;
   updated_at?: Date;
   created_by?: string;

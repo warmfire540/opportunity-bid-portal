@@ -20,6 +20,15 @@ CREATE TABLE IF NOT EXISTS opportunities (
     requirements TEXT, -- Key requirements or qualifications
     attachments TEXT[], -- Array of attachment URLs or file paths
     tags TEXT[], -- Array of tags for categorization
+    -- AI analysis fields
+    strategic_fit TEXT CHECK (strategic_fit IN ('low', 'medium', 'high')),
+    go_no_go_decision TEXT,
+    key_messaging_points JSONB, -- Array of messaging points
+    risk_assessment TEXT,
+    win_probability TEXT,
+    required_certifications JSONB, -- Array of required certifications
+    keywords JSONB, -- Array of keywords
+    service_areas JSONB, -- Array of service areas
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     created_by UUID REFERENCES auth.users(id),
@@ -31,6 +40,9 @@ CREATE INDEX IF NOT EXISTS idx_opportunities_status ON opportunities(status);
 CREATE INDEX IF NOT EXISTS idx_opportunities_due_date ON opportunities(due_date);
 CREATE INDEX IF NOT EXISTS idx_opportunities_created_by ON opportunities(created_by);
 CREATE INDEX IF NOT EXISTS idx_opportunities_source ON opportunities(source);
+CREATE INDEX IF NOT EXISTS idx_opportunities_strategic_fit ON opportunities(strategic_fit);
+CREATE INDEX IF NOT EXISTS idx_opportunities_win_probability ON opportunities(win_probability);
+CREATE INDEX IF NOT EXISTS idx_opportunities_go_no_go_decision ON opportunities(go_no_go_decision);
 
 -- Enable RLS
 ALTER TABLE opportunities ENABLE ROW LEVEL SECURITY;

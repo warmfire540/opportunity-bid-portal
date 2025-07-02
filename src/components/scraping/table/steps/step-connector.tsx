@@ -62,9 +62,10 @@ export default function StepConnector({
             bgColor: isBeforeExecution || hasFileOutput ? "bg-blue-50" : "bg-gray-50",
             borderColor: isBeforeExecution || hasFileOutput ? "border-blue-200" : "border-gray-200",
             isActive: isBeforeExecution || hasFileOutput,
-            tooltipContent: isBeforeExecution || hasFileOutput 
-              ? stepOutputPreview 
-              : "No file was downloaded in this step",
+            tooltipContent:
+              isBeforeExecution || hasFileOutput
+                ? stepOutputPreview
+                : "No file was downloaded in this step",
           },
           {
             icon: <FileText className="h-4 w-4" />,
@@ -75,9 +76,10 @@ export default function StepConnector({
             borderColor:
               isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
             isActive: isBeforeExecution || hasTextOutput,
-            tooltipContent: isBeforeExecution || hasTextOutput 
-              ? stepOutputPreview 
-              : "No text was extracted in this step",
+            tooltipContent:
+              isBeforeExecution || hasTextOutput
+                ? stepOutputPreview
+                : "No text was extracted in this step",
           },
         ];
       }
@@ -96,13 +98,17 @@ export default function StepConnector({
         ];
       case "create_opportunity": {
         const isBeforeExecution = stepResult == null;
-        const hasMarketInsights = stepResult != null && stepResult.success &&
+        const hasMarketInsights =
+          stepResult != null &&
+          stepResult.success &&
           stepResult.marketInsights != null &&
           stepResult.marketInsights.length > 0;
-        const hasOpportunities = stepResult != null && stepResult.success &&
+        const hasOpportunities =
+          stepResult != null &&
+          stepResult.success &&
           stepResult.opportunities != null &&
           stepResult.opportunities.length > 0;
-        
+
         return [
           {
             icon: <Briefcase className="h-4 w-4 text-green-600" />,
@@ -112,8 +118,8 @@ export default function StepConnector({
             bgColor: "bg-green-50",
             borderColor: "border-green-200",
             isActive: hasOpportunities,
-            tooltipContent: hasOpportunities 
-              ? stepOutputPreview 
+            tooltipContent: hasOpportunities
+              ? stepOutputPreview
               : "No opportunities were created in this step",
           },
           {
@@ -122,12 +128,13 @@ export default function StepConnector({
             description: "Generated insights",
             color: isBeforeExecution || hasMarketInsights ? "text-blue-600" : "text-gray-400",
             bgColor: isBeforeExecution || hasMarketInsights ? "bg-blue-50" : "bg-gray-50",
-            borderColor: isBeforeExecution || hasMarketInsights ? "border-blue-200" : "border-gray-200",
+            borderColor:
+              isBeforeExecution || hasMarketInsights ? "border-blue-200" : "border-gray-200",
             isActive: isBeforeExecution || hasMarketInsights,
-            tooltipContent: isBeforeExecution 
-              ? "Market insights will be generated here" 
-              : hasMarketInsights 
-                ? stepOutputPreview 
+            tooltipContent: isBeforeExecution
+              ? "Market insights will be generated here"
+              : hasMarketInsights
+                ? stepOutputPreview
                 : "No market insights were generated in this step",
           },
         ];
@@ -225,7 +232,10 @@ export default function StepConnector({
                 bgColor={output.bgColor}
                 borderColor={output.borderColor}
                 glow={output.isActive && stepOutputGlow}
-                tooltipContent={output.tooltipContent ?? (output.isActive ? stepOutputPreview : "No data available")}
+                tooltipContent={
+                  output.tooltipContent ??
+                  (output.isActive ? stepOutputPreview : "No data available")
+                }
               />
             ))}
           </div>
