@@ -91,6 +91,7 @@ export default function PlaywrightStep({
       stepOutputPreview={stepOutputPreview}
       stepOutputGlow={stepOutputGlow}
       playwrightOutputType={playwrightOutputType}
+      stepResult={stepResult}
     >
       <div className="space-y-4">
         <ScrapeConfigurationSteps subSteps={subSteps} />

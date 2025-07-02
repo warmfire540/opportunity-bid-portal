@@ -16,7 +16,7 @@ The step connections feature provides visual feedback showing how data flows bet
 
 #### AI Prompt Analysis Step (prompt_steps)
 
-- **Input**: Downloaded File (optional, when preceded by playwright step)
+- **Input**: Downloaded File (optional, when preceded by playwright step) OR Text Content (optional, when preceded by playwright step with text extraction)
 - **Output**: Analysis Results (AI-generated insights)
 - **Visual**: Green badge with message icon
 - **Description**: "AI-generated insights"
@@ -50,6 +50,14 @@ Step 1: Playwright File Download
 │   ↓ (connection line)
 Step 2: AI Prompt Analysis
 ├── Input: Downloaded File (from previous step)
+├── Output: Analysis Results
+│   ↓ (connection line)
+Step 3: Playwright Text Extraction
+├── Input: URLs from previous step
+├── Output: Text Content
+│   ↓ (connection line)
+Step 4: AI Prompt Analysis
+├── Input: Text Content (from previous step)
 └── Output: Analysis Results
 ```
 

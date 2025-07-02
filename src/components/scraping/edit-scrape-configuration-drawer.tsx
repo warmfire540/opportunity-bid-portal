@@ -22,7 +22,7 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 
-import { PlaywrightStep as PlaywrightStepComponent, AiPromptStep } from "./editor/steps";
+import { PlaywrightStep as PlaywrightStepComponent } from "./editor/steps";
 import StepConnector from "./table/steps/step-connector";
 
 type Props = {
@@ -33,7 +33,7 @@ type Props = {
 };
 
 const STEP_TYPES = [
-  { value: "playwright", label: "Playwright File Download" },
+  { value: "playwright", label: "Playwright Web Scraping" },
   { value: "ai_prompt", label: "AI Prompt" },
   { value: "links_analysis", label: "Links Analysis" },
 ];
@@ -122,7 +122,7 @@ export default function EditScrapeConfigurationDrawer({
     e.preventDefault();
 
     // For edit mode, we need an ID
-    if (mode === "edit" && !formData.id) return;
+    if (mode === "edit" && formData.id == null) return;
 
     // Basic validation for create mode
     if (mode === "create") {
@@ -300,6 +300,12 @@ export default function EditScrapeConfigurationDrawer({
                     isLast={false}
                     hasNextStep={true}
                     nextStepType={formData.steps[stepIndex + 1]?.step_type}
+                    playwrightOutputType={
+                      step.step_type === "playwright"
+                        ? null // Show both outputs as active in editor mode
+                        : null
+                    }
+                    stepResult={undefined} // No step result in edit mode
                   />
                 )}
               </div>

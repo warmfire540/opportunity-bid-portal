@@ -3,8 +3,8 @@
 import { ArrowDown, Download, FileText, MessageSquare, ExternalLink } from "lucide-react";
 
 import type { StepType } from "@lib/actions/scraping";
-import { cn } from "@lib/utils";
 
+import { StepInputBlock } from "./step-input-block";
 import { StepOutputBlock } from "./step-output-block";
 
 interface StepConnectorProps {
@@ -15,7 +15,8 @@ interface StepConnectorProps {
   nextStepType?: StepType;
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
-  playwrightOutputType?: "file" | "text";
+  playwrightOutputType?: "file" | "text" | null;
+  stepResult?: any; // Add stepResult to determine actual outputs
 }
 
 export default function StepConnector({
@@ -27,96 +28,140 @@ export default function StepConnector({
   stepOutputPreview,
   stepOutputGlow,
   playwrightOutputType,
+  stepResult,
 }: Readonly<StepConnectorProps>) {
-  const getStepOutput = () => {
+  const getStepOutputs = () => {
     switch (stepType) {
       case "playwright":
-        if (playwrightOutputType === "text") {
-          return {
-            icon: <FileText className="h-4 w-4 text-green-600" />,
-            label: "Extracted Text",
-            description: "Text content extracted",
-            color: "text-green-600",
-            bgColor: "bg-green-50",
-            borderColor: "border-green-200",
-          };
-        } else {
-          return {
-            icon: <Download className="h-4 w-4 text-blue-600" />,
+        // Determine which outputs are active based on actual results
+        const fileName = stepResult?.downloadPath?.split("/").pop();
+        const hasFileOutput = fileName != null && fileName !== "";
+        const hasTextResults = stepResult?.textResults != null && Array.isArray(stepResult.textResults) && stepResult.textResults.length > 0;
+        const hasTextOutput = hasTextResults;
+        
+        // If no stepResult (before execution or editor mode), show both as active
+        const isBeforeExecution = stepResult == null;
+        
+        return [
+          {
+            icon: <Download className="h-4 w-4" />,
             label: "Downloaded File",
             description: "File saved to storage",
-            color: "text-blue-600",
-            bgColor: "bg-blue-50",
-            borderColor: "border-blue-200",
-          };
-        }
+            color: isBeforeExecution || hasFileOutput ? "text-blue-600" : "text-gray-400",
+            bgColor: isBeforeExecution || hasFileOutput ? "bg-blue-50" : "bg-gray-50",
+            borderColor: isBeforeExecution || hasFileOutput ? "border-blue-200" : "border-gray-200",
+            isActive: isBeforeExecution || hasFileOutput,
+          },
+          {
+            icon: <FileText className="h-4 w-4" />,
+            label: "Extracted Text",
+            description: "Text content extracted",
+            color: isBeforeExecution || hasTextOutput ? "text-green-600" : "text-gray-400",
+            bgColor: isBeforeExecution || hasTextOutput ? "bg-green-50" : "bg-gray-50",
+            borderColor: isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
+            isActive: isBeforeExecution || hasTextOutput,
+          },
+        ];
       case "ai_prompt":
-        return {
-          icon: <MessageSquare className="h-4 w-4 text-purple-600" />,
-          label: "AI Response",
-          description: "Generated content",
-          color: "text-purple-600",
-          bgColor: "bg-purple-50",
-          borderColor: "border-purple-200",
-        };
+        return [
+          {
+            icon: <MessageSquare className="h-4 w-4 text-purple-600" />,
+            label: "AI Response",
+            description: "Generated content",
+            color: "text-purple-600",
+            bgColor: "bg-purple-50",
+            borderColor: "border-purple-200",
+            isActive: true,
+          },
+        ];
       case "links_analysis":
-        return {
-          icon: <FileText className="h-4 w-4 text-orange-600" />,
-          label: "Link Analysis",
-          description: "Extracted links and data",
-          color: "text-orange-600",
-          bgColor: "bg-orange-50",
-          borderColor: "border-orange-200",
-        };
+        return [
+          {
+            icon: <FileText className="h-4 w-4 text-orange-600" />,
+            label: "Link Analysis",
+            description: "Extracted links and data",
+            color: "text-orange-600",
+            bgColor: "bg-orange-50",
+            borderColor: "border-orange-200",
+            isActive: true,
+          },
+        ];
       default:
         return null;
     }
   };
 
-  const getStepInput = () => {
+  const getStepInputs = () => {
     if (nextStepType == null) return null;
 
     switch (nextStepType) {
       case "playwright":
-        return {
-          icon: <ExternalLink className="h-4 w-4 text-blue-600" />,
-          label: "URLs",
-          description: "Optional URL input",
-          color: "text-blue-600",
-          bgColor: "bg-blue-50",
-          borderColor: "border-blue-200",
-        };
+        return [
+          {
+            icon: <ExternalLink className="h-4 w-4 text-blue-600" />,
+            label: "URLs",
+            description: "Optional URL input",
+            color: "text-blue-600",
+            bgColor: "bg-blue-50",
+            borderColor: "border-blue-200",
+            isActive: true,
+          },
+        ];
       case "ai_prompt":
-        return {
-          icon: <FileText className="h-4 w-4 text-gray-600" />,
-          label: "File Input",
-          description: "Optional file input",
-          color: "text-gray-600",
-          bgColor: "bg-gray-50",
-          borderColor: "border-gray-200",
-        };
+        // Determine which inputs are active based on previous step output
+        const hasFileOutput = stepType === "playwright" && playwrightOutputType !== "text";
+        const hasTextOutput = stepType === "playwright" && playwrightOutputType === "text";
+        
+        // If no playwrightOutputType (before execution or editor mode), show both as active
+        const isBeforeExecution = playwrightOutputType == null;
+        
+        return [
+          {
+            icon: <Download className="h-4 w-4" />,
+            label: "File Input",
+            description: "Downloaded file content",
+            color: isBeforeExecution || hasFileOutput ? "text-blue-600" : "text-gray-400",
+            bgColor: isBeforeExecution || hasFileOutput ? "bg-blue-50" : "bg-gray-50",
+            borderColor: isBeforeExecution || hasFileOutput ? "border-blue-200" : "border-gray-200",
+            isActive: isBeforeExecution || hasFileOutput,
+          },
+          {
+            icon: <FileText className="h-4 w-4" />,
+            label: "Text Input",
+            description: "Extracted text content",
+            color: isBeforeExecution || hasTextOutput ? "text-green-600" : "text-gray-400",
+            bgColor: isBeforeExecution || hasTextOutput ? "bg-green-50" : "bg-gray-50",
+            borderColor: isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
+            isActive: isBeforeExecution || hasTextOutput,
+          },
+        ];
       default:
         return null;
     }
   };
 
-  const output = getStepOutput();
-  const input = getStepInput();
+  const outputs = getStepOutputs();
+  const inputs = getStepInputs();
 
   if (isLast) {
     return (
       <div className="flex flex-col items-center">
-        {output != null && (
-          <StepOutputBlock
-            icon={output.icon}
-            label={output.label}
-            description={output.description}
-            color={output.color}
-            bgColor={output.bgColor}
-            borderColor={output.borderColor}
-            glow={stepOutputGlow}
-            tooltipContent={stepOutputPreview}
-          />
+        {outputs != null && (
+          <div className="flex gap-2">
+            {outputs.map((output, index) => (
+              <StepOutputBlock
+                key={index}
+                icon={output.icon}
+                label={output.label}
+                description={output.description}
+                color={output.color}
+                bgColor={output.bgColor}
+                borderColor={output.borderColor}
+                glow={output.isActive && stepOutputGlow}
+                tooltipContent={output.isActive ? stepOutputPreview : undefined}
+              />
+            ))}
+          </div>
         )}
       </div>
     );
@@ -124,19 +169,22 @@ export default function StepConnector({
 
   return (
     <div className="flex flex-col items-center">
-      {/* Step Output */}
-      {output != null && (
-        <div className="mb-2">
-          <StepOutputBlock
-            icon={output.icon}
-            label={output.label}
-            description={output.description}
-            color={output.color}
-            bgColor={output.bgColor}
-            borderColor={output.borderColor}
-            glow={stepOutputGlow}
-            tooltipContent={stepOutputPreview}
-          />
+      {/* Step Outputs */}
+      {outputs != null && (
+        <div className="mb-2 flex gap-2">
+          {outputs.map((output, index) => (
+            <StepOutputBlock
+              key={index}
+              icon={output.icon}
+              label={output.label}
+              description={output.description}
+              color={output.color}
+              bgColor={output.bgColor}
+              borderColor={output.borderColor}
+              glow={output.isActive && stepOutputGlow}
+              tooltipContent={output.isActive ? stepOutputPreview : "No data available"}
+            />
+          ))}
         </div>
       )}
 
@@ -149,20 +197,22 @@ export default function StepConnector({
         </div>
       )}
 
-      {/* Next Step Input */}
-      {input != null && hasNextStep && (
-        <div
-          className={cn(
-            "mt-2 flex items-center gap-2 rounded-lg border p-2",
-            input.bgColor,
-            input.borderColor
-          )}
-        >
-          {input.icon}
-          <div className="text-xs">
-            <div className={cn("font-medium", input.color)}>{input.label}</div>
-            <div className="text-muted-foreground">{input.description}</div>
-          </div>
+      {/* Next Step Inputs */}
+      {inputs != null && hasNextStep && (
+        <div className="mt-2 flex gap-2">
+          {inputs.map((input, index) => (
+            <StepInputBlock
+              key={index}
+              icon={input.icon}
+              label={input.label}
+              description={input.description}
+              color={input.color}
+              bgColor={input.bgColor}
+              borderColor={input.borderColor}
+              isActive={input.isActive}
+              tooltipContent={input.isActive ? "Data available from previous step" : "No data available from previous step"}
+            />
+          ))}
         </div>
       )}
     </div>

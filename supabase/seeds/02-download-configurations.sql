@@ -51,6 +51,19 @@ INSERT INTO scrape_download_steps (
     '00000000-0000-0000-0000-000000000000'
 );
 
+-- Insert scrape download step (ai_prompt type) - Step 4 (AI Analysis of Text Content)
+INSERT INTO scrape_download_steps (
+    id, configuration_id, step_order, step_type, name, description, created_by
+) VALUES (
+    'c8f3d7b0-1ef2-45ee-832d-519ff33f4d5f',
+    '7d1bee87-9cef-43cc-810b-297ee11f2b3e',
+    4,
+    'ai_prompt',
+    'Analyze Extracted Bid Content',
+    'Use AI to analyze the extracted bid details and identify key opportunities',
+    '00000000-0000-0000-0000-000000000000'
+);
+
 -- Insert playwright steps for the scrape download step
 INSERT INTO playwright_steps (
     scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
@@ -105,6 +118,64 @@ Return ONLY a JSON array of links in this exact format:
 
 Do not include any other text, analysis, or formatting. Just the JSON array.',
     ARRAY['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333'],
+    '00000000-0000-0000-0000-000000000000'
+);
+
+-- Insert prompt step for Step 4 (AI Analysis of Text Content)
+INSERT INTO prompt_steps (
+    scrape_download_step_id, prompt, storage_ids, created_by
+) VALUES (
+    'c8f3d7b0-1ef2-45ee-832d-519ff33f4d5f',
+    'As a CEO of a leadership development and consulting company, analyze this Request for Proposal and provide strategic insights for our bidding approach:
+
+## BIDDING STRATEGY ANALYSIS
+
+For the RFP, evaluate:
+
+**1. Strategic Fit Assessment**
+- How well does this RFP align with our core leadership development services?
+- Which of our key service areas (executive coaching, team development, organizational change, strategic planning) are most relevant?
+- What is the potential for long-term relationship building vs. one-time project?
+
+**2. Competitive Positioning**
+- What unique value propositions should we emphasize?
+- How can we differentiate from typical government contractors?
+- What leadership expertise gaps might exist in the current vendor pool?
+
+**3. Keyword & Requirements Alignment**
+- Identify leadership-related keywords and requirements that match our expertise
+- Highlight any specific leadership competencies, certifications, or methodologies mentioned
+- Note any organizational development, change management, or strategic planning elements
+
+**4. Bidding Recommendations**
+- Recommended approach: Full bid, joint venture, or pass?
+- Key differentiators to emphasize in our proposal
+- Potential partners or subcontractors to consider
+- Risk factors and mitigation strategies
+
+**5. Resource & Timeline Assessment**
+- Estimated effort level (Low/Medium/High) and why
+- Key personnel needed for successful delivery
+- Timeline feasibility and potential conflicts
+- Required certifications or qualifications
+
+## OVERALL STRATEGIC INSIGHTS
+
+- **Market Trends**: What patterns emerge about leadership development needs in Florida government?
+- **Opportunity Prioritization**: Rank these RFPs by strategic value and win probability
+- **Resource Planning**: What capabilities should we develop or strengthen?
+- **Relationship Building**: Which agencies show recurring leadership development needs?
+
+## ACTIONABLE RECOMMENDATIONS
+
+For each RFP, provide:
+- **Go/No-Go Decision** with clear rationale
+- **3-5 Key Messaging Points** for our proposal
+- **Risk Assessment** (Low/Medium/High) with specific concerns
+- **Estimated Win Probability** (Low/Medium/High) with reasoning
+
+Focus on insights that help us make strategic decisions about where to invest our bidding resources and how to position ourselves as the premier leadership development partner for Florida government agencies.',
+    NULL,
     '00000000-0000-0000-0000-000000000000'
 );
 

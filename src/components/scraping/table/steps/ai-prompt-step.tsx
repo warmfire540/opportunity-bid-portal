@@ -63,6 +63,7 @@ export default function AiPromptStep({
       nextStepType={nextStepType}
       stepOutputPreview={stepOutputPreview}
       stepOutputGlow={stepOutputGlow}
+      stepResult={stepResult}
     >
       <div className="space-y-4">
         {step.ai_prompt_data?.map((prompt, index) => (

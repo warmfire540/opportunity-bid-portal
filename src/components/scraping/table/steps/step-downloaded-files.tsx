@@ -30,6 +30,14 @@ export default function StepDownloadedFiles({ configuration, step }: Readonly<Pr
   const [files, setFiles] = useState<DownloadedFile[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
 
+  // Check if this step has any saveDownload actions
+  const hasDownloadActions = step.sub_steps?.some(subStep => subStep.action_type === "saveDownload") ?? false;
+
+  // If no download actions, don't render the component
+  if (!hasDownloadActions) {
+    return null;
+  }
+
   const loadFiles = async () => {
     setIsLoadingFiles(true);
     try {

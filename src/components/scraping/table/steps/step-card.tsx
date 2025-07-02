@@ -25,7 +25,8 @@ interface StepCardProps {
   nextStepType?: StepType;
   stepOutputPreview?: React.ReactNode;
   stepOutputGlow?: boolean;
-  playwrightOutputType?: "file" | "text";
+  playwrightOutputType?: "file" | "text" | null;
+  stepResult?: any;
 }
 
 export default function StepCard({
@@ -46,6 +47,7 @@ export default function StepCard({
   stepOutputPreview,
   stepOutputGlow,
   playwrightOutputType,
+  stepResult,
 }: Readonly<StepCardProps>) {
   return (
     <div className="space-y-4">
@@ -108,6 +110,7 @@ export default function StepCard({
           stepOutputPreview={stepOutputPreview}
           stepOutputGlow={stepOutputGlow}
           playwrightOutputType={playwrightOutputType}
+          stepResult={stepResult}
         />
       )}
     </div>

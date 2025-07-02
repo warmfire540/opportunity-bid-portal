@@ -1,18 +1,20 @@
 "use client";
 
+import type { AiPromptStep } from "@lib/actions/scraping";
+
 import { Label } from "../../../ui/label";
 import { Textarea } from "../../../ui/textarea";
 
 type Props = {
-  ai_prompt_data: string[];
-  onUpdate: (ai_prompt_data: string[]) => void;
+  ai_prompt_data: AiPromptStep[];
+  onUpdate: (ai_prompt_data: AiPromptStep[]) => void;
 };
 
 export default function AiPromptStep({ ai_prompt_data, onUpdate }: Readonly<Props>) {
-  const updatePromptStep = (field: keyof string, value: any) => {
+  const updatePromptStep = (field: keyof AiPromptStep, value: any) => {
     const updatedPromptData = [
       {
-        ...(ai_prompt_data?.[0] ?? { prompt: "" }),
+        ...(ai_prompt_data[0] ?? { prompt: "" }),
         [field]: value,
       },
     ];
@@ -27,7 +29,7 @@ export default function AiPromptStep({ ai_prompt_data, onUpdate }: Readonly<Prop
         <div>
           <Label className="text-sm">Prompt</Label>
           <Textarea
-            value={ai_prompt_data?.[0]?.prompt ?? ""}
+            value={ai_prompt_data[0]?.prompt ?? ""}
             onChange={(e) => updatePromptStep("prompt", e.target.value)}
             placeholder="Enter your AI prompt here..."
             rows={8}

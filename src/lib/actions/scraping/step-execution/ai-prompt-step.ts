@@ -52,11 +52,14 @@ export async function executeAiPromptStep(
 
     console.log(`[STEP EXECUTION] Processing AI prompt: ${aiPrompt.prompt.substring(0, 100)}...`);
 
-    // Collect downloaded files from previous steps
+    // Collect downloaded files and text content from previous steps
     let downloadedFilesContent = "";
+    let textContentFromPreviousSteps = "";
+    
     if (previousStepResults != null && previousStepResults.length > 0) {
       console.log(`[STEP EXECUTION] Found ${previousStepResults.length} previous step results`);
       for (const result of previousStepResults) {
+        // Handle downloaded files
         if (result.downloadPath != null && result.downloadPath !== "") {
           try {
             console.log(`[STEP EXECUTION] Reading file from storage path: ${result.downloadPath}`);
@@ -98,6 +101,18 @@ export async function executeAiPromptStep(
             console.warn(`[STEP EXECUTION] Error reading file from ${result.downloadPath}:`, error);
           }
         }
+        
+        // Handle text content from previous steps
+        if (result.textResults != null && result.textResults.length > 0) {
+          console.log(`[STEP EXECUTION] Found ${result.textResults.length} text results from previous step`);
+          for (let i = 0; i < result.textResults.length; i++) {
+            const textContent = result.textResults[i];
+            textContentFromPreviousSteps += `\n\n--- Text Content ${i + 1} ---\n${textContent}`;
+            console.log(
+              `[STEP EXECUTION] Added text content ${i + 1} (${textContent.length} characters)`
+            );
+          }
+        }
       }
     }
 
@@ -107,6 +122,9 @@ export async function executeAiPromptStep(
     let fullPrompt = `${systemInstructions}\n\n${aiPrompt.prompt}`;
     if (downloadedFilesContent !== "") {
       fullPrompt = `${systemInstructions}\n\n${aiPrompt.prompt}\n\n--- Downloaded Files Content ---${downloadedFilesContent}`;
+    }
+    if (textContentFromPreviousSteps !== "") {
+      fullPrompt = `${fullPrompt}\n\n--- Text Content from Previous Steps ---${textContentFromPreviousSteps}`;
     }
 
     console.log(`[STEP EXECUTION] Sending request to OpenAI...`);
