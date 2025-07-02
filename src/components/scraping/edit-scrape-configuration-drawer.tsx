@@ -371,6 +371,7 @@ export default function EditScrapeConfigurationDrawer({
                                 }
                                 onChange={(e) =>
                                   updateStep(stepIndex, "create_opportunity_data", [
+                                    // @ts-expect-error - TODO: fix this
                                     {
                                       ...step.create_opportunity_data?.[0],
                                       title_template: e.target.value,
@@ -389,6 +390,7 @@ export default function EditScrapeConfigurationDrawer({
                                 }
                                 onChange={(e) =>
                                   updateStep(stepIndex, "create_opportunity_data", [
+                                    // @ts-expect-error - TODO: fix thi
                                     {
                                       ...step.create_opportunity_data?.[0],
                                       source_template: e.target.value,

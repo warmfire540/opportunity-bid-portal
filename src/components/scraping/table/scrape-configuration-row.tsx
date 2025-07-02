@@ -3,8 +3,8 @@
 import { ChevronDown, ChevronRight, ExternalLink, Pause, Play, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import type { ScrapeResult } from "@/src/lib/actions/scraping/types";
-import type { ScrapeConfiguration, StepExecutionResult } from "@lib/actions/scraping";
+import type { ScrapeResult, StepExecutionResponse } from "@/src/lib/actions/scraping/types";
+import type { ScrapeConfiguration } from "@lib/actions/scraping";
 import {
   toggleScrapeConfigurationAction,
   deleteScrapeConfigurationAction,
@@ -63,7 +63,7 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
 
     // Declare variables outside try block so they're accessible in catch
     const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
-    const stepResults: StepExecutionResult[] = [];
+    const stepResults: StepExecutionResponse[] = [];
     const startTime = Date.now();
 
     try {
@@ -91,7 +91,6 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
         setResult({
           completed: false,
           success: true,
-          downloadPath: stepResults[stepResults.length - 1]?.downloadPath,
           downloadUrl: stepResults[stepResults.length - 1]?.downloadUrl,
           executionTimeMs,
           stepsExecuted: steps.length,
@@ -104,7 +103,6 @@ export default function ScrapeConfigurationRow({ configuration, onUpdate }: Read
       setResult({
         completed: true,
         success: true,
-        downloadPath: stepResults[stepResults.length - 1]?.downloadPath,
         downloadUrl: stepResults[stepResults.length - 1]?.downloadUrl,
         executionTimeMs,
         stepsExecuted: steps.length,
