@@ -42,7 +42,7 @@ export default function ManageScrapeConfigurations() {
     <Card>
       <ScrapeConfigurationsHeader onUpdate={handleUpdate} />
       <CardContent>
-        {!configurations || configurations.length === 0 ? (
+        {configurations.length === 0 ? (
           <ScrapeConfigurationsEmpty />
         ) : (
           <ScrapeConfigurationsTable configurations={configurations} onUpdate={handleUpdate} />

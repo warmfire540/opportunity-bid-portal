@@ -1,6 +1,14 @@
 "use client";
 
-import { ArrowDown, Download, FileText, MessageSquare, ExternalLink } from "lucide-react";
+import {
+  ArrowDown,
+  Download,
+  FileText,
+  MessageSquare,
+  ExternalLink,
+  Briefcase,
+  TrendingUp,
+} from "lucide-react";
 
 import type { StepType } from "@lib/actions/scraping";
 
@@ -36,12 +44,15 @@ export default function StepConnector({
         // Determine which outputs are active based on actual results
         const fileName = stepResult?.downloadPath?.split("/").pop();
         const hasFileOutput = fileName != null && fileName !== "";
-        const hasTextResults = stepResult?.textResults != null && Array.isArray(stepResult.textResults) && stepResult.textResults.length > 0;
+        const hasTextResults =
+          stepResult?.textResults != null &&
+          Array.isArray(stepResult.textResults) &&
+          stepResult.textResults.length > 0;
         const hasTextOutput = hasTextResults;
-        
+
         // If no stepResult (before execution or editor mode), show both as active
         const isBeforeExecution = stepResult == null;
-        
+
         return [
           {
             icon: <Download className="h-4 w-4" />,
@@ -58,7 +69,8 @@ export default function StepConnector({
             description: "Text content extracted",
             color: isBeforeExecution || hasTextOutput ? "text-green-600" : "text-gray-400",
             bgColor: isBeforeExecution || hasTextOutput ? "bg-green-50" : "bg-gray-50",
-            borderColor: isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
+            borderColor:
+              isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
             isActive: isBeforeExecution || hasTextOutput,
           },
         ];
@@ -74,16 +86,31 @@ export default function StepConnector({
             isActive: true,
           },
         ];
-      case "links_analysis":
+      case "create_opportunity":
         return [
           {
-            icon: <FileText className="h-4 w-4 text-orange-600" />,
-            label: "Link Analysis",
-            description: "Extracted links and data",
-            color: "text-orange-600",
-            bgColor: "bg-orange-50",
-            borderColor: "border-orange-200",
-            isActive: true,
+            icon: <Briefcase className="h-4 w-4 text-green-600" />,
+            label: "Opportunities",
+            description: "Created opportunities",
+            color: "text-green-600",
+            bgColor: "bg-green-50",
+            borderColor: "border-green-200",
+            isActive:
+              stepResult?.success === true &&
+              stepResult?.opportunities != null &&
+              stepResult.opportunities.length > 0,
+          },
+          {
+            icon: <TrendingUp className="h-4 w-4 text-blue-600" />,
+            label: "Market Insights",
+            description: "Generated insights",
+            color: "text-blue-600",
+            bgColor: "bg-blue-50",
+            borderColor: "border-blue-200",
+            isActive:
+              stepResult?.success === true &&
+              stepResult?.marketInsights != null &&
+              stepResult.marketInsights.length > 0,
           },
         ];
       default:
@@ -111,10 +138,10 @@ export default function StepConnector({
         // Determine which inputs are active based on previous step output
         const hasFileOutput = stepType === "playwright" && playwrightOutputType !== "text";
         const hasTextOutput = stepType === "playwright" && playwrightOutputType === "text";
-        
+
         // If no playwrightOutputType (before execution or editor mode), show both as active
         const isBeforeExecution = playwrightOutputType == null;
-        
+
         return [
           {
             icon: <Download className="h-4 w-4" />,
@@ -131,10 +158,31 @@ export default function StepConnector({
             description: "Extracted text content",
             color: isBeforeExecution || hasTextOutput ? "text-green-600" : "text-gray-400",
             bgColor: isBeforeExecution || hasTextOutput ? "bg-green-50" : "bg-gray-50",
-            borderColor: isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
+            borderColor:
+              isBeforeExecution || hasTextOutput ? "border-green-200" : "border-gray-200",
             isActive: isBeforeExecution || hasTextOutput,
           },
         ];
+      case "create_opportunity": {
+        const hasAiResponse =
+          stepType === "ai_prompt" &&
+          stepResult?.aiResponse != null &&
+          stepResult.aiResponse !== "";
+        // If no stepResult (before execution or editor mode), show as active
+        const isBeforeExecution = stepResult == null;
+        return [
+          {
+            icon: <MessageSquare className="h-4 w-4" />,
+            label: "AI Response",
+            description: "AI-generated opportunity data",
+            color: isBeforeExecution || hasAiResponse ? "text-purple-600" : "text-gray-400",
+            bgColor: isBeforeExecution || hasAiResponse ? "bg-purple-50" : "bg-gray-50",
+            borderColor:
+              isBeforeExecution || hasAiResponse ? "border-purple-200" : "border-gray-200",
+            isActive: isBeforeExecution || hasAiResponse,
+          },
+        ];
+      }
       default:
         return null;
     }
@@ -210,7 +258,11 @@ export default function StepConnector({
               bgColor={input.bgColor}
               borderColor={input.borderColor}
               isActive={input.isActive}
-              tooltipContent={input.isActive ? "Data available from previous step" : "No data available from previous step"}
+              tooltipContent={
+                input.isActive
+                  ? "Data available from previous step"
+                  : "No data available from previous step"
+              }
             />
           ))}
         </div>

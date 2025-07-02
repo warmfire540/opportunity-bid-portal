@@ -5,7 +5,7 @@
 This migration creates the complete schema for RFP scraping and download
 configurations, including:
 - Main configuration tables
-- Step management (playwright, prompt_steps, ai_prompt, links_analysis)
+- Step management (playwright, prompt_steps, ai_prompt, create_opportunity)
 - Storage configuration
 - Functions for data retrieval
 ===============================================================================
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS scrape_download_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     configuration_id UUID REFERENCES scrape_download_configurations(id) ON DELETE CASCADE,
     step_order INTEGER NOT NULL,
-    step_type TEXT NOT NULL CHECK (step_type IN ('playwright', 'ai_prompt', 'links_analysis')),
+    step_type TEXT NOT NULL CHECK (step_type IN ('playwright', 'ai_prompt', 'create_opportunity')),
     name TEXT NOT NULL,
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
@@ -208,6 +208,7 @@ CREATE TABLE IF NOT EXISTS prompt_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     scrape_download_step_id UUID REFERENCES scrape_download_steps(id) ON DELETE CASCADE,
     prompt TEXT NOT NULL,
+    system_prompt TEXT, -- System instructions for AI behavior
     storage_ids TEXT[], -- Array of storage object IDs
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
@@ -320,9 +321,31 @@ BEGIN
                                 json_build_object(
                                     'id', prs.id,
                                     'prompt', prs.prompt,
+                                    'system_prompt', prs.system_prompt,
                                     'storage_ids', prs.storage_ids
                                 )
                             ) FROM prompt_steps prs WHERE prs.scrape_download_step_id = sds.id
+                        )
+                        ELSE NULL
+                    END,
+                    'create_opportunity_data', CASE 
+                        WHEN sds.step_type = 'create_opportunity' THEN (
+                            SELECT json_agg(
+                                json_build_object(
+                                    'id', cos.id,
+                                    'title_template', cos.title_template,
+                                    'description_template', cos.description_template,
+                                    'source_template', cos.source_template,
+                                    'bid_number_field', cos.bid_number_field,
+                                    'agency_field', cos.agency_field,
+                                    'due_date_field', cos.due_date_field,
+                                    'estimated_value_field', cos.estimated_value_field,
+                                    'commodity_codes_field', cos.commodity_codes_field,
+                                    'contact_info_template', cos.contact_info_template,
+                                    'requirements_template', cos.requirements_template,
+                                    'tags_template', cos.tags_template
+                                )
+                            ) FROM create_opportunity_steps cos WHERE cos.scrape_download_step_id = sds.id
                         )
                         ELSE NULL
                     END

@@ -1,7 +1,8 @@
 import type { ScrapeConfiguration } from "@lib/actions/scraping";
 
-import ScrapeConfigurationRow from "./scrape-configuration-row";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "../../ui/table";
+
+import ScrapeConfigurationRow from "./scrape-configuration-row";
 
 type Props = {
   configurations: ScrapeConfiguration[];

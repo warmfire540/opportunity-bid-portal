@@ -7,6 +7,8 @@ import type {
   StepType,
 } from "@lib/actions/scraping";
 
+import CreateOpportunityStep from "./create-opportunity-step";
+
 import { PlaywrightStep, AiPromptStep } from "./index";
 
 type Props = {
@@ -52,12 +54,16 @@ export default function StepRenderer({
           stepResult={stepResult}
         />
       );
-    case "links_analysis":
-      // TODO: Implement links analysis step component
+    case "create_opportunity":
       return (
-        <div className="rounded-lg border p-4 text-center text-muted-foreground">
-          <p>Links Analysis step - not implemented yet</p>
-        </div>
+        <CreateOpportunityStep
+          step={step}
+          isRunning={isRunning}
+          isLast={isLast}
+          hasNextStep={hasNextStep}
+          nextStepType={nextStepType}
+          stepResult={stepResult}
+        />
       );
     default:
       return (

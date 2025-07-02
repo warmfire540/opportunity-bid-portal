@@ -3,6 +3,7 @@
 import { Clock, CheckCircle, XCircle, ExternalLink, Code, Zap } from "lucide-react";
 
 import type { ScrapeConfiguration } from "@lib/actions/scraping";
+import { useAutoScroll } from "@lib/hooks/use-auto-scroll";
 
 import { Alert, AlertDescription } from "../../ui/alert";
 import { Badge } from "../../ui/badge";
@@ -17,6 +18,7 @@ type ScrapeResult = {
   executionTimeMs?: number;
   stepsExecuted?: number;
   error?: string;
+  stepResults?: any[];
 };
 
 type Props = {
@@ -35,6 +37,25 @@ export default function ScrapeConfigurationExpandedContent({
   currentStepIndex,
 }: Readonly<Props>) {
   const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
+
+  // Auto-scroll to the steps section when execution starts
+  const stepsContainerRef = useAutoScroll<HTMLDivElement>(
+    isRunning && currentStepIndex === undefined,
+    {
+      enabled: isRunning,
+      offset: 150,
+      delay: 300,
+    }
+  );
+
+  // Auto-scroll to progress indicator when a step is running
+  const progressRef = useAutoScroll<HTMLDivElement>(isRunning && currentStepIndex != null, {
+    enabled: isRunning,
+    offset: 120,
+    delay: 200,
+    highlight: true,
+  });
+
   return (
     <div
       className={`border-t p-6 transition-all duration-500 ${isRunning ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50" : "bg-muted/30"}`}
@@ -126,7 +147,7 @@ export default function ScrapeConfigurationExpandedContent({
 
         {/* Progress Indicator */}
         {isRunning && currentStepIndex != null && (
-          <div className="duration-300 animate-in slide-in-from-top-2">
+          <div ref={progressRef} className="duration-300 animate-in slide-in-from-top-2">
             <div className="rounded-lg border bg-blue-50/50 p-4 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -203,6 +224,7 @@ export default function ScrapeConfigurationExpandedContent({
 
         {/* Steps Section */}
         <div
+          ref={stepsContainerRef}
           className={`space-y-4 transition-all duration-500 ${isRunning ? "scale-[1.02]" : "scale-100"}`}
         >
           {steps.map((step, index) => (

@@ -33,18 +33,19 @@ export default function AiPromptStep({
 
   // Use the AI response from the result
   const aiResponse = stepResult?.aiResponse ?? "";
-  const stepOutputPreview = aiResponse ? (
-    <div>
-      <div className="font-medium">
-        {aiResponse.slice(0, 100)}
-        {aiResponse.length > 100 ? "…" : ""}
+  const stepOutputPreview =
+    aiResponse !== "" ? (
+      <div>
+        <div className="font-medium">
+          {aiResponse.slice(0, 100)}
+          {aiResponse.length > 100 ? "…" : ""}
+        </div>
+        <div className="text-xs text-muted-foreground">AI generated content</div>
       </div>
-      <div className="text-xs text-muted-foreground">AI generated content</div>
-    </div>
-  ) : (
-    <div className="text-xs text-muted-foreground">No AI response yet.</div>
-  );
-  const stepOutputGlow = !!aiResponse;
+    ) : (
+      <div className="text-xs text-muted-foreground">No AI response yet.</div>
+    );
+  const stepOutputGlow = aiResponse !== "";
 
   return (
     <StepCard
@@ -75,6 +76,17 @@ export default function AiPromptStep({
                   <pre className="whitespace-pre-wrap">{prompt.prompt}</pre>
                 </div>
               </div>
+
+              {prompt.system_prompt != null && prompt.system_prompt !== "" && (
+                <div>
+                  <Label className="text-sm font-medium">System Prompt</Label>
+                  <div className="mt-2 rounded border bg-background p-3 text-sm">
+                    <pre className="whitespace-pre-wrap text-muted-foreground">
+                      {prompt.system_prompt}
+                    </pre>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

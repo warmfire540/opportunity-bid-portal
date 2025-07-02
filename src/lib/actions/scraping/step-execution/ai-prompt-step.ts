@@ -55,7 +55,7 @@ export async function executeAiPromptStep(
     // Collect downloaded files and text content from previous steps
     let downloadedFilesContent = "";
     let textContentFromPreviousSteps = "";
-    
+
     if (previousStepResults != null && previousStepResults.length > 0) {
       console.log(`[STEP EXECUTION] Found ${previousStepResults.length} previous step results`);
       for (const result of previousStepResults) {
@@ -101,10 +101,12 @@ export async function executeAiPromptStep(
             console.warn(`[STEP EXECUTION] Error reading file from ${result.downloadPath}:`, error);
           }
         }
-        
+
         // Handle text content from previous steps
         if (result.textResults != null && result.textResults.length > 0) {
-          console.log(`[STEP EXECUTION] Found ${result.textResults.length} text results from previous step`);
+          console.log(
+            `[STEP EXECUTION] Found ${result.textResults.length} text results from previous step`
+          );
           for (let i = 0; i < result.textResults.length; i++) {
             const textContent = result.textResults[i];
             textContentFromPreviousSteps += `\n\n--- Text Content ${i + 1} ---\n${textContent}`;
@@ -116,12 +118,9 @@ export async function executeAiPromptStep(
       }
     }
 
-    // Add instructions to prevent markdown formatting and ensure pure JavaScript output
-    const systemInstructions = `IMPORTANT: Respond with pure JavaScript code only. Do not include any markdown formatting, code blocks, or explanatory text. Return only the JavaScript code that can be directly executed.`;
-
-    let fullPrompt = `${systemInstructions}\n\n${aiPrompt.prompt}`;
+    let fullPrompt = aiPrompt.prompt;
     if (downloadedFilesContent !== "") {
-      fullPrompt = `${systemInstructions}\n\n${aiPrompt.prompt}\n\n--- Downloaded Files Content ---${downloadedFilesContent}`;
+      fullPrompt = `${aiPrompt.prompt}\n\n--- Downloaded Files Content ---${downloadedFilesContent}`;
     }
     if (textContentFromPreviousSteps !== "") {
       fullPrompt = `${fullPrompt}\n\n--- Text Content from Previous Steps ---${textContentFromPreviousSteps}`;
@@ -135,7 +134,7 @@ export async function executeAiPromptStep(
       messages: [
         {
           role: "system",
-          content: systemInstructions,
+          content: aiPrompt.system_prompt ?? "",
         },
         {
           role: "user",

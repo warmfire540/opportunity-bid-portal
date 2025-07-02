@@ -8,12 +8,20 @@ export default async function PersonalAccountDashboard({
 }) {
   const supabaseClient = createClient();
 
-  const { data: personalAccount, error } = await supabaseClient.rpc("get_personal_account");
+  const { data: personalAccount } = await supabaseClient.rpc("get_personal_account");
 
   const navigation = [
     {
       name: "Overview",
       href: "/dashboard",
+    },
+    {
+      name: "Opportunities",
+      href: "/dashboard/opportunities",
+    },
+    {
+      name: "Insights",
+      href: "/dashboard/insights",
     },
     {
       name: "Settings",

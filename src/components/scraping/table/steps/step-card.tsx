@@ -1,6 +1,7 @@
 "use client";
 
 import type { StepType } from "@lib/actions/scraping";
+import { useAutoScroll } from "@lib/hooks/use-auto-scroll";
 import { cn } from "@lib/utils";
 
 import { Badge } from "../../../ui/badge";
@@ -49,8 +50,16 @@ export default function StepCard({
   playwrightOutputType,
   stepResult,
 }: Readonly<StepCardProps>) {
+  // Auto-scroll to the step when it's running
+  const stepRef = useAutoScroll<HTMLDivElement>(isRunning, {
+    enabled: isRunning,
+    offset: 120,
+    delay: 300,
+    highlight: true,
+  });
+
   return (
-    <div className="space-y-4">
+    <div ref={stepRef} className="space-y-4">
       <Card
         className={cn(
           "transition-all duration-300",

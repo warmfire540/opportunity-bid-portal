@@ -1,4 +1,4 @@
-export type StepType = "playwright" | "ai_prompt" | "links_analysis";
+export type StepType = "playwright" | "ai_prompt" | "create_opportunity";
 
 export type PlaywrightStep = {
   id?: string;
@@ -14,6 +14,64 @@ export type PlaywrightStep = {
 export type AiPromptStep = {
   id?: string;
   prompt: string;
+  system_prompt?: string;
+};
+
+export type CreateOpportunityStep = {
+  id?: string;
+  title_template: string;
+  description_template?: string;
+  source_template: string;
+  bid_number_field?: string;
+  agency_field?: string;
+  due_date_field?: string;
+  estimated_value_field?: string;
+  commodity_codes_field?: string;
+  contact_info_template?: Record<string, any>;
+  requirements_template?: string;
+  tags_template?: string[];
+};
+
+export type Opportunity = {
+  id?: string;
+  title: string;
+  description?: string;
+  source: string;
+  status: "new" | "rejected" | "in_progress" | "submitted" | "awarded";
+  bid_number?: string;
+  agency?: string;
+  due_date?: Date;
+  estimated_value?: number;
+  commodity_codes?: string[];
+  contact_info?: Record<string, any>;
+  requirements?: string;
+  attachments?: string[];
+  tags?: string[];
+  created_at?: Date;
+  updated_at?: Date;
+  created_by?: string;
+  updated_by?: string;
+};
+
+export type MarketInsight = {
+  id?: string;
+  scrape_configuration_id?: string;
+  insight_type:
+    | "trends"
+    | "prioritization"
+    | "resource_needs"
+    | "competitive_analysis"
+    | "market_overview";
+  title: string;
+  description?: string;
+  insights: string[]; // Array of insight strings
+  source_data?: string;
+  confidence_level?: "low" | "medium" | "high";
+  actionable?: boolean;
+  created_at?: Date;
+  updated_at?: Date;
+  created_by?: string;
+  updated_by?: string;
 };
 
 export type ScrapeDownloadStep = {
@@ -25,6 +83,8 @@ export type ScrapeDownloadStep = {
   sub_steps?: PlaywrightStep[]; // Only for playwright type
 
   ai_prompt_data?: AiPromptStep[]; // Only for ai_prompt type
+
+  create_opportunity_data?: CreateOpportunityStep[]; // Only for create_opportunity type
 };
 
 export type ScrapeConfiguration = {
@@ -33,6 +93,7 @@ export type ScrapeConfiguration = {
   description?: string;
   target_url: string;
   is_active?: boolean;
+  account_id?: string;
   steps: ScrapeDownloadStep[];
 };
 
@@ -45,6 +106,9 @@ export type StepExecutionResult = {
   aiResponse?: string;
   textResults?: string[]; // Array of extracted text results
   urlArray?: string[]; // Array of URLs from AI step
+  opportunities?: Opportunity[]; // Array of created opportunities
+  opportunityCount?: number; // Number of opportunities created
+  marketInsights?: MarketInsight[]; // Array of market insights
 };
 
 export type BrowserSession = {

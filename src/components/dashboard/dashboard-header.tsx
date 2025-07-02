@@ -6,11 +6,7 @@ import NavigatingAccountSelector from "@components/dashboard/navigation-account-
 import BasejumpLogo from "@components/getting-started/basejump-logo";
 import { ThemeToggle } from "@components/theme-toggle";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "../ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
 interface Props {
   accountId: string;
@@ -65,7 +61,7 @@ export default function DashboardHeader({ accountId, navigation = [] }: Props) {
                 </Link>
               ))}
             </div>
-            
+
             <div className="flex w-full justify-center pt-4">
               <ThemeToggle />
             </div>

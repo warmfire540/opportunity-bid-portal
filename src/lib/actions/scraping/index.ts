@@ -3,6 +3,8 @@ export type {
   StepType,
   PlaywrightStep,
   AiPromptStep,
+  CreateOpportunityStep,
+  Opportunity,
   ScrapeDownloadStep,
   ScrapeConfiguration,
   StepExecutionResult,

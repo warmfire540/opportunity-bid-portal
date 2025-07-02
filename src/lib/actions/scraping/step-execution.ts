@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Page } from "playwright";
 
 import { executeAiPromptStep } from "./step-execution/ai-prompt-step";
-import { executeLinksAnalysisStep } from "./step-execution/links-analysis-step";
+import { executeCreateOpportunityStep } from "./step-execution/create-opportunity-step";
 import { executePlaywrightStep } from "./step-execution/playwright-step";
 import type { ScrapeConfiguration, ScrapeDownloadStep, StepExecutionResult } from "./types";
 
@@ -22,8 +22,8 @@ export async function executeStep(
     }
     case "ai_prompt":
       return await executeAiPromptStep(step, configuration, supabase, previousStepResults);
-    case "links_analysis":
-      return await executeLinksAnalysisStep(step);
+    case "create_opportunity":
+      return await executeCreateOpportunityStep(step, configuration, supabase, previousStepResults);
     default:
       console.warn(`[STEP EXECUTION] Unknown step type "${step.step_type}" - skipping`);
       return {
