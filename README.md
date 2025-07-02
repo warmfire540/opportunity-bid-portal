@@ -31,6 +31,7 @@ Adds a Nextjs starter app on top of [Basejump core](https://github.com/usebaseju
   disabled if you only wish to allow personal accounts. Billing on team accounts can also be disabled.
 - **Billing**: Basejump provides out of the box billing support for Stripe, but you can add your own providers easily.
   If you do, please consider contributing them so others can benefit!
+- **Theme Support**: Built-in theme toggle with support for light, dark, and system themes using next-themes
 
 ## Quick Start
 

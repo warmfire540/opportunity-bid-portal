@@ -4,13 +4,11 @@ import Link from "next/link";
 import UserAccountButton from "@components/basejump/user-account-button";
 import NavigatingAccountSelector from "@components/dashboard/navigation-account-selector";
 import BasejumpLogo from "@components/getting-started/basejump-logo";
+import { ThemeToggle } from "@components/theme-toggle";
 
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
 
@@ -67,11 +65,16 @@ export default function DashboardHeader({ accountId, navigation = [] }: Props) {
                 </Link>
               ))}
             </div>
+            
+            <div className="flex w-full justify-center pt-4">
+              <ThemeToggle />
+            </div>
           </div>
         </SheetContent>
       </Sheet>
 
       <div className="flex items-center gap-x-4">
+        <ThemeToggle />
         <UserAccountButton />
       </div>
     </nav>
