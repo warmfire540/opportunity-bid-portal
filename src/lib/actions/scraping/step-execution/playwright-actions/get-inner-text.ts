@@ -12,5 +12,5 @@ export async function handleGetInnerTextAction(
   console.log(`[STEP EXECUTION] Getting inner text from selector "${subStep.selector}"`);
   const innerText = await page.innerText(subStep.selector ?? "body");
   context.textResults.push(innerText);
-  console.log(`[STEP EXECUTION] Extracted text: ${innerText.substring(0, 50)}...`);
+  console.log(`[STEP EXECUTION] Extracted text (${innerText.length} characters)`);
 }

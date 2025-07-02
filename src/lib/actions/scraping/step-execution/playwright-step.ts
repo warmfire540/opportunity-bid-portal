@@ -54,7 +54,7 @@ async function executeSubStep(
       break;
 
     case "type":
-      await handleTypeAction(subStep, page);
+      await handleTypeAction(subStep, page, dynamicValue);
       break;
 
     case "select":
@@ -139,9 +139,9 @@ export async function executePlaywrightStep(
   console.log(`[STEP EXECUTION] Starting execution of playwright step: ${step.name}`);
 
   // Check if previous step has typed data for dynamic execution
-  const valuesFromPreviousStep = (() => {
+  const typedDataFromPreviousStep = (() => {
     if (previousStepResults == null || previousStepResults.length === 0) {
-      return [];
+      return null;
     }
 
     // Get the latest result (last step)
@@ -149,47 +149,73 @@ export async function executePlaywrightStep(
 
     // First check for typed AI response (new format)
     if (latestResult.typedAiResponse != null) {
-      console.log(`[STEP EXECUTION] Found typed AI response: type=${latestResult.typedAiResponse.type}, values=${latestResult.typedAiResponse.values.length}`);
-      return latestResult.typedAiResponse.values.filter((value) => typeof value === "string" && value.length > 0);
+      console.log(
+        `[STEP EXECUTION] Found typed AI response: type=${latestResult.typedAiResponse.type}, values=${latestResult.typedAiResponse.values.length}`
+      );
+      return latestResult.typedAiResponse;
     }
 
-    // Fallback to legacy parsing for backward compatibility
-    if (latestResult.aiResponse != null && latestResult.aiResponse.length > 0) {
-      try {
-        const parsedResponse = JSON.parse(latestResult.aiResponse);
-        if (Array.isArray(parsedResponse)) {
-          console.log(`[STEP EXECUTION] Found legacy array response with ${parsedResponse.length} items`);
-          return parsedResponse.filter((url) => typeof url === "string" && url.length > 0);
-        }
-      } catch (error) {
-        console.warn(`[STEP EXECUTION] Failed to parse aiResponse as JSON:`, error);
-      }
-    }
-
-    return [];
+    return null;
   })();
 
-  if (valuesFromPreviousStep.length > 0) {
+  if (typedDataFromPreviousStep != null && typedDataFromPreviousStep.values.length > 0) {
     console.log(
-      `[STEP EXECUTION] Found ${valuesFromPreviousStep.length} values from previous step, executing playwright step for each value`
+      `[STEP EXECUTION] Found ${typedDataFromPreviousStep.values.length} values of type "${typedDataFromPreviousStep.type}" from previous step`
     );
 
-    const results: StepExecutionResult[] = [];
-    for (const value of valuesFromPreviousStep) {
-      console.log(`[STEP EXECUTION] Executing playwright step for value: ${value}`);
-      const result = await executeSinglePlaywrightStep(step, configuration, page, supabase, value);
-      results.push(result);
-    }
+    // For type "id", we should only execute once and use the values for type actions
+    // For type "url", we should execute for each URL
+    if (typedDataFromPreviousStep.type === "id") {
+      console.log(
+        `[STEP EXECUTION] Executing playwright step once with ID values for type actions`
+      );
+      const results: StepExecutionResult[] = [];
+      for (const value of typedDataFromPreviousStep.values) {
+        console.log(`[STEP EXECUTION] Executing playwright step for ID: ${value}`);
+        const result = await executeSinglePlaywrightStep(
+          step,
+          configuration,
+          page,
+          supabase,
+          value
+        );
+        results.push(result);
+      }
 
-    // Combine results
-    return {
-      success: results.every((r) => r.success),
-      error: results.find((r) => !r.success)?.error,
-      storageObjectId: results.find((r) => r.storageObjectId != null)?.storageObjectId,
-      downloadPath: results.find((r) => r.downloadPath != null)?.downloadPath,
-      textResults: results.flatMap((r) => r.textResults ?? []),
-    };
-  } else {
-    return await executeSinglePlaywrightStep(step, configuration, page, supabase);
+      // Combine results
+      return {
+        success: results.every((r) => r.success),
+        error: results.find((r) => !r.success)?.error,
+        storageObjectId: results.find((r) => r.storageObjectId != null)?.storageObjectId,
+        downloadPath: results.find((r) => r.downloadPath != null)?.downloadPath,
+        textResults: results.flatMap((r) => r.textResults ?? []),
+      };
+    } else {
+      console.log(`[STEP EXECUTION] Executing playwright step for each URL value`);
+      const results: StepExecutionResult[] = [];
+      for (const value of typedDataFromPreviousStep.values) {
+        console.log(`[STEP EXECUTION] Executing playwright step for URL: ${value}`);
+        const result = await executeSinglePlaywrightStep(
+          step,
+          configuration,
+          page,
+          supabase,
+          value
+        );
+        results.push(result);
+      }
+
+      // Combine results
+      return {
+        success: results.every((r) => r.success),
+        error: results.find((r) => !r.success)?.error,
+        storageObjectId: results.find((r) => r.storageObjectId != null)?.storageObjectId,
+        downloadPath: results.find((r) => r.downloadPath != null)?.downloadPath,
+        textResults: results.flatMap((r) => r.textResults ?? []),
+      };
+    }
   }
+
+  // No dynamic data or unsupported type, execute normally
+  return await executeSinglePlaywrightStep(step, configuration, page, supabase);
 }

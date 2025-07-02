@@ -68,25 +68,15 @@ INSERT INTO scrape_download_steps (
 INSERT INTO playwright_steps (
     scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
 ) VALUES
--- 1. Go to URL
 ('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the bids page', '00000000-0000-0000-0000-000000000000'),
--- 2. Click "Ad Type" button
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 2, 'click', 'Ad Type', 'role', NULL, NULL, 'Click Ad Type button', '00000000-0000-0000-0000-000000000000'),
--- 3. Click "Request for Proposals" option
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 3, 'click', 'Request for Proposals', 'option', NULL, NULL, 'Select Request for Proposals', '00000000-0000-0000-0000-000000000000'),
--- 4. Click "Ad Status" button
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 4, 'click', 'Ad Status', 'role', NULL, NULL, 'Click Ad Status button', '00000000-0000-0000-0000-000000000000'),
--- 5. Click "PREVIEW" option
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 5, 'click', 'PREVIEW', 'option', NULL, NULL, 'Select PREVIEW status', '00000000-0000-0000-0000-000000000000'),
--- 6. Click "OPEN" option
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 6, 'click', 'OPEN', 'option', NULL, NULL, 'Select OPEN status', '00000000-0000-0000-0000-000000000000'),
--- 7. Click "Search" button
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 7, 'click', 'Search', 'role', NULL, NULL, 'Click Search button', '00000000-0000-0000-0000-000000000000'),
--- 8. Wait for download event
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 2, 'click', 'button', 'role', 'Ad Type', NULL, 'Click Ad Type button', '00000000-0000-0000-0000-000000000000'),
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 3, 'click', 'option', 'role', 'Request for Proposals', NULL, 'Select Request for Proposals', '00000000-0000-0000-0000-000000000000'),
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 4, 'click', 'button', 'role', 'Ad Status', NULL, 'Click Ad Status button', '00000000-0000-0000-0000-000000000000'),
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 5, 'click', 'option', 'role', 'PREVIEW', NULL, 'Select PREVIEW status', '00000000-0000-0000-0000-000000000000'),
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 6, 'click', 'option', 'role', 'OPEN', NULL, 'Select OPEN status', '00000000-0000-0000-0000-000000000000'),
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 7, 'click', 'button', 'role', 'Search', NULL, 'Click Search button', '00000000-0000-0000-0000-000000000000'),
 ('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 8, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
--- 9. Click "Export to Excel" button
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 9, 'click', 'Export to Excel', 'role', NULL, NULL, 'Click Export to Excel', '00000000-0000-0000-0000-000000000000'),
--- 10. Save download as file
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 9, 'click', 'button',  'role', 'Export to Excel', NULL, 'Click Export to Excel', '00000000-0000-0000-0000-000000000000'),
 ('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 10, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
 
 -- Insert prompt step with the specified prompt
@@ -342,7 +332,7 @@ INSERT INTO playwright_steps (
 -- 2. Wait for download event
 ('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 2, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
 -- 3. Click download link
-('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 3, 'click', 'a[title="Download"]', 'css', NULL, NULL, 'Click download link', '00000000-0000-0000-0000-000000000000'),
+('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 3, 'click', 'a[title="Download"]', NULL, NULL, NULL, 'Click download link', '00000000-0000-0000-0000-000000000000'),
 -- 4. Save download as file
 ('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 4, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
 
@@ -495,6 +485,6 @@ INSERT INTO playwright_steps (
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 2, 'click', 'textbox', 'role', 'To search on partial text,', NULL, 'Click the search textbox', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 3, 'type', 'textbox', 'role', '{id}', NULL, 'Fill search box with the ID from AI response', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 4, 'click', 'button', 'role', 'Search Results', NULL, 'Click the Search Results button', '00000000-0000-0000-0000-000000000000'),
-('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 5, 'click', 'table.table-striped td a', 'css', NULL, NULL, 'Click the first result in the table', '00000000-0000-0000-0000-000000000000'),
+('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 5, 'click', 'table.table-striped td a', NULL, NULL, NULL, 'Click the first result in the table', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 6, 'wait', NULL, NULL, 'networkidle', NULL, 'Wait for page to load completely', '00000000-0000-0000-0000-000000000000'),
 ('53f00fe6-7cfb-4e3f-9301-bda89a6d9ab3', 7, 'getInnerText', 'body', 'page', NULL, NULL, 'Extract all text from the bid detail page', '00000000-0000-0000-0000-000000000000');

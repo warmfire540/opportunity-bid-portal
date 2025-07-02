@@ -8,15 +8,14 @@ export async function handleGotoAction(
   configuration: ScrapeConfiguration,
   dynamicValue?: string
 ): Promise<void> {
-  let urlToNavigate = dynamicValue ?? configuration.target_url;
+  let urlToNavigate = configuration.target_url;
 
-  // Handle template variables like {url} or {id}
-  if (subStep.value != null && dynamicValue != null) {
-    if (subStep.value.includes("{url}")) {
-      urlToNavigate = subStep.value.replace("{url}", dynamicValue);
-    } else if (subStep.value.includes("{id}")) {
-      urlToNavigate = subStep.value.replace("{id}", dynamicValue);
-    }
+  // Handle template variables like {url} or {id} only if the step has a value with placeholders
+  if (subStep.value != null && dynamicValue != null && subStep.value.includes("{url}")) {
+    urlToNavigate = subStep.value.replace("{url}", dynamicValue);
+  } else if (subStep.value != null) {
+    // If step has a value but no dynamicValue, use the step value directly
+    urlToNavigate = subStep.value;
   }
 
   console.log(`[STEP EXECUTION] Navigating to ${urlToNavigate}`);

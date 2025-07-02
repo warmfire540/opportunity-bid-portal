@@ -38,21 +38,19 @@ export default function ScrapeConfigurationExpandedContent({
 }: Readonly<Props>) {
   const steps = Array.isArray(configuration.steps) ? configuration.steps : [];
 
-  // Auto-scroll to the steps section when execution starts
-  const stepsContainerRef = useAutoScroll<HTMLDivElement>(
-    isRunning && currentStepIndex === undefined,
-    {
-      enabled: isRunning,
-      offset: 150,
-      delay: 300,
-    }
-  );
-
   // Auto-scroll to progress indicator when a step is running
   const progressRef = useAutoScroll<HTMLDivElement>(isRunning && currentStepIndex != null, {
     enabled: isRunning,
     offset: 120,
     delay: 200,
+    highlight: true,
+  });
+
+  // Auto-scroll to results when execution completes
+  const resultsRef = useAutoScroll<HTMLDivElement>(result != null && !isRunning, {
+    enabled: result != null,
+    offset: 120,
+    delay: 300,
     highlight: true,
   });
 
@@ -178,9 +176,30 @@ export default function ScrapeConfigurationExpandedContent({
           </div>
         )}
 
-        {/* Result Display */}
+        {/* Steps Section */}
+        <div
+          className={`space-y-4 transition-all duration-500 ${isRunning ? "scale-[1.02]" : "scale-100"}`}
+        >
+          {steps.map((step, index) => (
+            <StepRenderer
+              key={step.id ?? index}
+              step={step}
+              configuration={configuration}
+              isRunning={currentStepIndex === index}
+              isLast={index === steps.length - 1}
+              hasNextStep={index < steps.length - 1}
+              nextStepType={index < steps.length - 1 ? steps[index + 1]?.step_type : undefined}
+              stepResult={result?.stepResults?.[index]?.result}
+            />
+          ))}
+        </div>
+
+        {/* Result Display - Moved to bottom after steps */}
         {result != null && (
-          <div className="scale-in-95 duration-500 animate-in slide-in-from-top-2">
+          <div
+            ref={resultsRef}
+            className="scale-in-95 z-0 duration-500 animate-in slide-in-from-top-2"
+          >
             {result.success ? (
               <Alert className="animate-pulse border-green-200 bg-green-50 shadow-lg">
                 <CheckCircle className="h-4 w-4 animate-bounce text-green-600" />
@@ -221,25 +240,6 @@ export default function ScrapeConfigurationExpandedContent({
             )}
           </div>
         )}
-
-        {/* Steps Section */}
-        <div
-          ref={stepsContainerRef}
-          className={`space-y-4 transition-all duration-500 ${isRunning ? "scale-[1.02]" : "scale-100"}`}
-        >
-          {steps.map((step, index) => (
-            <StepRenderer
-              key={step.id ?? index}
-              step={step}
-              configuration={configuration}
-              isRunning={currentStepIndex === index}
-              isLast={index === steps.length - 1}
-              hasNextStep={index < steps.length - 1}
-              nextStepType={index < steps.length - 1 ? steps[index + 1]?.step_type : undefined}
-              stepResult={result?.stepResults?.[index]?.result}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );

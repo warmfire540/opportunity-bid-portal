@@ -7,6 +7,7 @@ The typed AI response feature allows the AI prompt step to return structured dat
 ## Problem Solved
 
 Previously, the AI step would return arrays of structured data (URLs or IDs) without type information, making it difficult for the next step to know:
+
 - Whether the values are URLs that should be navigated to directly
 - Whether the values are IDs that need to be converted to URLs first
 - How to handle different data formats consistently
@@ -34,12 +35,14 @@ The AI response now includes a `type` field that indicates the nature of the val
 ### 1. AI Prompt Step
 
 The AI prompt step now parses the response and extracts both:
+
 - `aiResponse`: The raw AI response (for backward compatibility)
 - `typedAiResponse`: The structured response with type and values
 
 ### 2. Playwright Step
 
 The playwright step now:
+
 - First checks for `typedAiResponse` (new format)
 - Falls back to parsing `aiResponse` (legacy format)
 - Uses the appropriate template for navigation with structured data
@@ -49,11 +52,13 @@ The playwright step now:
 Different configurations can use different URL templates:
 
 **Florida (URL type):**
+
 ```
 {url} -> https://vendor.myfloridamarketplace.com/search/bids/detail/12345
 ```
 
 **North Carolina (ID type):**
+
 ```
 {id} -> https://evp.nc.gov/solicitations/12345
 ```
@@ -92,6 +97,7 @@ Different configurations can use different URL templates:
 ## Backward Compatibility
 
 The system maintains backward compatibility by:
+
 1. First checking for the new `typedAiResponse` format
 2. Falling back to parsing the legacy array format from `aiResponse`
 3. Automatically detecting the type based on content (URLs vs IDs)
@@ -107,6 +113,7 @@ The system maintains backward compatibility by:
 ## Future Enhancements
 
 The typed response structure can be extended to support additional types:
+
 - `"search_query"`: For search-based navigation
 - `"form_data"`: For form submissions
-- `"api_endpoint"`: For API calls 
+- `"api_endpoint"`: For API calls

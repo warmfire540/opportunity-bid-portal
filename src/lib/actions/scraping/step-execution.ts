@@ -21,7 +21,7 @@ export async function executeStep(
       return await executePlaywrightStep(step, configuration, page, supabase, previousStepResults);
     }
     case "ai_prompt":
-      return await executeAiPromptStep(step, configuration, supabase, previousStepResults);
+      return await executeAiPromptStep(step, supabase, previousStepResults);
     case "create_opportunity":
       return await executeCreateOpportunityStep(step, configuration, supabase, previousStepResults);
     default:
