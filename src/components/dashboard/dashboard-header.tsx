@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import UserAccountButton from "@components/basejump/user-account-button";
 import NavigatingAccountSelector from "@components/dashboard/navigation-account-selector";
-import BasejumpLogo from "@components/getting-started/basejump-logo";
+import OpportunityBidLogo from "@components/getting-started/opportunity-bid-logo";
 import { ThemeToggle } from "@components/theme-toggle";
 
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
@@ -21,7 +21,7 @@ export default function DashboardHeader({ accountId, navigation = [] }: Props) {
       <div className="hidden items-center justify-start gap-x-4 md:flex lg:gap-x-6">
         <div className="flex items-center gap-x-4">
           <Link href="/">
-            <BasejumpLogo logoOnly />
+            <OpportunityBidLogo logoOnly />
           </Link>
           <span className="h-6 rotate-12 border-l" />
           <NavigatingAccountSelector accountId={accountId} />
@@ -43,7 +43,7 @@ export default function DashboardHeader({ accountId, navigation = [] }: Props) {
         <SheetContent side="left">
           <div className="absolute left-2 top-2">
             <Link href="/">
-              <BasejumpLogo logoOnly />
+              <OpportunityBidLogo logoOnly />
             </Link>
           </div>
 

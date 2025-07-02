@@ -13,8 +13,8 @@ const fontSans = FontSans({
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Basejump starter kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Opportunity Bid Portal",
+  description: "AI-powered RFP discovery and opportunity management platform",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

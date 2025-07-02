@@ -16,6 +16,10 @@ export default async function PersonalAccountDashboard({
       href: "/dashboard",
     },
     {
+      name: "Configurations",
+      href: "/dashboard/configurations",
+    },
+    {
       name: "Opportunities",
       href: "/dashboard/opportunities",
     },
