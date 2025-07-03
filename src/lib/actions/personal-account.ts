@@ -17,4 +17,6 @@ export async function editPersonalAccountName(prevState: unknown, formData: Form
       message: error.message,
     };
   }
+  
+  return { message: "" };
 }

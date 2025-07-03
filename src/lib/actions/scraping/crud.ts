@@ -211,13 +211,23 @@ export async function getScrapeConfiguration(id: string) {
 // Form action wrappers
 export async function toggleScrapeConfigurationAction(formData: FormData) {
   "use server";
-  const id = formData.get("id") as string;
-  const isActive = formData.get("isActive") === "true";
-  await toggleScrapeConfiguration(id, isActive);
+  try {
+    const id = formData.get("id") as string;
+    const isActive = formData.get("isActive") === "true";
+    await toggleScrapeConfiguration(id, isActive);
+    return { message: "" };
+  } catch (error) {
+    return { message: error instanceof Error ? error.message : "Failed to toggle configuration" };
+  }
 }
 
 export async function deleteScrapeConfigurationAction(formData: FormData) {
   "use server";
-  const id = formData.get("id") as string;
-  await deleteScrapeConfiguration(id);
+  try {
+    const id = formData.get("id") as string;
+    await deleteScrapeConfiguration(id);
+    return { message: "" };
+  } catch (error) {
+    return { message: error instanceof Error ? error.message : "Failed to delete configuration" };
+  }
 }

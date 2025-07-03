@@ -77,6 +77,10 @@ export default async function PersonalAccountPage() {
         <p className="text-blue-700">
           Here&apos;s what&apos;s happening with your opportunity tracking system.
         </p>
+        <div className="mt-4 flex items-center gap-2 rounded border border-yellow-300 bg-yellow-50 px-3 py-2 text-sm text-yellow-900">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
+          <span>This dashboard is a <b>proof of concept</b> and is under active construction. Features and data may change frequently.</span>
+        </div>
       </div>
 
       {/* Quick Stats */}
