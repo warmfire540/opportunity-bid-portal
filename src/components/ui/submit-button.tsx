@@ -1,14 +1,16 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import { type ComponentProps } from "react";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "./alert";
 import { AlertTriangle } from "lucide-react";
+import { type ComponentProps } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 
-type Props = Omit<ComponentProps<typeof Button>, 'formAction'> & {
+import { Button } from "@components/ui/button";
+
+import { Alert, AlertDescription } from "./alert";
+
+type Props = Omit<ComponentProps<typeof Button>, "formAction"> & {
   pendingText?: string;
-  formAction: (prevState: any, formData: FormData) => Promise<any>;
+  formAction: (prevState: unknown, formData: FormData) => Promise<unknown>;
   errorMessage?: string;
 };
 
@@ -16,20 +18,25 @@ const initialState = {
   message: "",
 };
 
-export function SubmitButton({ children, formAction, errorMessage, pendingText = "Submitting...", ...props }: Props) {
+export function SubmitButton({
+  children,
+  formAction,
+  errorMessage,
+  pendingText = "Submitting...",
+  ...props
+}: Props) {
   const { pending, action } = useFormStatus();
   const [state, internalFormAction] = useFormState(formAction, initialState);
-
 
   const isPending = pending && action === internalFormAction;
 
   return (
-    <div className="flex flex-col gap-y-4 w-full">
-      {Boolean(errorMessage || state?.message) && (
+    <div className="flex w-full flex-col gap-y-4">
+      {Boolean(errorMessage ?? (state as typeof initialState).message) && (
         <Alert variant="destructive" className="w-full">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-          {errorMessage || state?.message}
+            {errorMessage ?? (state as typeof initialState).message}
           </AlertDescription>
         </Alert>
       )}

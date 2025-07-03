@@ -1,74 +1,76 @@
-'use server'
+"use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "../supabase/server";
 import { redirect } from "next/navigation";
 
-export async function createInvitation(prevState: any, formData: FormData): Promise<{ token?: string, message?: string}> {
-    "use server";
+import { createClient } from "../supabase/server";
 
-    const invitationType = formData.get("invitationType") as string;
-    const accountId = formData.get("accountId") as string;
-    const accountRole = formData.get("accountRole") as string;
+export async function createInvitation(
+  prevState: unknown,
+  formData: FormData
+): Promise<{ token?: string; message?: string }> {
+  "use server";
 
-    const supabase = createClient();
+  const invitationType = formData.get("invitationType") as string;
+  const accountId = formData.get("accountId") as string;
+  const accountRole = formData.get("accountRole") as string;
 
-    const { data, error } = await supabase.rpc('create_invitation', {
-        account_id: accountId,
-        invitation_type: invitationType,
-        account_role: accountRole
-    });
+  const supabase = createClient();
 
-    if (error) {
-        return {
-            message: error.message
-        };
-    }
+  const { data, error } = await supabase.rpc("create_invitation", {
+    account_id: accountId,
+    invitation_type: invitationType,
+    account_role: accountRole,
+  });
 
-    revalidatePath(`/dashboard/[accountSlug]/settings/members/page`);
-
+  if (error != null) {
     return {
-        token: data.token as string
-    }
-};
+      message: error.message,
+    };
+  }
 
-export async function deleteInvitation(prevState: any, formData: FormData) {
-    "use server";
+  revalidatePath(`/dashboard/[accountSlug]/settings/members/page`);
 
-    const invitationId = formData.get("invitationId") as string;
-    const returnPath = formData.get("returnPath") as string;
+  return {
+    token: data.token as string,
+  };
+}
 
-    const supabase = createClient();
+export async function deleteInvitation(prevState: unknown, formData: FormData) {
+  "use server";
 
-    const { error } = await supabase.rpc('delete_invitation', {
-        invitation_id: invitationId
-    });
+  const invitationId = formData.get("invitationId") as string;
+  const returnPath = formData.get("returnPath") as string;
 
-    if (error) {
-        return {
-            message: error.message
-        };
-    }
-    redirect(returnPath);
+  const supabase = createClient();
 
-};
+  const { error } = await supabase.rpc("delete_invitation", {
+    invitation_id: invitationId,
+  });
 
-export async function acceptInvitation(prevState: any, formData: FormData) {
-    "use server";
+  if (error != null) {
+    return {
+      message: error.message,
+    };
+  }
+  redirect(returnPath);
+}
 
-    const token = formData.get("token") as string;
+export async function acceptInvitation(prevState: unknown, formData: FormData) {
+  "use server";
 
-    const supabase = createClient();
+  const token = formData.get("token") as string;
 
-    const { error, data } = await supabase.rpc('accept_invitation', {
-        lookup_invitation_token: token
-    });
+  const supabase = createClient();
 
-    if (error) {
-        return {
-            message: error.message
-        };
-    }
-    redirect(`/dashboard/${data.slug}`);
+  const { error, data } = await supabase.rpc("accept_invitation", {
+    lookup_invitation_token: token,
+  });
 
-};
+  if (error != null) {
+    return {
+      message: error.message,
+    };
+  }
+  redirect(`/dashboard/${data.slug}`);
+}

@@ -5,7 +5,12 @@ function forceLoginWithReturn(request: NextRequest) {
   const originalUrl = new URL(request.url);
   const path = originalUrl.pathname;
   const query = originalUrl.searchParams.toString();
-  return NextResponse.redirect(new URL(`/login?returnUrl=${encodeURIComponent(path + (query ? `?${query}` : ''))}`, request.url));
+  return NextResponse.redirect(
+    new URL(
+      `/login?returnUrl=${encodeURIComponent(path + (query !== "" ? `?${query}` : ""))}`,
+      request.url
+    )
+  );
 }
 
 export const validateSession = async (request: NextRequest) => {
@@ -64,22 +69,24 @@ export const validateSession = async (request: NextRequest) => {
             });
           },
         },
-      },
+      }
     );
 
     // This will refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    const protectedRoutes = ['/dashboard', '/invitation'];
+    const protectedRoutes = ["/dashboard", "/invitation"];
 
-    if (!user && protectedRoutes.some(path => request.nextUrl.pathname.startsWith(path))) {
+    if (user == null && protectedRoutes.some((path) => request.nextUrl.pathname.startsWith(path))) {
       // redirect to /login
       return forceLoginWithReturn(request);
     }
 
     return response;
-  } catch (e) {
+  } catch {
     // If you are here, a Supabase client could not be created!
     // This is likely because you have not set up environment variables.
     // Check out http://localhost:3005 for Next Steps.

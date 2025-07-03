@@ -1,34 +1,37 @@
-import { Inter as FontSans } from "next/font/google"
-import "./globals.css";
-import { cn } from "@/lib/utils";
+import { Inter as FontSans } from "next/font/google";
 
-const defaultUrl = process.env.NEXT_PUBLIC_URL as string || "http://localhost:3005";
+import "./globals.css";
+import { ThemeProvider } from "@components/theme-provider";
+import { cn } from "@lib/utils";
+
+const defaultUrl = process.env.NEXT_PUBLIC_URL ?? "http://localhost:3005";
 
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
-})
+});
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Basejump starter kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Opportunity Bid Portal",
+  description: "AI-powered RFP discovery and opportunity management platform",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={cn(
-      "min-h-screen bg-background font-sans antialiased",
-      fontSans.variable
-    )}>
+    <html
+      lang="en"
+      className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}
+    >
       <body className="bg-background text-foreground">
-        <main className="min-h-screen flex flex-col items-center">
-          {children}
-        </main>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main className="flex min-h-screen flex-col items-center">{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );

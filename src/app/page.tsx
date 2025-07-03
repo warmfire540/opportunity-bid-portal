@@ -1,72 +1,308 @@
-import Header from '@/components/getting-started/header'
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Search, Brain, Users, Shield, Target, BarChart3 } from "lucide-react";
+import Link from "next/link";
+
+import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 
 export default async function Index() {
-
   return (
-    <div className="flex-1 w-full flex flex-col gap-20 items-center">
-      <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 px-2 md:px-0">
-        <div className="w-full max-w-screen-lg flex justify-between items-center p-3 text-sm">
-            <Button asChild className="fill-black gap-x-1" variant="outline" size="sm">
-              <a target="_blank" rel="noopener" href="https://twitter.com/tiniscule">
-                <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 50 50" width="25px" height="25px"><path d="M 5.9199219 6 L 20.582031 27.375 L 6.2304688 44 L 9.4101562 44 L 21.986328 29.421875 L 31.986328 44 L 44 44 L 28.681641 21.669922 L 42.199219 6 L 39.029297 6 L 27.275391 19.617188 L 17.933594 6 L 5.9199219 6 z M 9.7167969 8 L 16.880859 8 L 40.203125 42 L 33.039062 42 L 9.7167969 8 z"/></svg>
-                Created by @tiniscule
-              </a>
+    <div className="flex w-full flex-1 flex-col items-center">
+      {/* Navigation */}
+      <nav className="flex h-16 w-full justify-center border-b border-b-foreground/10 px-2 md:px-0">
+        <div className="flex w-full max-w-screen-lg items-center justify-between p-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Target className="h-6 w-6 text-primary" />
+            <span className="font-semibold">Opportunity Bid Portal</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-sm hover:underline">
+              Sign In
+            </Link>
+            <Button asChild>
+              <Link href="/login">Get Started</Link>
             </Button>
-
-            <Link href="/dashboard">Dashboard</Link>
+          </div>
         </div>
       </nav>
 
-      <div className="flex-1 flex flex-col gap-12 max-w-4xl px-3 w-full">
-        <Header />
-        <main className="flex-1 flex flex-col gap-6">
-          <h2 className="font-bold text-4xl mb-4">Next steps</h2>
-          <ol className="list-decimal space-y-4">
-            <li className="leading-relaxed">
-              Decide if you want to support both personal and team accounts. Personal accounts can't be disabled, but you can remove the dashboard sections that display them. 
-              <a className="border-b mx-2" href="https://usebasejump.com/docs/understanding-accounts">Learn more here</a></li>
-            <li className="leading-relaxed">
-              <p>Generate additional tables in Supabase using the Basejump CLI</p>
-              <pre className="bg-red-50 px-2 py-1 rounded overflow-hidden text-sm inline">npx @usebasejump/cli@latest generate table posts title body published:boolean published_at:date </pre>
-              <p>The CLI isn't required, but it'll help you learn the RLS policy options available to you. <a className="border-b mx-2" href="https://usebasejump.com/docs/example-schema">Learn more here</a></p>
-            </li>
-            <li>
-              Flesh out the dashboard with any additional functionality you need. <a className="border-b mx-2" href="https://usebasejump.com/docs">Check out the Basejump API docs here</a>
-            </li>
-            <li>
-              Setup subscription billing. Determine if you want to bill for both personal and team accounts, update your <pre className="bg-red-50 px-2 py-1 rounded overflow-hidden text-sm inline">basejump.config</pre> table accordingly. <a className="border-b mx-2" href="https://usebasejump.com/docs/billing-stripe">Learn more about setting up Stripe here</a>
-            </li>
-          </ol>
-          <h2 className="font-bold text-4xl mb-4 mt-8">Resources</h2>
-          <ul className="list-disc space-y-2">
-            <li className="leading-relaxed">
-              <a className="border-b mx-2" href="https://usebasejump.com/docs">Basejump Docs</a>
-            </li>
-            <li className="leading-relaxed">
-              <a className="border-b mx-2" href="https://usebasejump.com/docs/testing">Writing tests on Supabase with pgTAP</a>
-            </li>
-            <li className="leading-relaxed">
-              <a className="border-b mx-2" href="https://usebasejump.com/docs/rls">Working with RLS Policies in Supabase</a>
-            </li>
-            <li className="leading-relaxed">
-              <a className="border-b mx-2" href="https://usebasejump.com/docs/deployment">Deploying to Production</a>
-            </li>
-          </ul>
-          <div className="text-center flex gap-x-4 items-center mx-auto mt-8">
-            Questions? 
-            <Button asChild className="fill-white gap-x-1"><a target="_blank" rel="noopener" href="https://twitter.com/tiniscule">Ask or follow along on <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 50 50" width="25px" height="25px"><path d="M 5.9199219 6 L 20.582031 27.375 L 6.2304688 44 L 9.4101562 44 L 21.986328 29.421875 L 31.986328 44 L 44 44 L 28.681641 21.669922 L 42.199219 6 L 39.029297 6 L 27.275391 19.617188 L 17.933594 6 L 5.9199219 6 z M 9.7167969 8 L 16.880859 8 L 40.203125 42 L 33.039062 42 L 9.7167969 8 z"/></svg></a></Button>
-          </div>
-        </main>
-      </div>
+      {/* Hero Section */}
+      <section className="w-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-20">
+        <div className="mx-auto max-w-6xl px-4 text-center">
+          <Badge variant="secondary" className="mb-4">
+            🚀 Now Available
+          </Badge>
+          <h1 className="mb-6 text-5xl font-bold tracking-tight lg:text-6xl">
+            Automate Your
+            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              {" "}
+              RFP Discovery
+            </span>
+          </h1>
+          <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground">
+            Transform how you find and evaluate government contract opportunities. Our AI-powered
+            platform automates RFP discovery, analysis, and strategic decision-making.
+          </p>
+        </div>
+      </section>
 
-      <footer className="w-full border-t border-t-foreground/10 p-8 flex justify-center gap-x-2 items-center text-sm">
-          <p className="text-3xl">👦🐯</p>
-        <p>
-            There&apos;s treasure everywhere
-        </p>
+      {/* Features Section */}
+      <section id="features" className="w-full py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold lg:text-4xl">
+              Everything You Need to Win More Contracts
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+              From automated discovery to strategic analysis, our platform streamlines your entire
+              RFP process.
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Automated Discovery */}
+            <Card className="group transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Search className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Automated Discovery</CardTitle>
+                <CardDescription>
+                  Automatically scrape government websites and procurement portals for new
+                  opportunities
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Custom scraping configurations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Real-time opportunity alerts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Multi-source data aggregation
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* AI-Powered Analysis */}
+            <Card className="group transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Brain className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>AI-Powered Analysis</CardTitle>
+                <CardDescription>
+                  Intelligent analysis of opportunities with strategic insights and recommendations
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Go/no-go decision support
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Win probability assessment
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Strategic fit analysis
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Opportunity Management */}
+            <Card className="group transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Target className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Opportunity Management</CardTitle>
+                <CardDescription>
+                  Complete lifecycle management from discovery to submission tracking
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Pipeline tracking
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Deadline management
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Document organization
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Team Collaboration */}
+            <Card className="group transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Team Collaboration</CardTitle>
+                <CardDescription>
+                  Built-in team management with role-based access and permissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Role-based access control
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Team invitations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Shared workspace
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Market Insights */}
+            <Card className="group transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Market Insights</CardTitle>
+                <CardDescription>
+                  Strategic market analysis and competitive intelligence
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Trend analysis
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Competitive landscape
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Resource planning insights
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise Security */}
+            <Card className="group transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle>Enterprise Security</CardTitle>
+                <CardDescription>
+                  Bank-level security with enterprise-grade authentication and data protection
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    SSO integration
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Data encryption
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Audit logging
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="w-full bg-muted/30 py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold lg:text-4xl">How It Works</h2>
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+              Get started in minutes with our simple three-step process
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+                1
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Configure Sources</h3>
+              <p className="text-muted-foreground">
+                Set up automated scraping configurations for your target government websites and
+                procurement portals.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+                2
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">AI Analysis</h3>
+              <p className="text-muted-foreground">
+                Our AI automatically analyzes each opportunity for strategic fit, win probability,
+                and key requirements.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+                3
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Take Action</h3>
+              <p className="text-muted-foreground">
+                Review insights, make informed decisions, and track opportunities through your
+                pipeline to submission.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full border-t border-t-foreground/10 py-8">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              <span className="font-semibold">Opportunity Bid Portal</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link href="/login" className="hover:underline">
+                Sign In
+              </Link>
+              <Link href="/login" className="hover:underline">
+                Get Started
+              </Link>
+              <span>© 2024 Opportunity Bid Portal. All rights reserved.</span>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
-  )
+  );
 }
