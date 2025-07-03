@@ -70,9 +70,25 @@ export default function DashboardHeader({ accountId, navigation = [] }: Props) {
       </Sheet>
 
       <div className="flex items-center gap-x-4">
-        <span className="rounded bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800 border border-yellow-300 flex items-center gap-1" title="This app is a proof of concept and under active construction">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
-          PoC / Under Construction
+        <span
+          className="flex items-center gap-1 rounded border border-yellow-300 bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800"
+          title="This app is a proof of concept and under active construction"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="mr-1 h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
+            />
+          </svg>
+          Under Construction
         </span>
         <ThemeToggle />
         <UserAccountButton />

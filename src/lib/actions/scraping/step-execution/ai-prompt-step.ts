@@ -7,11 +7,11 @@ import type {
   PageTextContent,
 } from "../types";
 
-import { 
-  downloadAndProcessFile, 
-  buildPromptForPage, 
+import {
+  downloadAndProcessFile,
+  buildPromptForPage,
   buildPromptForDownloadedFilesOnly,
-  processAiPrompt 
+  processAiPrompt,
 } from "./ai-prompt-actions";
 
 export async function executeAiPromptStep(

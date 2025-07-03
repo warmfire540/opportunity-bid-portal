@@ -13,7 +13,9 @@ export async function processAiPrompt(
   systemPrompt: string,
   pageIndex?: number
 ): Promise<{ aiResponse: string; typedAiResponse: TypedAiResponse | undefined }> {
-  console.log(`[STEP EXECUTION] Sending request to OpenAI${pageIndex != null ? ` for page ${pageIndex + 1}` : ""}...`);
+  console.log(
+    `[STEP EXECUTION] Sending request to OpenAI${pageIndex != null ? ` for page ${pageIndex + 1}` : ""}...`
+  );
   console.log(`[STEP EXECUTION] Full prompt length: ${prompt.length} characters`);
 
   const completion = await openai.chat.completions.create({
@@ -44,4 +46,4 @@ export async function processAiPrompt(
     aiResponse,
     typedAiResponse,
   };
-} 
+}

@@ -34,8 +34,5 @@ export {
   cleanupSessionAction,
 } from "./session-management";
 
-// Re-export configuration execution functions
-export { executeConfigurationAction } from "./configuration-execution";
-
 // Re-export utility functions
 export { getContentType } from "./file-utils";

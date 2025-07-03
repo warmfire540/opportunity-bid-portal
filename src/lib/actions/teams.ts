@@ -42,7 +42,7 @@ export async function editTeamName(prevState: unknown, formData: FormData) {
       message: error.message,
     };
   }
-  
+
   return { message: "" };
 }
 
