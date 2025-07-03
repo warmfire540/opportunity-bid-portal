@@ -75,9 +75,7 @@ INSERT INTO playwright_steps (
 ('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 5, 'click', 'option', 'role', 'PREVIEW', NULL, 'Select PREVIEW status', '00000000-0000-0000-0000-000000000000'),
 ('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 6, 'click', 'option', 'role', 'OPEN', NULL, 'Select OPEN status', '00000000-0000-0000-0000-000000000000'),
 ('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 7, 'click', 'button', 'role', 'Search', NULL, 'Click Search button', '00000000-0000-0000-0000-000000000000'),
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 8, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 9, 'click', 'button',  'role', 'Export to Excel', NULL, 'Click Export to Excel', '00000000-0000-0000-0000-000000000000'),
-('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 10, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
+('8e2cfa98-0df1-54dd-921c-408ff22f3c4f', 8, 'saveDownload', 'button', 'role', 'Export to Excel', NULL, 'Download and save Excel file', '00000000-0000-0000-0000-000000000000');
 
 -- Insert prompt step with the specified prompt
 INSERT INTO prompt_steps (
@@ -332,9 +330,7 @@ INSERT INTO playwright_steps (
     scrape_download_step_id, step_order, action_type, selector, selector_type, value, wait_time, description, created_by
 ) VALUES
 ('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 1, 'goto', NULL, NULL, NULL, NULL, 'Navigate to the NC solicitations page', '00000000-0000-0000-0000-000000000000'),
-('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 2, 'waitForDownload', NULL, NULL, NULL, NULL, 'Wait for download event', '00000000-0000-0000-0000-000000000000'),
-('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 3, 'click', 'a[title="Download"]', NULL, NULL, NULL, 'Click download link', '00000000-0000-0000-0000-000000000000'),
-('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 4, 'saveDownload', NULL, NULL, NULL, NULL, 'Save download excel file', '00000000-0000-0000-0000-000000000000');
+('d9ed4ae2-dcd5-4b8d-a82b-7e90e2b8b225', 2, 'saveDownload', 'a[title="Download"]', NULL, NULL, NULL, 'Download and save Excel file', '00000000-0000-0000-0000-000000000000');
 
 -- Insert prompt step for North Carolina (Step 2)
 INSERT INTO prompt_steps (

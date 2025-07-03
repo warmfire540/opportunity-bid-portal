@@ -17,8 +17,7 @@ const ACTION_TYPES = [
   { value: "type", label: "Type Text" },
   { value: "select", label: "Select Option" },
   { value: "wait", label: "Wait" },
-  { value: "waitForDownload", label: "Wait for Download" },
-  { value: "saveDownload", label: "Save Download" },
+  { value: "saveDownload", label: "Download and Save" },
   { value: "getInnerText", label: "Get Inner Text" },
 ];
 

@@ -41,11 +41,6 @@ async function executeSubStep(
       await handleClickAction(subStep, page);
       break;
 
-    case "waitForDownload":
-      console.log(`[STEP EXECUTION] Waiting for download event...`);
-      context.downloadPromise = page.waitForEvent("download");
-      break;
-
     case "saveDownload":
       await handleSaveDownloadAction(context, subStep, page, supabase, configuration, step);
       break;
@@ -90,7 +85,6 @@ export async function executeSinglePlaywrightStep(
     }
 
     const context: PlaywrightContext = {
-      downloadPromise: null,
       storageObjectId: undefined,
       textResults: [],
     };

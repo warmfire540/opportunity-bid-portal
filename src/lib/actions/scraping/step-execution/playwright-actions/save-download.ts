@@ -4,8 +4,9 @@ import type { Download, Page } from "playwright";
 import { getContentType } from "../../file-utils";
 import type { PlaywrightStep, ScrapeConfiguration, ScrapeDownloadStep } from "../../types";
 
+import { handleClickAction } from "./click";
+
 export type PlaywrightContext = {
-  downloadPromise: Promise<Download> | null;
   storageObjectId: string | undefined;
   textResults: string[];
 };
@@ -18,13 +19,17 @@ export async function handleSaveDownloadAction(
   configuration: ScrapeConfiguration,
   step: ScrapeDownloadStep
 ): Promise<void> {
-  if (context.downloadPromise == null) {
-    console.warn(`[STEP EXECUTION] No download promise available for saveDownload action`);
-    return;
-  }
+  console.log(`[STEP EXECUTION] Starting consolidated download process...`);
 
-  console.log(`[STEP EXECUTION] Saving download to Supabase Storage...`);
-  const download: Download = await context.downloadPromise;
+  // Start waiting for download before clicking
+  const downloadPromise = page.waitForEvent("download");
+
+  // Use the shared click handler
+  await handleClickAction(subStep, page);
+
+  // Wait for the download to complete
+  console.log(`[STEP EXECUTION] Waiting for download to complete...`);
+  const download: Download = await downloadPromise;
 
   // Generate filename with timestamp to avoid conflicts
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");

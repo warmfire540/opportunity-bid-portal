@@ -13,7 +13,7 @@ export default async function Login({
   searchParams: Promise<{ message?: string; returnUrl?: string }>;
 }>) {
   const params = await searchParams;
-  
+
   // Check if we're running locally
   const isLocal = process.env.NEXT_PUBLIC_URL?.includes("localhost") ?? true;
 
@@ -90,16 +90,16 @@ export default async function Login({
 
       <form className="flex w-full flex-1 flex-col justify-center gap-2 text-foreground animate-in">
         <OAuthErrorHandler />
-        
+
         {/* Welcome Message */}
-        <div className="text-center mb-6">
+        <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-foreground">Welcome CTI Team</h1>
         </div>
-        
+
         <div className="flex w-full flex-col gap-2">
           <MicrosoftOAuthButton returnUrl={params.returnUrl ?? undefined} />
         </div>
-        
+
         {/* Only show email login in local development */}
         {isLocal && (
           <>
@@ -130,7 +130,7 @@ export default async function Login({
             </SubmitButton>
           </>
         )}
-        
+
         {params.message !== undefined && (
           <p className="mt-4 bg-foreground/10 p-4 text-center text-foreground">{params.message}</p>
         )}
